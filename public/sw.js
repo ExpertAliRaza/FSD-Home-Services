@@ -1,11 +1,9 @@
-const CACHE_NAME = 'fsd-home-services-v4';
+const CACHE_NAME = 'fsd-home-services-v5';
 const APP_SHELL = [
   '/',
   '/manifest.json',
-  '/branding/icon-192.png',
-  '/branding/icon-512.png',
-  '/branding/favicon-32.png',
-  '/branding/fsd-home-services-logo.png'
+  '/branding/FSD Home Services favicon.png',
+  '/branding/FSD Home Services logo.png'
 ];
 
 self.addEventListener('install', (event) => {

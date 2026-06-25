@@ -30,12 +30,13 @@ export function Layout() {
       <RouteMeta />
       {!workerDashboard && <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Link to="/" className="focus-ring shrink-0 rounded-lg" aria-label="FSD Home Services home">
+          <Link to="/" className="focus-ring flex shrink-0 items-center gap-2 rounded-lg" aria-label="FSD Home Services home">
             <img
-              src="/branding/fsd-home-services-logo.png"
+              src="/branding/FSD Home Services logo.png"
               alt="FSD Home Services"
-              className="h-11 w-auto max-w-[190px] object-contain sm:h-12 sm:max-w-[220px]"
+              className="h-12 w-12 rounded-lg object-cover"
             />
+            <span className="hidden font-bold text-brand-700 sm:inline">FSD Home Services</span>
           </Link>
           <button
             className="focus-ring rounded-lg border border-slate-200 p-2 lg:hidden"
@@ -78,9 +79,9 @@ export function Layout() {
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <img
-              src="/branding/fsd-home-services-logo.png"
+              src="/branding/FSD Home Services logo.png"
               alt="FSD Home Services"
-              className="h-14 w-auto max-w-full object-contain"
+              className="h-28 w-28 rounded-lg object-cover"
               loading="lazy"
             />
             <p className="mt-2">Verified local service leads for Faisalabad. Phone numbers stay private.</p>
