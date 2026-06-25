@@ -62,7 +62,11 @@ export function WorkerSignupForm() {
     setStatus('loading');
     try {
       const verificationId = await verifyTurnstileToken(turnstileToken, 'worker_signup');
-      await signUpWorker(payload, verificationId);
+      const result = await signUpWorker(payload, verificationId);
+      if (result.requiresEmailConfirmation) {
+        setStatus('confirmation_required');
+        return;
+      }
       setStatus('success');
       formElement.reset();
     } catch (err) {
@@ -71,6 +75,26 @@ export function WorkerSignupForm() {
       setTurnstileResetKey((value) => value + 1);
     }
   };
+
+  if (status === 'confirmation_required') {
+    return (
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-amber-950">
+        <h2 className="text-2xl font-bold">Confirm Your Email</h2>
+        <p className="mt-2">Please confirm your email, then return to complete your worker application.</p>
+        <p className="mt-2 text-sm">After confirmation, use the same email and password in this form. Your application will remain pending until admin approval.</p>
+        <button
+          type="button"
+          onClick={() => {
+            setStatus('idle');
+            setTurnstileResetKey((value) => value + 1);
+          }}
+          className="mt-4 min-h-11 rounded-lg bg-amber-900 px-4 font-bold text-white"
+        >
+          Return to Application
+        </button>
+      </div>
+    );
+  }
 
   if (status === 'success') {
     return (

@@ -9,6 +9,7 @@ const launchV1 = await readFile(new URL('../supabase/migrations/005_launch_v1.sq
 const releaseV11 = await readFile(new URL('../supabase/migrations/006_release_v1_1_worker_dashboard.sql', import.meta.url), 'utf8');
 const releaseV11Security = await readFile(new URL('../supabase/migrations/007_release_v1_1_worker_security.sql', import.meta.url), 'utf8');
 const releaseV11RpcFix = await readFile(new URL('../supabase/migrations/008_release_v1_1_rpc_fix.sql', import.meta.url), 'utf8');
+const workerSignupFix = await readFile(new URL('../supabase/migrations/009_fix_worker_signup.sql', import.meta.url), 'utf8');
 const seed = await readFile(new URL('../supabase/seed.sql', import.meta.url), 'utf8');
 const router = await readFile(new URL('../src/app/router.jsx', import.meta.url), 'utf8');
 const api = await readFile(new URL('../src/lib/api.js', import.meta.url), 'utf8');
@@ -198,4 +199,22 @@ test('public workers route keeps the public layout and remains indexable', () =>
   assert.doesNotMatch(layout, /pathname\.startsWith\('\/worker'\) &&/);
   assert.match(routeMeta, /pathname === '\/worker'/);
   assert.match(routeMeta, /pathname\.startsWith\('\/worker\/'\)/);
+});
+
+test('worker signup prepares the authenticated profile and keeps applications pending', () => {
+  assert.match(workerSignupFix, /prepare_worker_application_account/);
+  assert.match(workerSignupFix, /values \(auth\.uid\(\), 'worker'/);
+  assert.match(workerSignupFix, /profile_id, display_name/);
+  assert.match(workerSignupFix, /auth\.uid\(\), trim\(p_display_name\)/);
+  assert.match(workerSignupFix, /p_expected_visit_charges, 'pending'/);
+  assert.match(workerSignupFix, /A worker application already exists for this account/);
+});
+
+test('worker signup client handles confirmation, existing sessions, and upload cleanup', () => {
+  assert.match(api, /getWorkerSignupSession/);
+  assert.match(api, /getSession\(\)/);
+  assert.match(api, /requiresEmailConfirmation/);
+  assert.match(api, /Please sign in and try again/);
+  assert.match(api, /uploadedObjects/);
+  assert.match(api, /storage\.from\(bucket\)\.remove\(paths\)/);
 });
