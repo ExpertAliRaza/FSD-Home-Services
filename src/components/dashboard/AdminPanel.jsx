@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, CheckCheck, Clipboard, LogOut } from 'lucide-react';
+import { Bell, CheckCheck, Clipboard, LogOut, Trash2 } from 'lucide-react';
 import { NotificationBell } from '../notifications/NotificationBell';
 import {
   addAdminNote,
   assignWorkerToRequest,
   completeServiceRequest,
   createComplaint,
+  deleteServiceRequest,
+  deleteWorker,
   getAdminData,
   markAllNotificationsRead,
   markNotificationRead,
@@ -103,6 +105,22 @@ export function AdminPanel() {
 
   const setRequestStatus = async (id, status) => {
     await runAction(`request-${id}`, () => updateRequestStatus(id, status));
+  };
+
+  const removeWorker = async (worker) => {
+    const confirmed = window.confirm(
+      `Permanently delete ${worker.display_name}? This removes the worker account, documents, assignments, reviews, complaints and commission records. This cannot be undone.`
+    );
+    if (!confirmed) return;
+    await runAction(`worker-${worker.id}`, () => deleteWorker(worker.id));
+  };
+
+  const removeRequest = async (request) => {
+    const confirmed = window.confirm(
+      `Permanently delete this ${request.service_categories?.name || request.service_category_id} request for ${request.customer_name}? Related assignments, complaints, reviews, commission records and photos will also be deleted. This cannot be undone.`
+    );
+    if (!confirmed) return;
+    await runAction(`request-${request.id}`, () => deleteServiceRequest(request.id));
   };
 
   const assign = async (requestId, workerId) => {
@@ -321,6 +339,14 @@ export function AdminPanel() {
                     </button>
                   ))}
                   <button disabled={actionKey === `worker-${worker.id}`} onClick={() => note('worker', worker.id)} className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">Add note</button>
+                  <button
+                    disabled={actionKey === `worker-${worker.id}`}
+                    onClick={() => removeWorker(worker)}
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-red-300 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    <Trash2 size={15} />
+                    Delete
+                  </button>
                 </div>
               </div>
               <AssetGallery assets={[
@@ -420,6 +446,14 @@ export function AdminPanel() {
                     </div>
                   )}
                   <button disabled={actionKey === `request-${request.id}`} onClick={() => note('request', request.id)} className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white disabled:opacity-50">Add note</button>
+                  <button
+                    disabled={actionKey === `request-${request.id}`}
+                    onClick={() => removeRequest(request)}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-red-300 px-3 text-sm font-bold text-red-700 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    <Trash2 size={17} />
+                    Delete Request
+                  </button>
                 </div>
               </div>
               <AssetGallery assets={(request.request_photos || []).map((photo, index) => ({ label: `Problem ${index + 1}`, url: photo.signed_url }))} />

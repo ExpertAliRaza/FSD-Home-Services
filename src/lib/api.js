@@ -262,6 +262,36 @@ export async function updateWorkerStatus(workerId, status, adminRejectionReason 
   if (error) throw error;
 }
 
+async function removeStoragePaths(bucket, paths) {
+  const validPaths = (paths || []).filter(Boolean);
+  if (!validPaths.length) return;
+  const { error } = await supabase.storage.from(bucket).remove(validPaths);
+  if (error) {
+    console.warn(`Could not remove deleted record assets from ${bucket}.`, error.message);
+  }
+}
+
+export async function deleteWorker(workerId) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('admin_delete_worker', {
+    p_worker_id: workerId
+  });
+  if (error) throw error;
+  await Promise.all([
+    removeStoragePaths(workerPublicBucket, data?.worker_public_paths),
+    removeStoragePaths(workerPrivateBucket, data?.worker_private_paths)
+  ]);
+}
+
+export async function deleteServiceRequest(requestId) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('admin_delete_service_request', {
+    p_request_id: requestId
+  });
+  if (error) throw error;
+  await removeStoragePaths(requestPhotoBucket, data?.request_photo_paths);
+}
+
 export async function updateRequestStatus(requestId, status) {
   if (status === 'completed') {
     throw new Error('Use the completion form to record the actual job value.');

@@ -14,6 +14,7 @@ const publicWorkerApplications = await readFile(new URL('../supabase/migrations/
 const removeLegacyWorkerAuth = await readFile(new URL('../supabase/migrations/011_remove_legacy_worker_auth_onboarding.sql', import.meta.url), 'utf8');
 const workerPhonePassword = await readFile(new URL('../supabase/migrations/012_worker_phone_password_access.sql', import.meta.url), 'utf8');
 const workerRpcHardening = await readFile(new URL('../supabase/migrations/013_harden_worker_application_rpc.sql', import.meta.url), 'utf8');
+const adminDeleteRecords = await readFile(new URL('../supabase/migrations/014_admin_delete_records.sql', import.meta.url), 'utf8');
 const createWorkerAccount = await readFile(new URL('../supabase/functions/create-worker-account/index.ts', import.meta.url), 'utf8');
 const seed = await readFile(new URL('../supabase/seed.sql', import.meta.url), 'utf8');
 const router = await readFile(new URL('../src/app/router.jsx', import.meta.url), 'utf8');
@@ -252,6 +253,16 @@ test('phone-password access creates a confirmed worker Auth account', () => {
   assert.match(workerPhonePassword, /p_expected_visit_charges, 'pending'/);
   assert.match(workerPhonePassword, /to authenticated/);
   assert.match(workerRpcHardening, /from anon/);
+});
+
+test('admin delete RPCs require admin access and clean dependent private records', () => {
+  assert.match(adminDeleteRecords, /admin_delete_worker/);
+  assert.match(adminDeleteRecords, /admin_delete_service_request/);
+  assert.match(adminDeleteRecords, /if not public\.is_admin\(\)/);
+  assert.match(adminDeleteRecords, /delete from public\.commission_transactions/);
+  assert.match(adminDeleteRecords, /delete from public\.complaints/);
+  assert.match(adminDeleteRecords, /delete from auth\.users/);
+  assert.match(adminDeleteRecords, /admins delete managed storage objects/);
 });
 
 test('public worker application RPC is Turnstile protected and creates pending private workers', () => {
