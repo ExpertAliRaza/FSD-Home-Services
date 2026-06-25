@@ -16,7 +16,6 @@ const navItems = [
   ['/services', 'Services'],
   ['/workers', 'Workers'],
   ['/become-a-worker', 'Become a Worker'],
-  ['/worker/login', 'Worker Login'],
   ['/request-service', 'Request Service'],
   ['/contact', 'Contact']
 ];

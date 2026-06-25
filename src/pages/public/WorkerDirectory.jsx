@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { LogIn } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { WorkerCard } from '../../components/cards/WorkerCard';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { getPublicWorkers } from '../../lib/api';
@@ -21,6 +23,15 @@ export function WorkerDirectory() {
         Browse public cards for approved workers. Phone numbers, CNIC, customer details, and admin notes are never shown here.
       </PageHeader>
       <section className="mx-auto max-w-7xl px-4 py-8">
+        <div className="mb-5 flex justify-end">
+          <Link
+            to="/worker/login"
+            className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-brand-700 bg-white px-4 font-bold text-brand-800 hover:bg-brand-50"
+          >
+            <LogIn size={18} aria-hidden="true" />
+            Worker Login
+          </Link>
+        </div>
         {error && <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p>}
         {loading && <p className="rounded-lg border border-slate-200 bg-white p-5 text-slate-600">Loading approved workers...</p>}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

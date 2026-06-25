@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { areas, services } from '../../data/catalog';
 import { signUpWorker, verifyTurnstileToken } from '../../lib/api';
 import { isValidCnic, isValidPakistanPhone, validateImage } from '../../lib/validation';
-import { WhatsAppButton } from '../support/WhatsAppButton';
 import { Field, inputClass } from './Field';
 import { TurnstileWidget } from './TurnstileWidget';
 
 export function WorkerSignupForm() {
+  const navigate = useNavigate();
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
@@ -64,29 +64,13 @@ export function WorkerSignupForm() {
     try {
       const verificationId = await verifyTurnstileToken(turnstileToken, 'worker_signup');
       await signUpWorker(payload, verificationId);
-      setStatus('success');
-      formElement.reset();
+      navigate('/worker', { replace: true });
     } catch (err) {
       setError(err.message || 'Could not submit worker profile.');
       setStatus('idle');
       setTurnstileResetKey((value) => value + 1);
     }
   };
-
-  if (status === 'success') {
-    return (
-      <div className="rounded-lg border border-brand-100 bg-brand-50 p-6 text-brand-900">
-        <h2 className="text-2xl font-bold">Application Submitted</h2>
-        <p className="mt-2">Your application has been submitted. Our team will review your details and contact you on WhatsApp or phone.</p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Link to="/worker" className="inline-flex min-h-11 items-center rounded-lg bg-brand-700 px-4 font-bold text-white">
-            Open Worker Dashboard
-          </Link>
-          <WhatsAppButton prefilled>Contact Support</WhatsAppButton>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={submit} className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-soft">

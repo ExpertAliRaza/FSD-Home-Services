@@ -19,6 +19,7 @@ const seed = await readFile(new URL('../supabase/seed.sql', import.meta.url), 'u
 const router = await readFile(new URL('../src/app/router.jsx', import.meta.url), 'utf8');
 const api = await readFile(new URL('../src/lib/api.js', import.meta.url), 'utf8');
 const workerSignupForm = await readFile(new URL('../src/components/forms/WorkerSignupForm.jsx', import.meta.url), 'utf8');
+const workerDirectory = await readFile(new URL('../src/pages/public/WorkerDirectory.jsx', import.meta.url), 'utf8');
 const layout = await readFile(new URL('../src/components/layout/Layout.jsx', import.meta.url), 'utf8');
 const routeMeta = await readFile(new URL('../src/components/layout/RouteMeta.jsx', import.meta.url), 'utf8');
 
@@ -210,7 +211,9 @@ test('public workers route keeps the public layout and remains indexable', () =>
 
 test('worker login remains in the public layout while dashboard routes use the private shell', () => {
   assert.match(layout, /pathname !== '\/worker\/login'/);
-  assert.match(layout, /\['\/worker\/login', 'Worker Login'\]/);
+  assert.doesNotMatch(layout, /\['\/worker\/login', 'Worker Login'\]/);
+  assert.match(workerDirectory, /to="\/worker\/login"/);
+  assert.match(workerDirectory, /Worker Login/);
 });
 
 test('worker signup prepares the authenticated profile and keeps applications pending', () => {
@@ -227,7 +230,8 @@ test('worker applications use phone and password without email confirmation', ()
   assert.doesNotMatch(workerSignupForm, /Confirm Your Email/);
   assert.match(workerSignupForm, /name="password"/);
   assert.match(workerSignupForm, /Email \(optional\)/);
-  assert.match(workerSignupForm, /contact you on WhatsApp or phone/);
+  assert.match(workerSignupForm, /navigate\('\/worker', \{ replace: true \}\)/);
+  assert.doesNotMatch(workerSignupForm, /Application Submitted|Open Worker Dashboard/);
   assert.match(api, /create-worker-account/);
   assert.match(api, /signInWithPassword/);
   assert.match(api, /p_email: payload\.email/);
