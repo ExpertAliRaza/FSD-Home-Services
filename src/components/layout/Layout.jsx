@@ -16,6 +16,7 @@ const navItems = [
   ['/services', 'Services'],
   ['/workers', 'Workers'],
   ['/become-a-worker', 'Become a Worker'],
+  ['/worker/login', 'Worker Login'],
   ['/request-service', 'Request Service'],
   ['/contact', 'Contact']
 ];
@@ -23,7 +24,8 @@ const navItems = [
 export function Layout() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const workerDashboard = pathname === '/worker' || pathname.startsWith('/worker/');
+  const workerDashboard = pathname === '/worker'
+    || (pathname.startsWith('/worker/') && pathname !== '/worker/login');
 
   return (
     <div className="min-h-screen bg-slate-50 text-ink">

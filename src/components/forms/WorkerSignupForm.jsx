@@ -79,10 +79,10 @@ export function WorkerSignupForm() {
         <h2 className="text-2xl font-bold">Application Submitted</h2>
         <p className="mt-2">Your application has been submitted. Our team will review your details and contact you on WhatsApp or phone.</p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <WhatsAppButton prefilled>Contact Support</WhatsAppButton>
-          <Link to="/" className="inline-flex min-h-11 items-center rounded-lg border border-brand-700 px-4 font-bold text-brand-800">
-            Return Home
+          <Link to="/worker" className="inline-flex min-h-11 items-center rounded-lg bg-brand-700 px-4 font-bold text-white">
+            Open Worker Dashboard
           </Link>
+          <WhatsAppButton prefilled>Contact Support</WhatsAppButton>
         </div>
       </div>
     );
@@ -93,6 +93,7 @@ export function WorkerSignupForm() {
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Full name"><input className={inputClass} name="full_name" minLength="2" maxLength="100" autoComplete="name" required /></Field>
         <Field label="Phone number"><input className={inputClass} name="phone" inputMode="tel" autoComplete="tel" placeholder="03001234567" required /></Field>
+        <Field label="Password"><input className={inputClass} name="password" type="password" minLength="8" autoComplete="new-password" required /></Field>
         <Field label="Email (optional)"><input className={inputClass} name="email" type="email" autoComplete="email" /></Field>
         <Field label="CNIC number"><input className={inputClass} name="cnic_number" inputMode="numeric" placeholder="33100-1234567-1" required /></Field>
         <Field label="Service category">

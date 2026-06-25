@@ -1,5 +1,5 @@
 import { hasSupabaseConfig, supabase } from './supabaseClient';
-import { normalizeCnic, normalizePhone, safeFileName } from './validation';
+import { normalizeCnic, normalizePhone, safeFileName, workerAuthEmail } from './validation';
 
 const requestPhotoBucket = 'request-photos';
 const workerPrivateBucket = 'worker-private';
@@ -107,13 +107,42 @@ export async function submitServiceRequest(form, turnstileVerificationId) {
 export async function signUpWorker(payload, turnstileVerificationId) {
   requireSupabaseConfig();
 
-  const applicationId = crypto.randomUUID();
-  const applicationPrefix = `applications/${applicationId}`;
+  const phone = normalizePhone(payload.phone);
+  const authEmail = workerAuthEmail(phone);
+  const { error: accountError } = await supabase.functions.invoke('create-worker-account', {
+    body: {
+      phone,
+      password: payload.password,
+      fullName: payload.full_name.trim(),
+      cnicNumber: normalizeCnic(payload.cnic_number),
+      verificationId: turnstileVerificationId
+    }
+  });
+
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+    email: authEmail,
+    password: payload.password
+  });
+  if (signInError || !signInData.user) {
+    if (accountError) {
+      let accountMessage = accountError.message;
+      try {
+        const body = await accountError.context?.json();
+        accountMessage = body?.error || accountMessage;
+      } catch {
+        // The function client may already have consumed the error response.
+      }
+      throw new Error(accountMessage || 'Could not create worker account.');
+    }
+    throw new Error('Worker account was created but login failed. Check your phone number and password.');
+  }
+
+  const profileId = signInData.user.id;
   const uploads = {};
   const uploadedObjects = [];
   const uploadPrivate = async (file, prefix) => {
     if (!file) return null;
-    const path = `${applicationPrefix}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
+    const path = `${profileId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
     const { error } = await supabase.storage.from(workerPrivateBucket).upload(path, file);
     if (error) throw new Error(`Upload failed for ${prefix.replace('-', ' ')}: ${error.message}`);
     uploadedObjects.push({ bucket: workerPrivateBucket, path });
@@ -121,7 +150,7 @@ export async function signUpWorker(payload, turnstileVerificationId) {
   };
   const uploadPublic = async (file, prefix) => {
     if (!file) return null;
-    const path = `${applicationPrefix}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
+    const path = `${profileId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
     const { error } = await supabase.storage.from(workerPublicBucket).upload(path, file);
     if (error) throw new Error(`Upload failed for ${prefix.replace('-', ' ')}: ${error.message}`);
     uploadedObjects.push({ bucket: workerPublicBucket, path });
@@ -141,9 +170,8 @@ export async function signUpWorker(payload, turnstileVerificationId) {
     }
 
     const { data: worker, error } = await supabase.rpc('submit_worker_application', {
-      p_application_id: applicationId,
       p_display_name: payload.full_name.trim(),
-      p_phone: normalizePhone(payload.phone),
+      p_phone: phone,
       p_email: payload.email?.trim().toLowerCase() || null,
       p_cnic_number: normalizeCnic(payload.cnic_number),
       p_cnic_front_url: uploads.cnic_front_url,
@@ -154,8 +182,7 @@ export async function signUpWorker(payload, turnstileVerificationId) {
       p_areas_covered: payload.areas_covered,
       p_availability: payload.availability,
       p_expected_visit_charges: Number(payload.expected_visit_charges || 0),
-      p_work_photo_urls: workPhotoUrls,
-      p_turnstile_verification_id: turnstileVerificationId
+      p_work_photo_urls: workPhotoUrls
     });
     if (error) throw workerSignupError(error);
 

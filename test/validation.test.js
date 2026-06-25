@@ -6,13 +6,18 @@ import {
   normalizeCnic,
   normalizePhone,
   safeFileName,
-  validateImage
+  validateImage,
+  workerAuthEmail
 } from '../src/lib/validation.js';
 
 test('normalizes and validates Pakistani mobile numbers', () => {
   assert.equal(normalizePhone('+92 300 1234567'), '03001234567');
   assert.equal(isValidPakistanPhone('0300-1234567'), true);
   assert.equal(isValidPakistanPhone('0411234567'), false);
+});
+
+test('creates a private worker Auth email from a Pakistani phone number', () => {
+  assert.equal(workerAuthEmail('0300 1234567'), 'w923001234567@auth.fsdhomeservices.pk');
 });
 
 test('normalizes and validates CNIC values', () => {

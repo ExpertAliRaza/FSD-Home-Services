@@ -70,6 +70,9 @@ export function WorkerLayout() {
         <div className="min-w-0">
           <p className="text-sm font-bold text-brand-700">Worker Dashboard</p>
           <h1 className="truncate text-2xl font-bold text-slate-950">{state.data.worker.display_name}</h1>
+          <p className="mt-1 text-sm font-semibold text-slate-600">
+            Profile status: <span className="capitalize text-slate-900">{state.data.worker.status.replace('_', ' ')}</span>
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell

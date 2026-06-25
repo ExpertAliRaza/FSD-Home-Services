@@ -6,6 +6,11 @@ export function normalizePhone(value) {
   return compact.startsWith('+92') ? `0${compact.slice(3)}` : compact;
 }
 
+export function workerAuthEmail(phone) {
+  const normalized = normalizePhone(phone);
+  return `w92${normalized.slice(1)}@auth.fsdhomeservices.pk`;
+}
+
 export function isValidPakistanPhone(value) {
   return /^03\d{9}$/.test(normalizePhone(value));
 }

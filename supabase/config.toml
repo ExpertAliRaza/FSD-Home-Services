@@ -3,3 +3,6 @@ verify_jwt = false
 
 [functions.notify-admin]
 verify_jwt = false
+
+[functions.create-worker-account]
+verify_jwt = false

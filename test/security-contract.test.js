@@ -12,6 +12,9 @@ const releaseV11RpcFix = await readFile(new URL('../supabase/migrations/008_rele
 const workerSignupFix = await readFile(new URL('../supabase/migrations/009_fix_worker_signup.sql', import.meta.url), 'utf8');
 const publicWorkerApplications = await readFile(new URL('../supabase/migrations/010_public_worker_applications.sql', import.meta.url), 'utf8');
 const removeLegacyWorkerAuth = await readFile(new URL('../supabase/migrations/011_remove_legacy_worker_auth_onboarding.sql', import.meta.url), 'utf8');
+const workerPhonePassword = await readFile(new URL('../supabase/migrations/012_worker_phone_password_access.sql', import.meta.url), 'utf8');
+const workerRpcHardening = await readFile(new URL('../supabase/migrations/013_harden_worker_application_rpc.sql', import.meta.url), 'utf8');
+const createWorkerAccount = await readFile(new URL('../supabase/functions/create-worker-account/index.ts', import.meta.url), 'utf8');
 const seed = await readFile(new URL('../supabase/seed.sql', import.meta.url), 'utf8');
 const router = await readFile(new URL('../src/app/router.jsx', import.meta.url), 'utf8');
 const api = await readFile(new URL('../src/lib/api.js', import.meta.url), 'utf8');
@@ -198,10 +201,16 @@ test('release v1.1 worker RPC fix avoids ambiguous worker identifiers', () => {
 });
 
 test('public workers route keeps the public layout and remains indexable', () => {
-  assert.match(layout, /pathname === '\/worker' \|\| pathname\.startsWith\('\/worker\/'\)/);
+  assert.match(layout, /pathname === '\/worker'/);
+  assert.match(layout, /pathname\.startsWith\('\/worker\/'\)/);
   assert.doesNotMatch(layout, /pathname\.startsWith\('\/worker'\) &&/);
   assert.match(routeMeta, /pathname === '\/worker'/);
   assert.match(routeMeta, /pathname\.startsWith\('\/worker\/'\)/);
+});
+
+test('worker login remains in the public layout while dashboard routes use the private shell', () => {
+  assert.match(layout, /pathname !== '\/worker\/login'/);
+  assert.match(layout, /\['\/worker\/login', 'Worker Login'\]/);
 });
 
 test('worker signup prepares the authenticated profile and keeps applications pending', () => {
@@ -213,16 +222,32 @@ test('worker signup prepares the authenticated profile and keeps applications pe
   assert.match(workerSignupFix, /A worker application already exists for this account/);
 });
 
-test('worker applications no longer require auth or email confirmation', () => {
+test('worker applications use phone and password without email confirmation', () => {
   assert.doesNotMatch(api, /auth\.signUp|getWorkerSignupSession|requiresEmailConfirmation/);
-  assert.doesNotMatch(workerSignupForm, /name="password"|Confirm Your Email/);
+  assert.doesNotMatch(workerSignupForm, /Confirm Your Email/);
+  assert.match(workerSignupForm, /name="password"/);
   assert.match(workerSignupForm, /Email \(optional\)/);
   assert.match(workerSignupForm, /contact you on WhatsApp or phone/);
-  assert.match(api, /p_application_id: applicationId/);
+  assert.match(api, /create-worker-account/);
+  assert.match(api, /signInWithPassword/);
   assert.match(api, /p_email: payload\.email/);
   assert.match(api, /uploadedObjects/);
   assert.match(api, /storage\.from\(bucket\)\.remove\(paths\)/);
   assert.match(removeLegacyWorkerAuth, /drop function if exists public\.prepare_worker_application_account/);
+});
+
+test('phone-password access creates a confirmed worker Auth account', () => {
+  assert.match(createWorkerAccount, /consume_turnstile_verification/);
+  assert.match(createWorkerAccount, /email_confirm: true/);
+  assert.match(createWorkerAccount, /role: 'worker'/);
+  assert.match(createWorkerAccount, /auth\.fsdhomeservices\.pk/);
+  assert.match(createWorkerAccount, /cnic_number/);
+  assert.match(createWorkerAccount, /active worker application already exists/i);
+  assert.match(workerPhonePassword, /profile_id, display_name, phone, email/);
+  assert.match(workerPhonePassword, /auth\.uid\(\), trim\(p_display_name\)/);
+  assert.match(workerPhonePassword, /p_expected_visit_charges, 'pending'/);
+  assert.match(workerPhonePassword, /to authenticated/);
+  assert.match(workerRpcHardening, /from anon/);
 });
 
 test('public worker application RPC is Turnstile protected and creates pending private workers', () => {
