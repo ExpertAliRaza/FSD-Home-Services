@@ -61,64 +61,16 @@ function workerSignupError(error) {
   const message = error?.message || '';
   const normalized = message.toLowerCase();
 
-  if (normalized.includes('already registered') || normalized.includes('user already registered')) {
-    return new Error('An account with this email already exists. Sign in with its password to complete the worker application.');
+  if (normalized.includes('phone number')) {
+    return new Error('An active worker application already exists with this phone number.');
   }
-  if (normalized.includes('password') && (normalized.includes('weak') || normalized.includes('least'))) {
-    return new Error('Password is too weak. Use at least 8 characters with a mix of letters and numbers.');
+  if (normalized.includes('cnic')) {
+    return new Error('An active worker application already exists with this CNIC number.');
   }
-  if (normalized.includes('worker application already exists') || normalized.includes('duplicate key')) {
-    return new Error('A worker application already exists for this account.');
-  }
-  if (normalized.includes('authentication is required') || normalized.includes('auth session missing') || normalized.includes('jwt')) {
-    return new Error('Your login session is missing or expired. Sign in again and resubmit the application.');
+  if (normalized.includes('human verification')) {
+    return new Error('Human verification expired. Please complete it again.');
   }
   return error instanceof Error ? error : new Error(message || 'Could not submit worker application.');
-}
-
-async function getWorkerSignupSession(payload) {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError) throw workerSignupError(sessionError);
-
-  if (sessionData.session?.user) {
-    const currentEmail = sessionData.session.user.email?.toLowerCase();
-    if (currentEmail && currentEmail !== payload.email.trim().toLowerCase()) {
-      throw new Error(`You are already signed in as ${sessionData.session.user.email}. Use that account or sign out before applying with another email.`);
-    }
-    return { session: sessionData.session, createdAccount: false };
-  }
-
-  const email = payload.email.trim().toLowerCase();
-  const { data: signUpData, error: authError } = await supabase.auth.signUp({
-    email,
-    password: payload.password,
-    options: { data: { full_name: payload.full_name.trim(), role: 'worker' } }
-  });
-  if (authError) throw workerSignupError(authError);
-
-  if (signUpData.session) {
-    return { session: signUpData.session, createdAccount: true };
-  }
-
-  const isNewUnconfirmedAccount = (signUpData.user?.identities?.length || 0) > 0;
-  if (isNewUnconfirmedAccount) {
-    return { requiresEmailConfirmation: true };
-  }
-
-  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-    email,
-    password: payload.password
-  });
-  if (signInError) {
-    if (signInError.message?.toLowerCase().includes('email not confirmed')) {
-      return { requiresEmailConfirmation: true };
-    }
-    throw new Error('An account with this email already exists. Enter its correct password or use the worker login page.');
-  }
-  if (!signInData.session?.user) {
-    throw new Error('Your login session could not be created. Please sign in and try again.');
-  }
-  return { session: signInData.session, createdAccount: false };
 }
 
 export async function submitServiceRequest(form, turnstileVerificationId) {
@@ -155,35 +107,13 @@ export async function submitServiceRequest(form, turnstileVerificationId) {
 export async function signUpWorker(payload, turnstileVerificationId) {
   requireSupabaseConfig();
 
-  const authResult = await getWorkerSignupSession(payload);
-  if (authResult.requiresEmailConfirmation) {
-    return { requiresEmailConfirmation: true };
-  }
-
-  const profileId = authResult.session?.user?.id;
-  if (!profileId) throw new Error('Your login session is missing. Please sign in and try again.');
-
-  const { error: prepareError } = await supabase.rpc('prepare_worker_application_account', {
-    p_full_name: payload.full_name.trim(),
-    p_phone: normalizePhone(payload.phone)
-  });
-  if (prepareError) throw workerSignupError(prepareError);
-
-  const { data: existingWorker, error: existingWorkerError } = await supabase
-    .from('workers')
-    .select('id, status')
-    .eq('profile_id', profileId)
-    .maybeSingle();
-  if (existingWorkerError) throw workerSignupError(existingWorkerError);
-  if (existingWorker) {
-    throw new Error(`A worker application already exists for this account and is currently ${existingWorker.status.replace('_', ' ')}.`);
-  }
-
+  const applicationId = crypto.randomUUID();
+  const applicationPrefix = `applications/${applicationId}`;
   const uploads = {};
   const uploadedObjects = [];
   const uploadPrivate = async (file, prefix) => {
     if (!file) return null;
-    const path = `${profileId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
+    const path = `${applicationPrefix}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
     const { error } = await supabase.storage.from(workerPrivateBucket).upload(path, file);
     if (error) throw new Error(`Upload failed for ${prefix.replace('-', ' ')}: ${error.message}`);
     uploadedObjects.push({ bucket: workerPrivateBucket, path });
@@ -191,7 +121,7 @@ export async function signUpWorker(payload, turnstileVerificationId) {
   };
   const uploadPublic = async (file, prefix) => {
     if (!file) return null;
-    const path = `${profileId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
+    const path = `${applicationPrefix}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
     const { error } = await supabase.storage.from(workerPublicBucket).upload(path, file);
     if (error) throw new Error(`Upload failed for ${prefix.replace('-', ' ')}: ${error.message}`);
     uploadedObjects.push({ bucket: workerPublicBucket, path });
@@ -211,8 +141,10 @@ export async function signUpWorker(payload, turnstileVerificationId) {
     }
 
     const { data: worker, error } = await supabase.rpc('submit_worker_application', {
+      p_application_id: applicationId,
       p_display_name: payload.full_name.trim(),
       p_phone: normalizePhone(payload.phone),
+      p_email: payload.email?.trim().toLowerCase() || null,
       p_cnic_number: normalizeCnic(payload.cnic_number),
       p_cnic_front_url: uploads.cnic_front_url,
       p_cnic_back_url: uploads.cnic_back_url,
@@ -229,7 +161,7 @@ export async function signUpWorker(payload, turnstileVerificationId) {
 
     const workerRecord = Array.isArray(worker) ? worker[0] : worker;
     await triggerAdminEmail('new_worker_signup', workerRecord.id);
-    return { worker: workerRecord, requiresEmailConfirmation: false };
+    return workerRecord;
   } catch (error) {
     const removals = uploadedObjects.reduce((groups, object) => {
       groups[object.bucket] ||= [];

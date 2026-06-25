@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { areas, services } from '../../data/catalog';
 import { signUpWorker, verifyTurnstileToken } from '../../lib/api';
 import { isValidCnic, isValidPakistanPhone, validateImage } from '../../lib/validation';
+import { WhatsAppButton } from '../support/WhatsAppButton';
 import { Field, inputClass } from './Field';
 import { TurnstileWidget } from './TurnstileWidget';
 
@@ -62,11 +63,7 @@ export function WorkerSignupForm() {
     setStatus('loading');
     try {
       const verificationId = await verifyTurnstileToken(turnstileToken, 'worker_signup');
-      const result = await signUpWorker(payload, verificationId);
-      if (result.requiresEmailConfirmation) {
-        setStatus('confirmation_required');
-        return;
-      }
+      await signUpWorker(payload, verificationId);
       setStatus('success');
       formElement.reset();
     } catch (err) {
@@ -76,34 +73,17 @@ export function WorkerSignupForm() {
     }
   };
 
-  if (status === 'confirmation_required') {
-    return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-amber-950">
-        <h2 className="text-2xl font-bold">Confirm Your Email</h2>
-        <p className="mt-2">Please confirm your email, then return to complete your worker application.</p>
-        <p className="mt-2 text-sm">After confirmation, use the same email and password in this form. Your application will remain pending until admin approval.</p>
-        <button
-          type="button"
-          onClick={() => {
-            setStatus('idle');
-            setTurnstileResetKey((value) => value + 1);
-          }}
-          className="mt-4 min-h-11 rounded-lg bg-amber-900 px-4 font-bold text-white"
-        >
-          Return to Application
-        </button>
-      </div>
-    );
-  }
-
   if (status === 'success') {
     return (
       <div className="rounded-lg border border-brand-100 bg-brand-50 p-6 text-brand-900">
-        <h2 className="text-2xl font-bold">Pending Approval</h2>
-        <p className="mt-2">Your worker profile has been submitted. Admin will review your details before your card appears publicly.</p>
-        <Link to="/worker" className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-brand-700 px-4 font-bold text-white">
-          Open Worker Dashboard
-        </Link>
+        <h2 className="text-2xl font-bold">Application Submitted</h2>
+        <p className="mt-2">Your application has been submitted. Our team will review your details and contact you on WhatsApp or phone.</p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <WhatsAppButton prefilled>Contact Support</WhatsAppButton>
+          <Link to="/" className="inline-flex min-h-11 items-center rounded-lg border border-brand-700 px-4 font-bold text-brand-800">
+            Return Home
+          </Link>
+        </div>
       </div>
     );
   }
@@ -113,8 +93,7 @@ export function WorkerSignupForm() {
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Full name"><input className={inputClass} name="full_name" minLength="2" maxLength="100" autoComplete="name" required /></Field>
         <Field label="Phone number"><input className={inputClass} name="phone" inputMode="tel" autoComplete="tel" placeholder="03001234567" required /></Field>
-        <Field label="Email"><input className={inputClass} name="email" type="email" autoComplete="email" required /></Field>
-        <Field label="Password"><input className={inputClass} name="password" type="password" minLength="8" autoComplete="new-password" required /></Field>
+        <Field label="Email (optional)"><input className={inputClass} name="email" type="email" autoComplete="email" /></Field>
         <Field label="CNIC number"><input className={inputClass} name="cnic_number" inputMode="numeric" placeholder="33100-1234567-1" required /></Field>
         <Field label="Service category">
           <select className={inputClass} name="service_category_id">{services.map((service) => <option key={service.name}>{service.name}</option>)}</select>

@@ -10,9 +10,12 @@ const releaseV11 = await readFile(new URL('../supabase/migrations/006_release_v1
 const releaseV11Security = await readFile(new URL('../supabase/migrations/007_release_v1_1_worker_security.sql', import.meta.url), 'utf8');
 const releaseV11RpcFix = await readFile(new URL('../supabase/migrations/008_release_v1_1_rpc_fix.sql', import.meta.url), 'utf8');
 const workerSignupFix = await readFile(new URL('../supabase/migrations/009_fix_worker_signup.sql', import.meta.url), 'utf8');
+const publicWorkerApplications = await readFile(new URL('../supabase/migrations/010_public_worker_applications.sql', import.meta.url), 'utf8');
+const removeLegacyWorkerAuth = await readFile(new URL('../supabase/migrations/011_remove_legacy_worker_auth_onboarding.sql', import.meta.url), 'utf8');
 const seed = await readFile(new URL('../supabase/seed.sql', import.meta.url), 'utf8');
 const router = await readFile(new URL('../src/app/router.jsx', import.meta.url), 'utf8');
 const api = await readFile(new URL('../src/lib/api.js', import.meta.url), 'utf8');
+const workerSignupForm = await readFile(new URL('../src/components/forms/WorkerSignupForm.jsx', import.meta.url), 'utf8');
 const layout = await readFile(new URL('../src/components/layout/Layout.jsx', import.meta.url), 'utf8');
 const routeMeta = await readFile(new URL('../src/components/layout/RouteMeta.jsx', import.meta.url), 'utf8');
 
@@ -210,11 +213,30 @@ test('worker signup prepares the authenticated profile and keeps applications pe
   assert.match(workerSignupFix, /A worker application already exists for this account/);
 });
 
-test('worker signup client handles confirmation, existing sessions, and upload cleanup', () => {
-  assert.match(api, /getWorkerSignupSession/);
-  assert.match(api, /getSession\(\)/);
-  assert.match(api, /requiresEmailConfirmation/);
-  assert.match(api, /Please sign in and try again/);
+test('worker applications no longer require auth or email confirmation', () => {
+  assert.doesNotMatch(api, /auth\.signUp|getWorkerSignupSession|requiresEmailConfirmation/);
+  assert.doesNotMatch(workerSignupForm, /name="password"|Confirm Your Email/);
+  assert.match(workerSignupForm, /Email \(optional\)/);
+  assert.match(workerSignupForm, /contact you on WhatsApp or phone/);
+  assert.match(api, /p_application_id: applicationId/);
+  assert.match(api, /p_email: payload\.email/);
   assert.match(api, /uploadedObjects/);
   assert.match(api, /storage\.from\(bucket\)\.remove\(paths\)/);
+  assert.match(removeLegacyWorkerAuth, /drop function if exists public\.prepare_worker_application_account/);
+});
+
+test('public worker application RPC is Turnstile protected and creates pending private workers', () => {
+  assert.match(publicWorkerApplications, /profile_id, display_name, phone, email/);
+  assert.match(publicWorkerApplications, /null, trim\(p_display_name\)/);
+  assert.match(publicWorkerApplications, /p_expected_visit_charges, 'pending'/);
+  assert.match(publicWorkerApplications, /consume_turnstile_verification/);
+  assert.match(publicWorkerApplications, /to anon, authenticated/);
+  assert.match(publicWorkerApplications, /New Worker Application/);
+});
+
+test('public worker applications block active duplicate phone and CNIC records', () => {
+  assert.match(publicWorkerApplications, /workers_active_phone_unique_idx/);
+  assert.match(publicWorkerApplications, /workers_active_cnic_unique_idx/);
+  assert.match(publicWorkerApplications, /already exists with this phone number/);
+  assert.match(publicWorkerApplications, /already exists with this CNIC/);
 });

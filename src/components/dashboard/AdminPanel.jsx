@@ -304,6 +304,7 @@ export function AdminPanel() {
                   <h3 className="text-lg font-bold">{worker.display_name}</h3>
                   <p className="text-sm text-slate-600">{worker.service_categories?.name || worker.service_category_id} · {worker.experience_years} years · Status: <strong>{worker.status}</strong></p>
                   <p className="mt-1 text-sm font-semibold text-slate-700">Worker phone: {worker.phone}</p>
+                  <p className="mt-1 text-sm text-slate-600">Email: {worker.email || 'Not provided'}</p>
                   <p className="mt-1 text-sm font-semibold text-slate-700">CNIC: {worker.cnic_number}</p>
                   <p className="mt-1 text-sm text-slate-600">Areas: {(worker.areas_covered || []).join(', ') || 'Not set'}</p>
                   {worker.admin_rejection_reason && <p className="mt-2 rounded-lg bg-amber-50 p-2 text-sm text-amber-900">Admin feedback: {worker.admin_rejection_reason}</p>}
