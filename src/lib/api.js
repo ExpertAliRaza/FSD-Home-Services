@@ -84,7 +84,7 @@ export async function submitServiceRequest(form, turnstileVerificationId) {
   });
 
   if (error) throw error;
-  await triggerAdminEmail('new_service_request', data);
+  await triggerAdminEmail('new_customer_request', data);
   return { id: data };
 }
 
@@ -166,7 +166,7 @@ export async function signUpWorker(payload, turnstileVerificationId) {
   if (error) throw error;
 
   const workerRecord = Array.isArray(worker) ? worker[0] : worker;
-  await triggerAdminEmail('new_worker_application', workerRecord.id);
+  await triggerAdminEmail('new_worker_signup', workerRecord.id);
   return workerRecord;
 }
 
@@ -287,7 +287,7 @@ export async function createComplaint(payload) {
     .select('id')
     .single();
   if (error) throw error;
-  await triggerAdminEmail('complaint_submitted', data.id);
+  await triggerAdminEmail('new_complaint', data.id);
   return data;
 }
 
@@ -315,7 +315,7 @@ export async function markNotificationRead(notificationId) {
   requireSupabaseConfig();
   const { error } = await supabase
     .from('notifications')
-    .update({ read_status: true })
+    .update({ is_read: true })
     .eq('id', notificationId);
   if (error) throw error;
 }
@@ -324,8 +324,8 @@ export async function markAllNotificationsRead() {
   requireSupabaseConfig();
   const { error } = await supabase
     .from('notifications')
-    .update({ read_status: true })
-    .eq('read_status', false);
+    .update({ is_read: true })
+    .eq('is_read', false);
   if (error) throw error;
 }
 
@@ -365,4 +365,183 @@ export async function signOutAdmin() {
   requireSupabaseConfig();
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+}
+
+export async function getWorkerDashboardData() {
+  requireSupabaseConfig();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) throw new Error('Worker authentication is required.');
+
+  const [workerResult, assignments, commissions, reviews, notifications, profile] = await Promise.all([
+    supabase
+      .from('workers')
+      .select('*, service_categories(name), worker_photos(*)')
+      .eq('profile_id', userData.user.id)
+      .single(),
+    supabase
+      .from('lead_assignments')
+      .select('*, service_requests(*, areas(name), service_categories(name), request_photos(*))')
+      .order('assigned_at', { ascending: false }),
+    supabase
+      .from('commission_transactions')
+      .select('*')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('reviews')
+      .select('*')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('notifications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100),
+    supabase
+      .from('profiles')
+      .select('full_name, phone, notification_preferences')
+      .eq('id', userData.user.id)
+      .single()
+  ]);
+
+  for (const result of [workerResult, assignments, commissions, reviews, notifications, profile]) {
+    if (result.error) throw result.error;
+  }
+
+  const worker = {
+    ...workerResult.data,
+    profile_photo_signed_url: await signStoragePath(workerPublicBucket, workerResult.data.profile_photo_url),
+    cnic_front_signed_url: await signStoragePath(workerPrivateBucket, workerResult.data.cnic_front_url, 900),
+    cnic_back_signed_url: await signStoragePath(workerPrivateBucket, workerResult.data.cnic_back_url, 900),
+    worker_photos: await Promise.all((workerResult.data.worker_photos || []).map(async (photo) => ({
+      ...photo,
+      signed_url: await signStoragePath(workerPublicBucket, photo.photo_url, 900)
+    })))
+  };
+
+  const assignmentRows = await Promise.all((assignments.data || []).map(async (assignment) => ({
+    ...assignment,
+    service_requests: {
+      ...assignment.service_requests,
+      request_photos: await Promise.all((assignment.service_requests?.request_photos || []).map(async (photo) => ({
+        ...photo,
+        signed_url: await signStoragePath(requestPhotoBucket, photo.photo_url, 900)
+      })))
+    }
+  })));
+
+  return {
+    user: userData.user,
+    worker,
+    profile: profile.data,
+    assignments: assignmentRows,
+    commissions: commissions.data || [],
+    reviews: reviews.data || [],
+    notifications: notifications.data || []
+  };
+}
+
+export async function respondToLead(assignmentId, response) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('respond_to_lead', {
+    p_assignment_id: assignmentId,
+    p_response: response
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function updateWorkerProfile(payload) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('update_worker_profile', {
+    p_bio: payload.bio,
+    p_experience_years: Number(payload.experience_years),
+    p_areas_covered: payload.areas_covered,
+    p_availability: payload.availability,
+    p_expected_visit_charges: Number(payload.expected_visit_charges)
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function replaceWorkerDocuments(files) {
+  requireSupabaseConfig();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) throw new Error('Worker authentication is required.');
+  const profileId = userData.user.id;
+  const upload = async (bucket, file, prefix) => {
+    if (!file?.name) return null;
+    const path = `${profileId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
+    const { error } = await supabase.storage.from(bucket).upload(path, file);
+    if (error) throw error;
+    return path;
+  };
+  const front = await upload(workerPrivateBucket, files.cnic_front, 'cnic-front');
+  const back = await upload(workerPrivateBucket, files.cnic_back, 'cnic-back');
+  const profilePhoto = await upload(workerPublicBucket, files.profile_photo, 'profile');
+  const { data, error } = await supabase.rpc('replace_worker_documents', {
+    p_cnic_front_url: front,
+    p_cnic_back_url: back,
+    p_profile_photo_url: profilePhoto
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function addWorkerWorkPhotos(files) {
+  requireSupabaseConfig();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) throw new Error('Worker authentication is required.');
+  const paths = [];
+  for (const file of files) {
+    const path = `${userData.user.id}/work-${crypto.randomUUID()}-${safeFileName(file.name)}`;
+    const { error } = await supabase.storage.from(workerPublicBucket).upload(path, file);
+    if (error) throw error;
+    paths.push(path);
+  }
+  const { data, error } = await supabase.rpc('add_worker_work_photos', { p_photo_urls: paths });
+  if (error) throw error;
+  return data;
+}
+
+export async function removeWorkerWorkPhoto(photoId, photoPath) {
+  requireSupabaseConfig();
+  const { error: rowError } = await supabase.rpc('remove_worker_work_photo', { p_photo_id: photoId });
+  if (rowError) throw rowError;
+  const { error: storageError } = await supabase.storage.from(workerPublicBucket).remove([photoPath]);
+  if (storageError) throw storageError;
+}
+
+export async function updateWorkerPassword(password) {
+  requireSupabaseConfig();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
+
+export async function updateNotificationPreferences(preferences) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('update_notification_preferences', {
+    p_preferences: preferences
+  });
+  if (error) throw error;
+  return data;
+}
+
+export function subscribeToNotifications(recipientId, onNotification) {
+  requireSupabaseConfig();
+  return supabase
+    .channel(`notifications:${recipientId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `recipient_id=eq.${recipientId}`
+      },
+      (payload) => onNotification(payload.new)
+    )
+    .subscribe();
+}
+
+export async function signOut() {
+  return signOutAdmin();
 }

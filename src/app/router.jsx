@@ -13,6 +13,19 @@ import { ServiceDetail } from '../pages/public/ServiceDetail';
 import { Services } from '../pages/public/Services';
 import { Terms } from '../pages/public/Terms';
 import { WorkerDirectory } from '../pages/public/WorkerDirectory';
+import { WorkerLayout } from '../pages/worker/WorkerLayout';
+import { WorkerLogin } from '../pages/worker/WorkerLogin';
+import {
+  WorkerDocuments,
+  WorkerEarnings,
+  WorkerHome,
+  WorkerJobs,
+  WorkerLeads,
+  WorkerNotifications,
+  WorkerProfile,
+  WorkerReviews,
+  WorkerSettings
+} from '../pages/worker/WorkerViews';
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +43,22 @@ export const router = createBrowserRouter([
       { path: '/terms', element: <Terms /> },
       { path: '/login', element: <Login /> },
       { path: '/admin', element: <AdminPage /> },
+      { path: '/worker/login', element: <WorkerLogin /> },
+      {
+        path: '/worker',
+        element: <WorkerLayout />,
+        children: [
+          { index: true, element: <WorkerHome /> },
+          { path: 'leads', element: <WorkerLeads /> },
+          { path: 'jobs', element: <WorkerJobs /> },
+          { path: 'earnings', element: <WorkerEarnings /> },
+          { path: 'reviews', element: <WorkerReviews /> },
+          { path: 'notifications', element: <WorkerNotifications /> },
+          { path: 'profile', element: <WorkerProfile /> },
+          { path: 'documents', element: <WorkerDocuments /> },
+          { path: 'settings', element: <WorkerSettings /> }
+        ]
+      },
       { path: '*', element: <NotFound /> }
     ]
   }

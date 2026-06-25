@@ -6,7 +6,12 @@ const schema = await readFile(new URL('../supabase/migrations/001_phase1_schema.
 const rls = await readFile(new URL('../supabase/migrations/002_phase1_rls.sql', import.meta.url), 'utf8');
 const notificationsReviews = await readFile(new URL('../supabase/migrations/004_notifications_reviews.sql', import.meta.url), 'utf8');
 const launchV1 = await readFile(new URL('../supabase/migrations/005_launch_v1.sql', import.meta.url), 'utf8');
+const releaseV11 = await readFile(new URL('../supabase/migrations/006_release_v1_1_worker_dashboard.sql', import.meta.url), 'utf8');
+const releaseV11Security = await readFile(new URL('../supabase/migrations/007_release_v1_1_worker_security.sql', import.meta.url), 'utf8');
+const releaseV11RpcFix = await readFile(new URL('../supabase/migrations/008_release_v1_1_rpc_fix.sql', import.meta.url), 'utf8');
 const seed = await readFile(new URL('../supabase/seed.sql', import.meta.url), 'utf8');
+const router = await readFile(new URL('../src/app/router.jsx', import.meta.url), 'utf8');
+const api = await readFile(new URL('../src/lib/api.js', import.meta.url), 'utf8');
 
 test('public worker view excludes private columns and filters approval', () => {
   const view = schema.slice(
@@ -107,4 +112,81 @@ test('launch seed contains no fake public workers or trust metrics', () => {
   assert.match(launchV1, /trust_badges = '\{\}'::text\[\]/);
   const launchView = launchV1.slice(launchV1.lastIndexOf('create view public.public_worker_cards'));
   assert.doesNotMatch(launchView, /rating_avg|completed_jobs_count|repeat_customers_count|reliability_score|trust_badges/);
+});
+
+test('release v1.1 notifications are recipient-scoped and realtime enabled', () => {
+  assert.match(releaseV11, /recipient_id uuid references public\.profiles/);
+  assert.match(releaseV11, /recipient_role in \('admin', 'worker'\)/);
+  assert.match(releaseV11, /recipients read notifications/);
+  assert.match(releaseV11, /recipient_id = auth\.uid\(\)/);
+  assert.match(releaseV11, /alter publication supabase_realtime add table public\.notifications/);
+  assert.match(releaseV11, /Only the notification read state can be changed/);
+});
+
+test('release v1.1 workers can only respond to their own assigned leads', () => {
+  const responseFunction = releaseV11.slice(
+    releaseV11.indexOf('create or replace function public.respond_to_lead'),
+    releaseV11.indexOf('create or replace function public.update_worker_profile')
+  );
+  assert.match(responseFunction, /w\.profile_id = auth\.uid\(\)/);
+  assert.match(responseFunction, /assignment\.status <> 'assigned'/);
+  assert.match(responseFunction, /p_response not in \('accepted', 'rejected'\)/);
+});
+
+test('release v1.1 creates required admin and worker notification events', () => {
+  for (const type of [
+    'new_worker_signup', 'new_customer_request', 'worker_accepted_lead',
+    'worker_rejected_lead', 'job_completed', 'new_complaint', 'new_review',
+    'commission_recorded', 'profile_approved', 'profile_rejected',
+    'new_lead_assigned', 'lead_cancelled', 'commission_due'
+  ]) {
+    assert.match(releaseV11, new RegExp(`'${type}'`));
+  }
+});
+
+test('release v1.1 includes every protected worker dashboard page', () => {
+  for (const path of [
+    'leads', 'jobs', 'earnings', 'reviews', 'notifications',
+    'profile', 'documents', 'settings'
+  ]) {
+    assert.match(router, new RegExp(`path: '${path}'`));
+  }
+  assert.match(router, /path: '\/worker'/);
+  assert.match(router, /path: '\/worker\/login'/);
+});
+
+test('release v1.1 client subscribes to recipient-filtered realtime notifications', () => {
+  assert.match(api, /postgres_changes/);
+  assert.match(api, /filter: `recipient_id=eq\.\$\{recipientId\}`/);
+  assert.match(api, /respond_to_lead/);
+  assert.match(api, /update_worker_profile/);
+  assert.match(api, /replace_worker_documents/);
+});
+
+test('release v1.1 worker RPCs require an authenticated worker account', () => {
+  assert.match(releaseV11Security, /create or replace function public\.require_worker_account/);
+  assert.match(releaseV11Security, /Worker authentication is required/);
+  for (const routine of [
+    'respond_to_lead',
+    'update_worker_profile',
+    'replace_worker_documents',
+    'add_worker_work_photos',
+    'remove_worker_work_photo',
+    'update_notification_preferences'
+  ]) {
+    const start = releaseV11Security.indexOf(`create or replace function public.${routine}`);
+    assert.notEqual(start, -1);
+    assert.match(releaseV11Security.slice(start, start + 1800), /require_worker_account/);
+  }
+});
+
+test('release v1.1 assigned workers can read request photos', () => {
+  assert.match(releaseV11Security, /workers read assigned request photos/);
+  assert.match(releaseV11Security, /w\.profile_id = auth\.uid\(\)/);
+});
+
+test('release v1.1 worker RPC fix avoids ambiguous worker identifiers', () => {
+  assert.match(releaseV11RpcFix, /v_worker_id uuid/);
+  assert.match(releaseV11RpcFix, /la\.worker_id = v_worker_id/);
+  assert.match(releaseV11RpcFix, /wp\.worker_id = v_worker_id/);
 });

@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Menu, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { FloatingWhatsAppButton } from '../support/FloatingWhatsAppButton';
@@ -22,11 +22,13 @@ const navItems = [
 
 export function Layout() {
   const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
+  const workerDashboard = pathname.startsWith('/worker') && pathname !== '/worker/login';
 
   return (
     <div className="min-h-screen bg-slate-50 text-ink">
       <RouteMeta />
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+      {!workerDashboard && <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center gap-2 font-bold text-brand-700">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-700 text-white">
@@ -66,12 +68,12 @@ export function Layout() {
             <WhatsAppButton className="mt-2 w-full">WhatsApp Us</WhatsAppButton>
           </nav>
         )}
-      </header>
+      </header>}
       <main>
         <Outlet />
       </main>
-      <FloatingWhatsAppButton />
-      <footer className="border-t border-slate-200 bg-white">
+      {!workerDashboard && <FloatingWhatsAppButton />}
+      {!workerDashboard && <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <strong className="text-brand-700">FSD Home Services</strong>
@@ -95,7 +97,7 @@ export function Layout() {
             </div>
           </div>
         </div>
-      </footer>
+      </footer>}
     </div>
   );
 }

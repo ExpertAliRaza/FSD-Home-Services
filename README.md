@@ -1,6 +1,6 @@
 # FSD Home Services
 
-Phase 1 MVP for a Faisalabad-based verified home services marketplace.
+Release v1.1 for a Faisalabad-based verified home services marketplace.
 
 ## Features
 
@@ -8,6 +8,7 @@ Phase 1 MVP for a Faisalabad-based verified home services marketplace.
 - Anonymous customer service request form.
 - Worker signup with Supabase Auth, CNIC uploads, profile photo, areas, availability, expected visit charges, and work photos.
 - Admin dashboard for worker approval, request assignment, complaints, completion values, 10% commission tracking, notifications, and internal notes.
+- Worker dashboard with leads, jobs, earnings, reviews, realtime notifications, profile, documents, and settings.
 - Public worker directory shows approved workers only.
 - Worker phone numbers, customer phone numbers, CNIC data, and admin notes are not shown publicly.
 - Supabase SQL schema, seed data, RLS policies, and storage bucket policies.
@@ -66,6 +67,9 @@ Apply migrations in order:
 3. `supabase/migrations/003_phase1_security_fixes.sql`
 4. `supabase/migrations/004_notifications_reviews.sql`
 5. `supabase/migrations/005_launch_v1.sql`
+6. `supabase/migrations/006_release_v1_1_worker_dashboard.sql`
+7. `supabase/migrations/007_release_v1_1_worker_security.sql`
+8. `supabase/migrations/008_release_v1_1_rpc_fix.sql`
 
 Then run:
 
@@ -113,6 +117,8 @@ where id = 'AUTH_USER_UUID';
 
 Sign in at `/login`, then open `/admin`.
 
+Workers sign in at `/worker/login`. Approved and pending workers can access `/worker` to view their status, while assigned leads are protected by RLS and can only be accepted or rejected by the assigned worker.
+
 ## Important Security Notes
 
 - Public worker cards should use `public.public_worker_cards`.
@@ -144,11 +150,10 @@ supabase/
   seed.sql
 ```
 
-## Launch v1.0 Limitations
+## Release v1.1 Limitations
 
 - No payments.
 - No automatic matching.
-- No worker dashboard beyond signup/auth foundation.
 - No complex reliability score logic.
 - Commission collection remains manual.
 - No SMS notifications.

@@ -30,7 +30,10 @@ export function RouteMeta() {
       ]
       : pageMeta[pathname] || ['Page Not Found | FSD Home Services', defaultDescription];
     const canonicalUrl = `${siteUrl}${pathname === '/' ? '' : pathname}`;
-    const privateRoute = pathname === '/login' || pathname.startsWith('/admin') || pathname.startsWith('/review/');
+    const privateRoute = pathname === '/login'
+      || pathname.startsWith('/admin')
+      || pathname.startsWith('/review/')
+      || pathname.startsWith('/worker');
 
     document.title = title;
     setMeta('description', description);

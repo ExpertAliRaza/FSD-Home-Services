@@ -12,7 +12,7 @@ Deno.serve(async (request) => {
 
   try {
     const { type, entityId } = await request.json();
-    if (!['new_service_request', 'new_worker_application', 'complaint_submitted'].includes(type) || !entityId) {
+    if (!['new_customer_request', 'new_worker_signup', 'new_complaint'].includes(type) || !entityId) {
       return json({ error: 'Invalid notification payload.' }, 400);
     }
 
@@ -31,8 +31,11 @@ Deno.serve(async (request) => {
       .from('notifications')
       .select('id, title, message, email_sent_at, created_at')
       .eq('type', type)
-      .eq('entity_id', entityId)
-      .single();
+      .eq('related_id', entityId)
+      .eq('recipient_role', 'admin')
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
     if (notificationError || !notification) {
       return json({ error: 'Notification record was not found.' }, 404);
@@ -68,7 +71,9 @@ Deno.serve(async (request) => {
     await supabase
       .from('notifications')
       .update({ email_sent_at: new Date().toISOString() })
-      .eq('id', notification.id)
+      .eq('type', type)
+      .eq('related_id', entityId)
+      .eq('recipient_role', 'admin')
       .is('email_sent_at', null);
 
     return json({ success: true });

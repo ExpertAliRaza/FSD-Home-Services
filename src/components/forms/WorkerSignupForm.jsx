@@ -77,6 +77,9 @@ export function WorkerSignupForm() {
       <div className="rounded-lg border border-brand-100 bg-brand-50 p-6 text-brand-900">
         <h2 className="text-2xl font-bold">Pending Approval</h2>
         <p className="mt-2">Your worker profile has been submitted. Admin will review your details before your card appears publicly.</p>
+        <Link to="/worker" className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-brand-700 px-4 font-bold text-white">
+          Open Worker Dashboard
+        </Link>
       </div>
     );
   }

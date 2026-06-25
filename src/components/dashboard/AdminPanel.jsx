@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, CheckCheck, Clipboard, LogOut } from 'lucide-react';
+import { NotificationBell } from '../notifications/NotificationBell';
 import {
   addAdminNote,
   assignWorkerToRequest,
@@ -39,6 +40,12 @@ export function AdminPanel() {
     complaint_text: '',
     notes: ''
   });
+  const setAdminNotifications = useCallback((updater) => {
+    setData((current) => ({
+      ...current,
+      notifications: typeof updater === 'function' ? updater(current.notifications) : updater
+    }));
+  }, []);
 
   const load = async () => {
     setLoading(true);
@@ -56,7 +63,7 @@ export function AdminPanel() {
 
   const approvedWorkers = useMemo(() => data.workers.filter((worker) => worker.status === 'approved'), [data.workers]);
   const unreadNotifications = useMemo(
-    () => data.notifications.filter((notification) => !notification.read_status),
+    () => data.notifications.filter((notification) => !notification.is_read),
     [data.notifications]
   );
   const metrics = [
@@ -174,10 +181,11 @@ export function AdminPanel() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-bold text-slate-950">Admin Dashboard</h1>
-            <span className="inline-flex min-h-9 items-center gap-2 rounded-full bg-brand-50 px-3 text-sm font-bold text-brand-800">
-              <Bell size={17} />
-              {unreadNotifications.length} unread
-            </span>
+            <NotificationBell
+              notifications={data.notifications}
+              onChange={setAdminNotifications}
+              resolveLink={adminNotificationLink}
+            />
           </div>
           <button onClick={logout} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold hover:bg-slate-50">
             <LogOut size={17} />
@@ -199,7 +207,7 @@ export function AdminPanel() {
         ))}
       </div>
 
-      <section className="mt-8">
+      <section id="notifications" className="mt-8 scroll-mt-24">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 text-xl font-bold">
             <Bell size={20} />
@@ -223,9 +231,9 @@ export function AdminPanel() {
           {data.notifications.map((notification) => (
             <button
               key={notification.id}
-              onClick={() => !notification.read_status && readNotification(notification.id)}
-              disabled={notification.read_status || actionKey === `notification-${notification.id}`}
-              className={`min-h-16 rounded-lg border p-4 text-left disabled:cursor-default ${notification.read_status ? 'border-slate-200 bg-white' : 'border-brand-200 bg-brand-50'}`}
+              onClick={() => !notification.is_read && readNotification(notification.id)}
+              disabled={notification.is_read || actionKey === `notification-${notification.id}`}
+              className={`min-h-16 rounded-lg border p-4 text-left disabled:cursor-default ${notification.is_read ? 'border-slate-200 bg-white' : 'border-brand-200 bg-brand-50'}`}
             >
               <span className="flex flex-wrap items-center justify-between gap-2">
                 <strong className="text-slate-950">{notification.title}</strong>
@@ -238,7 +246,7 @@ export function AdminPanel() {
         </div>
       </section>
 
-      <section className="mt-8">
+      <section id="commissions" className="mt-8 scroll-mt-24">
         <h2 className="mb-3 text-xl font-bold">Commission Reports</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Metric label="Total Job Value" value={formatRupees(commissionTotals.jobValue)} />
@@ -286,7 +294,7 @@ export function AdminPanel() {
         </div>
       </section>
 
-      <section className="mt-8">
+      <section id="workers" className="mt-8 scroll-mt-24">
         <h2 className="mb-3 text-xl font-bold">Workers</h2>
         <div className="grid gap-4">
           {data.workers.map((worker) => (
@@ -327,7 +335,7 @@ export function AdminPanel() {
         </div>
       </section>
 
-      <section className="mt-8">
+      <section id="requests" className="mt-8 scroll-mt-24">
         <h2 className="mb-3 text-xl font-bold">Service Requests</h2>
         <div className="grid gap-4">
           {data.requests.map((request) => (
@@ -421,7 +429,7 @@ export function AdminPanel() {
         </div>
       </section>
 
-      <section className="mt-8">
+      <section id="complaints" className="mt-8 scroll-mt-24">
         <h2 className="mb-3 text-xl font-bold">Complaints</h2>
         <form onSubmit={submitComplaint} className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 lg:grid-cols-2">
           <select
@@ -530,4 +538,14 @@ function Notes({ items }) {
       {items.map((item) => <p key={item.id} className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-700">{item.note}</p>)}
     </div>
   );
+}
+
+function adminNotificationLink(notification) {
+  if (notification.type === 'new_worker_signup') return '/admin#workers';
+  if (['new_customer_request', 'worker_accepted_lead', 'worker_rejected_lead', 'job_completed'].includes(notification.type)) {
+    return '/admin#requests';
+  }
+  if (notification.type === 'new_complaint') return '/admin#complaints';
+  if (['commission_recorded', 'commission_due'].includes(notification.type)) return '/admin#commissions';
+  return '/admin#notifications';
 }
