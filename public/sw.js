@@ -1,5 +1,12 @@
-const CACHE_NAME = 'fsd-home-services-v3';
-const APP_SHELL = ['/', '/manifest.json', '/icon.svg'];
+const CACHE_NAME = 'fsd-home-services-v4';
+const APP_SHELL = [
+  '/',
+  '/manifest.json',
+  '/branding/icon-192.png',
+  '/branding/icon-512.png',
+  '/branding/favicon-32.png',
+  '/branding/fsd-home-services-logo.png'
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));

@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Menu, ShieldCheck } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import { FloatingWhatsAppButton } from '../support/FloatingWhatsAppButton';
 import {
@@ -30,11 +30,12 @@ export function Layout() {
       <RouteMeta />
       {!workerDashboard && <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2 font-bold text-brand-700">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-700 text-white">
-              <ShieldCheck size={22} />
-            </span>
-            <span>FSD Home Services</span>
+          <Link to="/" className="focus-ring shrink-0 rounded-lg" aria-label="FSD Home Services home">
+            <img
+              src="/branding/fsd-home-services-logo.png"
+              alt="FSD Home Services"
+              className="h-11 w-auto max-w-[190px] object-contain sm:h-12 sm:max-w-[220px]"
+            />
           </Link>
           <button
             className="focus-ring rounded-lg border border-slate-200 p-2 lg:hidden"
@@ -76,7 +77,12 @@ export function Layout() {
       {!workerDashboard && <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <strong className="text-brand-700">FSD Home Services</strong>
+            <img
+              src="/branding/fsd-home-services-logo.png"
+              alt="FSD Home Services"
+              className="h-14 w-auto max-w-full object-contain"
+              loading="lazy"
+            />
             <p className="mt-2">Verified local service leads for Faisalabad. Phone numbers stay private.</p>
           </div>
           <div>Serving People Colony, Madina Town, D Ground, Samanabad, Gulberg, Canal Road, and more.</div>
