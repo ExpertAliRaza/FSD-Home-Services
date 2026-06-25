@@ -217,6 +217,19 @@ test('worker login remains in the public layout while dashboard routes use the p
   assert.match(workerDirectory, /Worker Login/);
 });
 
+test('public footer is trust-focused, responsive, and contains official social links', () => {
+  assert.doesNotMatch(layout, /Workers pay a 10% platform commission/);
+  assert.match(layout, /Verified Workers/);
+  assert.match(layout, /Manual Approval/);
+  assert.match(layout, /Local Support/);
+  assert.match(layout, /facebook\.com\/FSD\.Home\.Services/);
+  assert.match(layout, /instagram\.com\/fsd_home_services/);
+  assert.match(layout, /linkedin\.com\/company\/134874243/);
+  assert.match(layout, /xl:grid-cols-\[1\.55fr_repeat\(4,minmax\(0,1fr\)\)\]/);
+  assert.match(layout, /Privacy Policy/);
+  assert.match(layout, /Terms of Service/);
+});
+
 test('worker signup prepares the authenticated profile and keeps applications pending', () => {
   assert.match(workerSignupFix, /prepare_worker_application_account/);
   assert.match(workerSignupFix, /values \(auth\.uid\(\), 'worker'/);
