@@ -33,7 +33,8 @@ export function RouteMeta() {
     const privateRoute = pathname === '/login'
       || pathname.startsWith('/admin')
       || pathname.startsWith('/review/')
-      || pathname.startsWith('/worker');
+      || pathname === '/worker'
+      || pathname.startsWith('/worker/');
 
     document.title = title;
     setMeta('description', description);

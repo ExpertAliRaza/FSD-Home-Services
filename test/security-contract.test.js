@@ -12,6 +12,8 @@ const releaseV11RpcFix = await readFile(new URL('../supabase/migrations/008_rele
 const seed = await readFile(new URL('../supabase/seed.sql', import.meta.url), 'utf8');
 const router = await readFile(new URL('../src/app/router.jsx', import.meta.url), 'utf8');
 const api = await readFile(new URL('../src/lib/api.js', import.meta.url), 'utf8');
+const layout = await readFile(new URL('../src/components/layout/Layout.jsx', import.meta.url), 'utf8');
+const routeMeta = await readFile(new URL('../src/components/layout/RouteMeta.jsx', import.meta.url), 'utf8');
 
 test('public worker view excludes private columns and filters approval', () => {
   const view = schema.slice(
@@ -189,4 +191,11 @@ test('release v1.1 worker RPC fix avoids ambiguous worker identifiers', () => {
   assert.match(releaseV11RpcFix, /v_worker_id uuid/);
   assert.match(releaseV11RpcFix, /la\.worker_id = v_worker_id/);
   assert.match(releaseV11RpcFix, /wp\.worker_id = v_worker_id/);
+});
+
+test('public workers route keeps the public layout and remains indexable', () => {
+  assert.match(layout, /pathname === '\/worker' \|\| pathname\.startsWith\('\/worker\/'\)/);
+  assert.doesNotMatch(layout, /pathname\.startsWith\('\/worker'\) &&/);
+  assert.match(routeMeta, /pathname === '\/worker'/);
+  assert.match(routeMeta, /pathname\.startsWith\('\/worker\/'\)/);
 });

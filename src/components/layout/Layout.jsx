@@ -23,7 +23,7 @@ const navItems = [
 export function Layout() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const workerDashboard = pathname.startsWith('/worker') && pathname !== '/worker/login';
+  const workerDashboard = pathname === '/worker' || pathname.startsWith('/worker/');
 
   return (
     <div className="min-h-screen bg-slate-50 text-ink">
