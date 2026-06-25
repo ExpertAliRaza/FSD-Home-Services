@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /review/
+
+Sitemap: https://fsd-home-services.vercel.app/sitemap.xml

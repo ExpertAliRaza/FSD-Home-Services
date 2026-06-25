@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BadgeCheck, BriefcaseBusiness, Repeat, Star, TimerReset } from 'lucide-react';
+import { BadgeCheck } from 'lucide-react';
 import { WHATSAPP_REQUEST_URL } from '../support/WhatsAppButton';
 
 export function WorkerCard({ worker }) {
@@ -22,19 +22,11 @@ export function WorkerCard({ worker }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 p-4 pb-0 text-sm">
-        <Stat icon={<Star size={16} />} label="Rating" value={worker.rating_avg || 'New'} />
-        <Stat icon={<BriefcaseBusiness size={16} />} label="Jobs" value={worker.completed_jobs_count || 0} />
-        <Stat icon={<Repeat size={16} />} label="Repeat" value={worker.repeat_customers_count || 0} />
-        <Stat icon={<TimerReset size={16} />} label="Reliable" value={`${worker.reliability_score || 80}%`} />
-      </div>
-
-      <div className="flex min-h-10 flex-wrap gap-2 px-4 pt-4">
-        {(worker.badges || ['CNIC Verified', 'New Worker']).slice(0, 3).map((badge) => (
-          <span key={badge} className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
-            <BadgeCheck size={13} /> {badge}
-          </span>
-        ))}
+      <div className="px-4 pt-4">
+        <span className="inline-flex min-h-8 items-center gap-1 rounded-full bg-brand-50 px-3 text-xs font-bold text-brand-800">
+          <BadgeCheck size={15} />
+          Verified Worker
+        </span>
       </div>
 
       <Link
@@ -52,14 +44,5 @@ export function WorkerCard({ worker }) {
         Need help choosing? WhatsApp our support team.
       </a>
     </article>
-  );
-}
-
-function Stat({ icon, label, value }) {
-  return (
-    <div className="rounded-lg bg-slate-50 p-3">
-      <div className="flex items-center gap-1 text-brand-700">{icon}<span className="text-xs font-semibold">{label}</span></div>
-      <div className="mt-1 font-bold text-slate-950">{value}</div>
-    </div>
   );
 }

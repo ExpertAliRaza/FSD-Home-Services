@@ -2,13 +2,12 @@ import { Link, useParams } from 'react-router-dom';
 import { RequestForm } from '../../components/forms/RequestForm';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { areas, services } from '../../data/catalog';
+import { NotFound } from './NotFound';
 
 export function ServiceDetail() {
   const { slug } = useParams();
-  const service = services.find((item) => item.slug === slug) || services[0];
-
-  document.title = `${service.name} in Faisalabad | FSD Home Services`;
-  document.querySelector('meta[name="description"]')?.setAttribute('content', `${service.description} Request a verified ${service.name.toLowerCase()} in Faisalabad. Phone numbers are kept private.`);
+  const service = services.find((item) => item.slug === slug);
+  if (!service) return <NotFound />;
 
   return (
     <>

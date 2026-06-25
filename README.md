@@ -7,7 +7,7 @@ Phase 1 MVP for a Faisalabad-based verified home services marketplace.
 - Public website with home, services, service SEO pages, worker directory, request service, become a worker, contact, and login pages.
 - Anonymous customer service request form.
 - Worker signup with Supabase Auth, CNIC uploads, profile photo, areas, availability, expected visit charges, and work photos.
-- Admin dashboard for worker approval/rejection/status changes, service request status changes, manual worker assignment, and internal notes.
+- Admin dashboard for worker approval, request assignment, complaints, completion values, 10% commission tracking, notifications, and internal notes.
 - Public worker directory shows approved workers only.
 - Worker phone numbers, customer phone numbers, CNIC data, and admin notes are not shown publicly.
 - Supabase SQL schema, seed data, RLS policies, and storage bucket policies.
@@ -64,6 +64,8 @@ Apply migrations in order:
 1. `supabase/migrations/001_phase1_schema.sql`
 2. `supabase/migrations/002_phase1_rls.sql`
 3. `supabase/migrations/003_phase1_security_fixes.sql`
+4. `supabase/migrations/004_notifications_reviews.sql`
+5. `supabase/migrations/005_launch_v1.sql`
 
 Then run:
 
@@ -71,7 +73,31 @@ Then run:
 -- supabase/seed.sql
 ```
 
-The seed file creates Faisalabad areas, service categories, and six dummy approved workers.
+The seed file creates Faisalabad areas and service categories. Launch v1.0 contains no seeded public workers or fake trust metrics.
+
+## Launch v1.0 Secrets
+
+Frontend:
+
+```bash
+VITE_TURNSTILE_SITE_KEY=your-cloudflare-turnstile-site-key
+```
+
+Supabase Edge Function secrets:
+
+```bash
+supabase secrets set TURNSTILE_SECRET_KEY=your-cloudflare-turnstile-secret
+supabase secrets set RESEND_API_KEY=your-resend-api-key
+supabase secrets set ADMIN_NOTIFICATION_EMAIL=your-admin-email
+supabase secrets set NOTIFICATION_FROM_EMAIL="FSD Home Services <notifications@your-domain>"
+```
+
+Deploy:
+
+```bash
+supabase functions deploy verify-turnstile --no-verify-jwt
+supabase functions deploy notify-admin --no-verify-jwt
+```
 
 Worker signup supports either Supabase email mode. If **Confirm email** is enabled, the worker confirms the account and submits the still-filled form again with the same credentials; the app signs in and completes the private uploads. Disabling confirmation keeps the flow to one step.
 
@@ -118,12 +144,12 @@ supabase/
   seed.sql
 ```
 
-## Phase 1 Limitations
+## Launch v1.0 Limitations
 
 - No payments.
-- No review system.
 - No automatic matching.
 - No worker dashboard beyond signup/auth foundation.
 - No complex reliability score logic.
-- Manual admin assignment only.
+- Commission collection remains manual.
+- No SMS notifications.
 "# FSD-Home-Services" 

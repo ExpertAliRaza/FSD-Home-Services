@@ -1,15 +1,30 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { AdminPanel } from '../../components/dashboard/AdminPanel';
 import { getCurrentUserRole } from '../../lib/api';
+import { hasSupabaseConfig, supabase } from '../../lib/supabaseClient';
 
 export function AdminPage() {
   const [state, setState] = useState({ loading: true, role: null, error: '' });
 
   useEffect(() => {
+    let active = true;
     getCurrentUserRole()
-      .then((role) => setState({ loading: false, role, error: '' }))
-      .catch((error) => setState({ loading: false, role: null, error: error.message }));
+      .then((role) => active && setState({ loading: false, role, error: '' }))
+      .catch((error) => active && setState({ loading: false, role: null, error: error.message }));
+
+    const authSubscription = hasSupabaseConfig
+      ? supabase.auth.onAuthStateChange((event, session) => {
+        if (!session || event === 'SIGNED_OUT') {
+          setState({ loading: false, role: null, error: 'Your session has expired. Please sign in again.' });
+        }
+      }).data.subscription
+      : null;
+
+    return () => {
+      active = false;
+      authSubscription?.unsubscribe();
+    };
   }, []);
 
   if (state.loading) {
@@ -17,12 +32,7 @@ export function AdminPage() {
   }
 
   if (state.role !== 'admin') {
-    return (
-      <AccessMessage title="Admin access required">
-        <p className="mt-2 text-slate-600">{state.error || 'Sign in with an account whose profiles.role is admin.'}</p>
-        <Link to="/login" className="mt-4 inline-block rounded-lg bg-brand-700 px-4 py-2 font-bold text-white">Go to Admin Login</Link>
-      </AccessMessage>
-    );
+    return <Navigate to="/login" replace state={{ message: state.error || 'Admin access is required.' }} />;
   }
 
   return <AdminPanel />;

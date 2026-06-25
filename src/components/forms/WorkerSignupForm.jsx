@@ -1,12 +1,16 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { areas, services } from '../../data/catalog';
-import { signUpWorker } from '../../lib/api';
+import { signUpWorker, verifyTurnstileToken } from '../../lib/api';
 import { isValidCnic, isValidPakistanPhone, validateImage } from '../../lib/validation';
 import { Field, inputClass } from './Field';
+import { TurnstileWidget } from './TurnstileWidget';
 
 export function WorkerSignupForm() {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -50,15 +54,21 @@ export function WorkerSignupForm() {
       setError('Upload no more than 6 work photos.');
       return;
     }
+    if (!turnstileToken) {
+      setError('Complete the human verification first.');
+      return;
+    }
 
     setStatus('loading');
     try {
-      await signUpWorker(payload);
+      const verificationId = await verifyTurnstileToken(turnstileToken, 'worker_signup');
+      await signUpWorker(payload, verificationId);
       setStatus('success');
       formElement.reset();
     } catch (err) {
       setError(err.message || 'Could not submit worker profile.');
       setStatus('idle');
+      setTurnstileResetKey((value) => value + 1);
     }
   };
 
@@ -101,6 +111,13 @@ export function WorkerSignupForm() {
       <Field label="Work photos">
         <input className={inputClass} name="work_photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required />
       </Field>
+      <TurnstileWidget onToken={setTurnstileToken} resetKey={turnstileResetKey} />
+      <label className="flex items-start gap-2 text-sm text-slate-600">
+        <input type="checkbox" className="mt-1" required />
+        <span>
+          I agree to the <Link to="/terms" className="font-semibold text-brand-700 hover:underline">Terms of Service</Link> and consent to CNIC and uploaded-image processing described in the <Link to="/privacy" className="font-semibold text-brand-700 hover:underline">Privacy Policy</Link>.
+        </span>
+      </label>
       {error && <p role="alert" aria-live="polite" className="rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p>}
       <button className="focus-ring rounded-lg bg-brand-700 px-5 py-3 font-bold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60" disabled={status === 'loading'}>
         {status === 'loading' ? 'Submitting...' : 'Submit for Admin Approval'}

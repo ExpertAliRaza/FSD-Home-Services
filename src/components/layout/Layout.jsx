@@ -9,6 +9,7 @@ import {
   WHATSAPP_URL,
   WhatsAppButton
 } from '../support/WhatsAppButton';
+import { RouteMeta } from './RouteMeta';
 
 const navItems = [
   ['/', 'Home'],
@@ -24,6 +25,7 @@ export function Layout() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-ink">
+      <RouteMeta />
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center gap-2 font-bold text-brand-700">
@@ -76,7 +78,7 @@ export function Layout() {
             <p className="mt-2">Verified local service leads for Faisalabad. Phone numbers stay private.</p>
           </div>
           <div>Serving People Colony, Madina Town, D Ground, Samanabad, Gulberg, Canal Road, and more.</div>
-          <div>Customers request free. Workers pay fixed lead fees after assignment.</div>
+          <div>Customers request free. Workers pay a 10% platform commission on completed jobs.</div>
           <div>
             <strong className="text-slate-950">Customer Support</strong>
             <p className="mt-2 font-semibold text-slate-800">{SUPPORT_NAME}</p>
@@ -87,6 +89,10 @@ export function Layout() {
               Call: {SUPPORT_PHONE_DISPLAY}
             </a>
             <p className="mt-2">Need help choosing a worker? Contact us directly.</p>
+            <div className="mt-3 flex gap-3">
+              <Link to="/privacy" className="font-semibold text-brand-700 hover:underline">Privacy</Link>
+              <Link to="/terms" className="font-semibold text-brand-700 hover:underline">Terms</Link>
+            </div>
           </div>
         </div>
       </footer>

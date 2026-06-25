@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Field, inputClass } from '../../components/forms/Field';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { hasSupabaseConfig, supabase } from '../../lib/supabaseClient';
@@ -7,6 +7,7 @@ import { getCurrentUserRole } from '../../lib/api';
 
 export function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -56,6 +57,9 @@ export function Login() {
       </PageHeader>
       <section className="mx-auto max-w-md px-4 py-8">
         <form onSubmit={submit} className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
+          {location.state?.message && (
+            <p className="rounded-lg bg-amber-50 p-3 text-sm font-semibold text-amber-800">{location.state.message}</p>
+          )}
           <Field label="Email">
             <input className={inputClass} name="email" type="email" required />
           </Field>

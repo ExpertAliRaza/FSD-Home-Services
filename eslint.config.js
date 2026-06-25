@@ -4,7 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**']
+    ignores: ['dist/**', 'node_modules/**', '.vercel/**', 'supabase/.temp/**']
   },
   js.configs.recommended,
   {
@@ -15,13 +15,15 @@ export default [
       sourceType: 'module',
       globals: {
         window: 'readonly',
+        FormData: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
         caches: 'readonly',
         crypto: 'readonly',
+        console: 'readonly',
         self: 'readonly',
         fetch: 'readonly',
-        FormData: 'readonly',
+        setTimeout: 'readonly',
         URL: 'readonly'
       },
       parserOptions: { ecmaFeatures: { jsx: true } }

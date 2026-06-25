@@ -13,7 +13,6 @@ create table if not exists public.service_categories (
   id text primary key,
   name text not null,
   slug text not null unique,
-  base_lead_fee integer not null default 100,
   is_active boolean not null default true
 );
 
@@ -43,8 +42,8 @@ create table if not exists public.workers (
   rating_avg numeric(3,2) not null default 0,
   completed_jobs_count integer not null default 0,
   repeat_customers_count integer not null default 0,
-  reliability_score integer not null default 80,
-  trust_badges text[] not null default array['New Worker']::text[],
+  reliability_score integer not null default 0,
+  trust_badges text[] not null default '{}'::text[],
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

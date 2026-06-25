@@ -1,21 +1,40 @@
-import { dummyWorkers } from '../data/catalog';
 import { hasSupabaseConfig, supabase } from './supabaseClient';
 import { normalizeCnic, normalizePhone, safeFileName } from './validation';
 
 const requestPhotoBucket = 'request-photos';
 const workerPrivateBucket = 'worker-private';
 const workerPublicBucket = 'worker-public';
-const demoWorkerPhotos = {
-  'Muhammad Ali': '/images/workers/muhammad-ali.jpg',
-  'Ahmed Raza': '/images/workers/ahmed-raza.jpg',
-  'Bilal Hussain': '/images/workers/bilal-hussain.jpg',
-  'Usman Tariq': '/images/workers/usman-tariq.jpg',
-  'Hassan Shah': '/images/workers/hassan-shah.jpg',
-  'Imran Akram': '/images/workers/imran-akram.jpg'
-};
+
+function requireSupabaseConfig() {
+  if (!hasSupabaseConfig || !supabase) {
+    throw new Error('Service configuration is unavailable. Please contact FSD Home Services support.');
+  }
+}
+
+async function triggerAdminEmail(type, entityId) {
+  if (!entityId) return;
+  requireSupabaseConfig();
+  const { error } = await supabase.functions.invoke('notify-admin', {
+    body: { type, entityId }
+  });
+  if (error) {
+    console.warn('Admin email notification could not be sent.', error.message);
+  }
+}
+
+export async function verifyTurnstileToken(token, purpose) {
+  requireSupabaseConfig();
+  if (!token) throw new Error('Complete the human verification first.');
+  const { data, error } = await supabase.functions.invoke('verify-turnstile', {
+    body: { token, purpose }
+  });
+  if (error) throw new Error(error.message || 'Human verification failed.');
+  if (!data?.verificationId) throw new Error(data?.error || 'Human verification failed.');
+  return data.verificationId;
+}
 
 export async function getPublicWorkers() {
-  if (!hasSupabaseConfig) return dummyWorkers;
+  requireSupabaseConfig();
 
   const { data, error } = await supabase
     .from('public_worker_cards')
@@ -27,7 +46,7 @@ export async function getPublicWorkers() {
     ...worker,
     profile_photo_url: worker.profile_photo_url
       ? await signStoragePath(workerPublicBucket, worker.profile_photo_url)
-      : demoWorkerPhotos[worker.display_name] || ''
+      : ''
   })));
 }
 
@@ -38,8 +57,8 @@ async function signStoragePath(bucket, path, expiresIn = 3600) {
   return data.signedUrl;
 }
 
-export async function submitServiceRequest(form) {
-  if (!hasSupabaseConfig) return { id: crypto.randomUUID() };
+export async function submitServiceRequest(form, turnstileVerificationId) {
+  requireSupabaseConfig();
 
   let photoUrl = null;
   if (form.problem_photo) {
@@ -60,15 +79,17 @@ export async function submitServiceRequest(form) {
     p_urgency: form.urgency,
     p_preferred_time: form.preferred_time?.trim() || null,
     p_preferred_worker_id: form.preferred_worker_id || null,
-    p_photo_path: photoUrl
+    p_photo_path: photoUrl,
+    p_turnstile_verification_id: turnstileVerificationId
   });
 
   if (error) throw error;
+  await triggerAdminEmail('new_service_request', data);
   return { id: data };
 }
 
-export async function signUpWorker(payload) {
-  if (!hasSupabaseConfig) return { id: crypto.randomUUID(), status: 'pending' };
+export async function signUpWorker(payload, turnstileVerificationId) {
+  requireSupabaseConfig();
 
   const { data: signUpData, error: authError } = await supabase.auth.signUp({
     email: payload.email,
@@ -120,57 +141,55 @@ export async function signUpWorker(payload) {
   uploads.cnic_back_url = await uploadPrivate(payload.cnic_back, 'cnic-back');
   uploads.profile_photo_url = await uploadPublic(payload.profile_photo, 'profile');
 
-  const { data: worker, error } = await supabase
-    .from('workers')
-    .insert({
-      profile_id: profileId,
-      display_name: payload.full_name,
-      phone: normalizePhone(payload.phone),
-      cnic_number: normalizeCnic(payload.cnic_number),
-      service_category_id: payload.service_category_id,
-      experience_years: Number(payload.experience_years || 0),
-      areas_covered: payload.areas_covered,
-      availability: payload.availability,
-      expected_visit_charges: Number(payload.expected_visit_charges || 0),
-      status: 'pending',
-      ...uploads
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-
   const workFiles = Array.from(payload.work_photos || []);
+  const workPhotoUrls = [];
   for (const file of workFiles) {
     const path = await uploadPublic(file, 'work');
-    const { error: photoError } = await supabase.from('worker_photos').insert({
-      worker_id: worker.id,
-      photo_url: path,
-      photo_type: 'work_photo',
-      status: 'pending'
-    });
-    if (photoError) throw photoError;
+    workPhotoUrls.push(path);
   }
 
-  return worker;
+  const { data: worker, error } = await supabase.rpc('submit_worker_application', {
+    p_display_name: payload.full_name.trim(),
+    p_phone: normalizePhone(payload.phone),
+    p_cnic_number: normalizeCnic(payload.cnic_number),
+    p_cnic_front_url: uploads.cnic_front_url,
+    p_cnic_back_url: uploads.cnic_back_url,
+    p_profile_photo_url: uploads.profile_photo_url,
+    p_service_category_id: payload.service_category_id,
+    p_experience_years: Number(payload.experience_years || 0),
+    p_areas_covered: payload.areas_covered,
+    p_availability: payload.availability,
+    p_expected_visit_charges: Number(payload.expected_visit_charges || 0),
+    p_work_photo_urls: workPhotoUrls,
+    p_turnstile_verification_id: turnstileVerificationId
+  });
+  if (error) throw error;
+
+  const workerRecord = Array.isArray(worker) ? worker[0] : worker;
+  await triggerAdminEmail('new_worker_application', workerRecord.id);
+  return workerRecord;
 }
 
 export async function getAdminData() {
-  if (!hasSupabaseConfig) {
-    return { workers: [], requests: [], assignments: [] };
-  }
+  requireSupabaseConfig();
 
-  const [workers, requests, assignments, notes] = await Promise.all([
+  const [workers, requests, assignments, notes, notifications, commissions, complaints] = await Promise.all([
     supabase.from('workers').select('*, service_categories(name), worker_photos(*)').order('created_at', { ascending: false }),
-    supabase.from('service_requests').select('*, areas(name), service_categories(name), request_photos(*), lead_assignments(*, workers(display_name))').order('created_at', { ascending: false }),
+    supabase.from('service_requests').select('*, areas(name), service_categories(name), request_photos(*), review_invitations(token, expires_at, used_at), lead_assignments(*, workers(display_name))').order('created_at', { ascending: false }),
     supabase.from('lead_assignments').select('*'),
-    supabase.from('admin_notes').select('*').order('created_at', { ascending: false })
+    supabase.from('admin_notes').select('*').order('created_at', { ascending: false }),
+    supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(50),
+    supabase.from('commission_transactions').select('*, workers(display_name), service_requests(service_category_id, area_id)').order('created_at', { ascending: false }),
+    supabase.from('complaints').select('*, workers(display_name)').order('created_at', { ascending: false })
   ]);
 
   if (workers.error) throw workers.error;
   if (requests.error) throw requests.error;
   if (assignments.error) throw assignments.error;
   if (notes.error) throw notes.error;
+  if (notifications.error) throw notifications.error;
+  if (commissions.error) throw commissions.error;
+  if (complaints.error) throw complaints.error;
 
   const workersWithAssets = await Promise.all((workers.data || []).map(async (worker) => ({
     ...worker,
@@ -195,12 +214,15 @@ export async function getAdminData() {
     workers: workersWithAssets,
     requests: requestsWithAssets,
     assignments: assignments.data || [],
-    notes: notes.data || []
+    notes: notes.data || [],
+    notifications: notifications.data || [],
+    commissions: commissions.data || [],
+    complaints: complaints.data || []
   };
 }
 
 export async function updateWorkerStatus(workerId, status, adminRejectionReason = null) {
-  if (!hasSupabaseConfig) return;
+  requireSupabaseConfig();
   const { error } = await supabase
     .from('workers')
     .update({ status, admin_rejection_reason: adminRejectionReason })
@@ -209,32 +231,121 @@ export async function updateWorkerStatus(workerId, status, adminRejectionReason 
 }
 
 export async function updateRequestStatus(requestId, status) {
-  if (!hasSupabaseConfig) return;
+  if (status === 'completed') {
+    throw new Error('Use the completion form to record the actual job value.');
+  }
+  requireSupabaseConfig();
   const { error } = await supabase.from('service_requests').update({ status }).eq('id', requestId);
   if (error) throw error;
 }
 
 export async function assignWorkerToRequest(serviceRequestId, workerId) {
-  if (!hasSupabaseConfig) return;
-  const { data: userData } = await supabase.auth.getUser();
-  const { error } = await supabase.from('lead_assignments').upsert({
-    service_request_id: serviceRequestId,
-    worker_id: workerId,
-    assigned_by: userData.user?.id || null,
-    status: 'assigned'
-  }, { onConflict: 'service_request_id,worker_id' });
+  requireSupabaseConfig();
+  const { error } = await supabase.rpc('assign_worker_to_request', {
+    p_request_id: serviceRequestId,
+    p_worker_id: workerId
+  });
   if (error) throw error;
-  await updateRequestStatus(serviceRequestId, 'assigned');
+}
+
+export async function completeServiceRequest(requestId, jobAmount, notes = '') {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('complete_service_request', {
+    p_request_id: requestId,
+    p_job_amount: Number(jobAmount),
+    p_notes: notes.trim() || null
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function updateCommissionPayment(transactionId, paymentStatus) {
+  requireSupabaseConfig();
+  const { error } = await supabase
+    .from('commission_transactions')
+    .update({
+      payment_status: paymentStatus,
+      paid_date: paymentStatus === 'paid' ? new Date().toISOString().slice(0, 10) : null
+    })
+    .eq('id', transactionId);
+  if (error) throw error;
+}
+
+export async function createComplaint(payload) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase
+    .from('complaints')
+    .insert({
+      request_id: payload.request_id,
+      worker_id: payload.worker_id,
+      customer_name: payload.customer_name.trim(),
+      customer_phone: normalizePhone(payload.customer_phone),
+      complaint_text: payload.complaint_text.trim(),
+      resolution_status: 'open',
+      notes: payload.notes?.trim() || null
+    })
+    .select('id')
+    .single();
+  if (error) throw error;
+  await triggerAdminEmail('complaint_submitted', data.id);
+  return data;
+}
+
+export async function updateComplaintStatus(complaintId, resolutionStatus) {
+  requireSupabaseConfig();
+  const { error } = await supabase
+    .from('complaints')
+    .update({ resolution_status: resolutionStatus })
+    .eq('id', complaintId);
+  if (error) throw error;
 }
 
 export async function addAdminNote(entityType, entityId, note) {
-  if (!hasSupabaseConfig) return;
+  requireSupabaseConfig();
   const { error } = await supabase.from('admin_notes').insert({
     entity_type: entityType,
     entity_id: entityId,
-    note
+    note,
+    admin_id: (await supabase.auth.getUser()).data.user?.id || null
   });
   if (error) throw error;
+}
+
+export async function markNotificationRead(notificationId) {
+  requireSupabaseConfig();
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read_status: true })
+    .eq('id', notificationId);
+  if (error) throw error;
+}
+
+export async function markAllNotificationsRead() {
+  requireSupabaseConfig();
+  const { error } = await supabase
+    .from('notifications')
+    .update({ read_status: true })
+    .eq('read_status', false);
+  if (error) throw error;
+}
+
+export async function getReviewContext(token) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('get_review_context', { p_token: token });
+  if (error) throw error;
+  if (!data) throw new Error('This review link is invalid.');
+  return data;
+}
+
+export async function submitWorkerReview(token, rating, reviewText) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('submit_worker_review', {
+    p_token: token,
+    p_rating: Number(rating),
+    p_review_text: reviewText.trim()
+  });
+  if (error) throw error;
+  return data;
 }
 
 export async function getCurrentUserRole() {
@@ -248,4 +359,10 @@ export async function getCurrentUserRole() {
     .single();
   if (error) throw error;
   return data.role;
+}
+
+export async function signOutAdmin() {
+  requireSupabaseConfig();
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
 }
