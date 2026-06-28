@@ -1,7 +1,10 @@
-const CACHE_NAME = 'fsd-home-services-v5';
+const CACHE_NAME = 'fsd-home-services-v6';
 const APP_SHELL = [
   '/',
   '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/maskable-512.png',
   '/branding/FSD Home Services favicon.png',
   '/branding/FSD Home Services logo.png'
 ];

@@ -18,6 +18,7 @@ import {
   WHATSAPP_URL,
   WhatsAppButton
 } from '../support/WhatsAppButton';
+import { InstallAppButton, PwaInstallProvider } from '../pwa/PwaInstall';
 import { RouteMeta } from './RouteMeta';
 
 const navItems = [
@@ -44,57 +45,60 @@ export function Layout() {
     || (pathname.startsWith('/worker/') && pathname !== '/worker/login');
 
   return (
-    <div className="min-h-screen bg-slate-50 text-ink">
-      <RouteMeta />
-      {!workerDashboard && <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Link to="/" className="focus-ring flex shrink-0 items-center gap-2 rounded-lg" aria-label="FSD Home Services home">
-            <img
-              src="/branding/FSD Home Services logo.png"
-              alt="FSD Home Services"
-              className="h-12 w-12 rounded-lg object-cover"
-            />
-            <span className="hidden font-bold text-brand-700 sm:inline">FSD Home Services</span>
-          </Link>
-          <button
-            className="focus-ring rounded-lg border border-slate-200 p-2 lg:hidden"
-            onClick={() => setOpen((value) => !value)}
-            aria-label="Toggle navigation"
-          >
-            <Menu size={22} />
-          </button>
-          <nav className="hidden items-center gap-1 lg:flex">
-            {navItems.map(([to, label]) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'}`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-            <WhatsAppButton compact className="ml-1">WhatsApp Us</WhatsAppButton>
-          </nav>
-        </div>
-        {open && (
-          <nav className="grid gap-1 border-t border-slate-100 bg-white px-4 py-3 lg:hidden">
-            {navItems.map(([to, label]) => (
-              <NavLink key={to} to={to} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
-                {label}
-              </NavLink>
-            ))}
-            <WhatsAppButton className="mt-2 w-full">WhatsApp Us</WhatsAppButton>
-          </nav>
-        )}
-      </header>}
-      <main>
-        <Outlet />
-      </main>
-      {!workerDashboard && <FloatingWhatsAppButton />}
-      {!workerDashboard && <SiteFooter />}
-    </div>
+    <PwaInstallProvider>
+      <div className="min-h-screen bg-slate-50 text-ink">
+        <RouteMeta />
+        {!workerDashboard && <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+            <Link to="/" className="focus-ring flex shrink-0 items-center gap-2 rounded-lg" aria-label="FSD Home Services home">
+              <img
+                src="/branding/FSD Home Services logo.png"
+                alt="FSD Home Services"
+                className="h-12 w-12 rounded-lg object-cover"
+              />
+              <span className="hidden font-bold text-brand-700 sm:inline">FSD Home Services</span>
+            </Link>
+            <button
+              className="focus-ring rounded-lg border border-slate-200 p-2 lg:hidden"
+              onClick={() => setOpen((value) => !value)}
+              aria-label="Toggle navigation"
+            >
+              <Menu size={22} />
+            </button>
+            <nav className="hidden items-center gap-1 lg:flex">
+              {navItems.map(([to, label]) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-100'}`
+                  }
+                >
+                  {label}
+                </NavLink>
+              ))}
+              <WhatsAppButton compact className="ml-1">WhatsApp Us</WhatsAppButton>
+            </nav>
+          </div>
+          {open && (
+            <nav className="grid gap-1 border-t border-slate-100 bg-white px-4 py-3 lg:hidden">
+              {navItems.map(([to, label]) => (
+                <NavLink key={to} to={to} onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+                  {label}
+                </NavLink>
+              ))}
+              <InstallAppButton className="mt-2 w-full" showIosNote />
+              <WhatsAppButton className="mt-2 w-full">WhatsApp Us</WhatsAppButton>
+            </nav>
+          )}
+        </header>}
+        <main>
+          <Outlet />
+        </main>
+        {!workerDashboard && <FloatingWhatsAppButton />}
+        {!workerDashboard && <SiteFooter />}
+      </div>
+    </PwaInstallProvider>
   );
 }
 
@@ -153,6 +157,7 @@ function SiteFooter() {
             WhatsApp Support
           </a>
           <WhatsAppButton prefilled className="mt-3 w-full sm:w-auto">Chat on WhatsApp</WhatsAppButton>
+          <InstallAppButton className="mt-3 w-full sm:w-auto" showIosNote variant="dark" />
           <p className="mt-3 text-xs leading-5 text-slate-400">We usually respond within a few minutes during working hours.</p>
         </section>
 

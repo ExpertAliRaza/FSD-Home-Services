@@ -24,6 +24,7 @@ export default [
         self: 'readonly',
         fetch: 'readonly',
         setTimeout: 'readonly',
+        clearTimeout: 'readonly',
         URL: 'readonly'
       },
       parserOptions: { ecmaFeatures: { jsx: true } }

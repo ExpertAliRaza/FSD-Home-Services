@@ -23,6 +23,9 @@ const workerSignupForm = await readFile(new URL('../src/components/forms/WorkerS
 const workerDirectory = await readFile(new URL('../src/pages/public/WorkerDirectory.jsx', import.meta.url), 'utf8');
 const layout = await readFile(new URL('../src/components/layout/Layout.jsx', import.meta.url), 'utf8');
 const routeMeta = await readFile(new URL('../src/components/layout/RouteMeta.jsx', import.meta.url), 'utf8');
+const home = await readFile(new URL('../src/pages/public/Home.jsx', import.meta.url), 'utf8');
+const manifest = await readFile(new URL('../public/manifest.json', import.meta.url), 'utf8');
+const pwaInstall = await readFile(new URL('../src/components/pwa/PwaInstall.jsx', import.meta.url), 'utf8');
 
 test('public worker view excludes private columns and filters approval', () => {
   const view = schema.slice(
@@ -228,6 +231,28 @@ test('public footer is trust-focused, responsive, and contains official social l
   assert.match(layout, /xl:grid-cols-\[1\.55fr_repeat\(4,minmax\(0,1fr\)\)\]/);
   assert.match(layout, /Privacy Policy/);
   assert.match(layout, /Terms of Service/);
+});
+
+test('PWA install experience uses the browser prompt and iPhone fallback copy', () => {
+  const parsedManifest = JSON.parse(manifest);
+
+  assert.equal(parsedManifest.name, 'FSD Home Services');
+  assert.equal(parsedManifest.short_name, 'FSD Services');
+  assert.equal(parsedManifest.theme_color, '#0f766e');
+  assert.equal(parsedManifest.background_color, '#ffffff');
+  assert.equal(parsedManifest.display, 'standalone');
+  assert.equal(parsedManifest.start_url, '/');
+  assert.equal(parsedManifest.scope, '/');
+  assert.match(manifest, /icon-192\.png/);
+  assert.match(manifest, /icon-512\.png/);
+  assert.match(manifest, /maskable-512\.png/);
+  assert.match(pwaInstall, /beforeinstallprompt/);
+  assert.match(pwaInstall, /appinstalled/);
+  assert.match(pwaInstall, /installPrompt\.prompt\(\)/);
+  assert.match(pwaInstall, /Add to Home Screen/);
+  assert.match(layout, /<InstallAppButton className="mt-2 w-full" showIosNote \/>/);
+  assert.match(layout, /<InstallAppButton className="mt-3 w-full sm:w-auto" showIosNote variant="dark" \/>/);
+  assert.match(home, /<InstallAppButton showIosNote \/>/);
 });
 
 test('worker signup prepares the authenticated profile and keeps applications pending', () => {
