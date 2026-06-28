@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Lock, MapPin, ShieldCheck, UserCheck } from 'lucide-react';
 import { areas, services } from '../../data/catalog';
 import { WhatsAppButton } from '../../components/support/WhatsAppButton';
-import { InstallAppButton } from '../../components/pwa/PwaInstall';
 
 export function Home() {
   return (
@@ -17,7 +16,6 @@ export function Home() {
               <Link to="/request-service" className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-700 px-5 py-3 font-bold text-white hover:bg-brand-600">
                 Request a Worker <ArrowRight size={18} />
               </Link>
-              <InstallAppButton showIosNote />
               <WhatsAppButton prefilled>Chat on WhatsApp</WhatsAppButton>
             </div>
             <Link to="/workers" className="mt-4 inline-block text-sm font-bold text-brand-700 hover:underline">

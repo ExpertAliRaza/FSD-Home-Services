@@ -250,9 +250,9 @@ test('PWA install experience uses the browser prompt and iPhone fallback copy', 
   assert.match(pwaInstall, /appinstalled/);
   assert.match(pwaInstall, /installPrompt\.prompt\(\)/);
   assert.match(pwaInstall, /Add to Home Screen/);
-  assert.match(layout, /<InstallAppButton className="mt-2 w-full" showIosNote \/>/);
+  assert.match(layout, /<InstallAppButton compact className="min-h-10" \/>/);
   assert.match(layout, /<InstallAppButton className="mt-3 w-full sm:w-auto" showIosNote variant="dark" \/>/);
-  assert.match(home, /<InstallAppButton showIosNote \/>/);
+  assert.doesNotMatch(home, /InstallAppButton/);
 });
 
 test('worker signup prepares the authenticated profile and keeps applications pending', () => {

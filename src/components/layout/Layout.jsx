@@ -58,13 +58,16 @@ export function Layout() {
               />
               <span className="hidden font-bold text-brand-700 sm:inline">FSD Home Services</span>
             </Link>
-            <button
-              className="focus-ring rounded-lg border border-slate-200 p-2 lg:hidden"
-              onClick={() => setOpen((value) => !value)}
-              aria-label="Toggle navigation"
-            >
-              <Menu size={22} />
-            </button>
+            <div className="flex items-center gap-2 lg:hidden">
+              <InstallAppButton compact className="min-h-10" />
+              <button
+                className="focus-ring rounded-lg border border-slate-200 p-2"
+                onClick={() => setOpen((value) => !value)}
+                aria-label="Toggle navigation"
+              >
+                <Menu size={22} />
+              </button>
+            </div>
             <nav className="hidden items-center gap-1 lg:flex">
               {navItems.map(([to, label]) => (
                 <NavLink
@@ -87,7 +90,6 @@ export function Layout() {
                   {label}
                 </NavLink>
               ))}
-              <InstallAppButton className="mt-2 w-full" showIosNote />
               <WhatsAppButton className="mt-2 w-full">WhatsApp Us</WhatsAppButton>
             </nav>
           )}
