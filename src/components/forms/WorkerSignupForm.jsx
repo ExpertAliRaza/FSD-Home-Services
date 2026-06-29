@@ -23,7 +23,6 @@ export function WorkerSignupForm() {
     payload.cnic_front = data.get('cnic_front');
     payload.cnic_back = data.get('cnic_back');
     payload.profile_photo = data.get('profile_photo');
-    payload.work_photos = data.getAll('work_photos').filter((file) => file?.name);
 
     if (!isValidPakistanPhone(payload.phone)) {
       setError('Enter a valid Pakistani mobile number, for example 03001234567.');
@@ -37,22 +36,13 @@ export function WorkerSignupForm() {
       setError('Select at least one area you cover.');
       return;
     }
-    if (!payload.work_photos.length) {
-      setError('Upload at least one work photo.');
-      return;
-    }
     const fileErrors = [
       validateImage(payload.profile_photo, 'Profile photo', true),
       validateImage(payload.cnic_front, 'CNIC front image', true),
-      validateImage(payload.cnic_back, 'CNIC back image', true),
-      ...payload.work_photos.map((file, index) => validateImage(file, `Work photo ${index + 1}`, true))
+      validateImage(payload.cnic_back, 'CNIC back image', true)
     ].filter(Boolean);
     if (fileErrors.length) {
       setError(fileErrors[0]);
-      return;
-    }
-    if (payload.work_photos.length > 6) {
-      setError('Upload no more than 6 work photos.');
       return;
     }
     if (!turnstileToken) {
@@ -98,9 +88,6 @@ export function WorkerSignupForm() {
             </label>
           ))}
         </div>
-      </Field>
-      <Field label="Work photos">
-        <input className={inputClass} name="work_photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required />
       </Field>
       <TurnstileWidget onToken={setTurnstileToken} resetKey={turnstileResetKey} />
       <label className="flex items-start gap-2 text-sm text-slate-600">

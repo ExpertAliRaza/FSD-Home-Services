@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
-import { BadgeCheck } from 'lucide-react';
 import { WHATSAPP_REQUEST_URL } from '../support/WhatsAppButton';
+import { PublicVerificationBadge, formatWorkerId } from '../worker/VerificationCard';
 
 export function WorkerCard({ worker }) {
   const initials = worker.display_name?.split(' ').map((part) => part[0]).slice(0, 2).join('');
+  const workerAnchorId = `worker-${formatWorkerId(worker.id)}`;
 
   return (
-    <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <article id={workerAnchorId} className="scroll-mt-24 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="flex gap-4 border-b border-slate-100 p-4">
         {worker.profile_photo_url ? (
           <img src={worker.profile_photo_url} alt={`${worker.display_name}, ${worker.service_name}`} className="h-20 w-20 shrink-0 rounded-lg object-cover" />
@@ -23,15 +24,19 @@ export function WorkerCard({ worker }) {
       </div>
 
       <div className="px-4 pt-4">
-        <span className="inline-flex min-h-8 items-center gap-1 rounded-full bg-brand-50 px-3 text-xs font-bold text-brand-800">
-          <BadgeCheck size={15} />
-          Verified Worker
-        </span>
+        <PublicVerificationBadge worker={worker} />
       </div>
 
       <Link
+        to={`/workers/${encodeURIComponent(worker.id)}`}
+        className="mx-4 mt-4 block min-h-11 rounded-lg border border-brand-700 bg-white px-4 py-3 text-center text-sm font-bold text-brand-800 hover:bg-brand-50"
+      >
+        View Profile
+      </Link>
+
+      <Link
         to={`/request-service?worker=${encodeURIComponent(worker.id)}&service=${encodeURIComponent(worker.service_name)}`}
-        className="mx-4 mt-4 block min-h-11 rounded-lg bg-brand-700 px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-600"
+        className="mx-4 mt-3 block min-h-11 rounded-lg bg-brand-700 px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-600"
       >
         Request This Worker
       </Link>

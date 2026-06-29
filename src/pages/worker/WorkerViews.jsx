@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { areas } from '../../data/catalog';
 import {
-  addWorkerWorkPhotos, markNotificationRead, removeWorkerWorkPhoto, replaceWorkerDocuments,
+  markNotificationRead, replaceWorkerDocuments,
   respondToLead, updateNotificationPreferences, updateWorkerPassword, updateWorkerProfile
 } from '../../lib/api';
 import { validateImage } from '../../lib/validation';
+import { VerificationCardPanel } from '../../components/worker/VerificationCard';
 
 export function WorkerHome() {
   const data = useOutletContext();
@@ -147,29 +148,10 @@ export function WorkerProfile() {
       setMessage(error.message || 'Could not update profile.');
     }
   };
-  const uploadPhotos = async (event) => {
-    const files = Array.from(event.target.files || []);
-    const error = files.map((file, index) => validateImage(file, `Work photo ${index + 1}`, true)).find(Boolean);
-    if (error) return setMessage(error);
-    try {
-      await addWorkerWorkPhotos(files);
-      setMessage('Work photos uploaded for review.');
-      await data.reload();
-    } catch (uploadError) {
-      setMessage(uploadError.message || 'Could not upload work photos.');
-    }
-  };
-  const removePhoto = async (photo) => {
-    try {
-      await removeWorkerWorkPhoto(photo.id, photo.photo_url);
-      await data.reload();
-    } catch (error) {
-      setMessage(error.message || 'Could not remove work photo.');
-    }
-  };
   return (
     <WorkerSection title="Profile" subtitle="Keep your public service information current.">
-      <form onSubmit={save} className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5">
+      <VerificationCardPanel worker={data.worker} />
+      <form onSubmit={save} className="mt-5 grid gap-4 rounded-lg border border-slate-200 bg-white p-5">
         <Input label="Bio"><textarea rows="4" maxLength="1000" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} /></Input>
         <div className="grid gap-4 sm:grid-cols-2">
           <Input label="Experience years"><input type="number" min="0" max="80" value={form.experience_years} onChange={(e) => setForm({ ...form, experience_years: e.target.value })} /></Input>
@@ -179,11 +161,6 @@ export function WorkerProfile() {
         <fieldset><legend className="text-sm font-bold text-slate-700">Areas covered</legend><div className="mt-2 grid gap-2 sm:grid-cols-2">{areas.map((area) => <label key={area} className="flex gap-2 text-sm"><input type="checkbox" checked={form.areas_covered.includes(area)} onChange={(e) => setForm({ ...form, areas_covered: e.target.checked ? [...form.areas_covered, area] : form.areas_covered.filter((item) => item !== area) })} />{area}</label>)}</div></fieldset>
         <button className="min-h-11 rounded-lg bg-brand-700 px-4 font-bold text-white">Save Profile</button>
       </form>
-      <div className="mt-5 rounded-lg border border-slate-200 bg-white p-5">
-        <h3 className="font-bold">Work Photos</h3>
-        <input type="file" multiple accept="image/jpeg,image/png,image/webp" onChange={uploadPhotos} className="mt-3 w-full" />
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">{data.worker.worker_photos.map((photo) => <div key={photo.id}><img src={photo.signed_url} alt="Worker portfolio" className="aspect-square w-full rounded-lg object-cover" /><button onClick={() => removePhoto(photo)} className="mt-1 min-h-9 text-sm font-bold text-red-700">Remove</button></div>)}</div>
-      </div>
       {message && <Status>{message}</Status>}
     </WorkerSection>
   );
@@ -268,7 +245,7 @@ function workerMetrics(data) {
   };
 }
 function profileCompletion(worker) {
-  const values = [worker.display_name, worker.phone, worker.cnic_front_url, worker.cnic_back_url, worker.profile_photo_url, worker.service_category_id, worker.experience_years !== null, worker.areas_covered?.length, worker.availability, worker.expected_visit_charges !== null, worker.bio, worker.worker_photos?.length];
+  const values = [worker.display_name, worker.phone, worker.cnic_front_url, worker.cnic_back_url, worker.profile_photo_url, worker.service_category_id, worker.experience_years !== null, worker.areas_covered?.length, worker.availability, worker.expected_visit_charges !== null, worker.bio];
   return Math.round((values.filter(Boolean).length / values.length) * 100);
 }
 function LeadCard({ assignment, children }) {

@@ -50,6 +50,37 @@ export async function getPublicWorkers() {
   })));
 }
 
+export async function getPublicWorkerProfile(workerId) {
+  requireSupabaseConfig();
+
+  const { data: worker, error } = await supabase
+    .from('public_worker_profiles')
+    .select('*')
+    .eq('id', workerId)
+    .single();
+
+  if (error) throw error;
+  if (!worker) throw new Error('Worker profile was not found.');
+
+  const reviewsResult = await supabase
+    .from('public_worker_reviews')
+    .select('*')
+    .eq('worker_id', workerId)
+    .order('created_at', { ascending: false });
+
+  if (reviewsResult.error) throw reviewsResult.error;
+
+  return {
+    worker: {
+      ...worker,
+      profile_photo_url: worker.profile_photo_url
+        ? await signStoragePath(workerPublicBucket, worker.profile_photo_url)
+        : ''
+    },
+    reviews: reviewsResult.data || []
+  };
+}
+
 async function signStoragePath(bucket, path, expiresIn = 3600) {
   if (!path || path.startsWith('http') || path.startsWith('/')) return path || '';
   const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresIn);
@@ -162,13 +193,6 @@ export async function signUpWorker(payload, turnstileVerificationId) {
     uploads.cnic_back_url = await uploadPrivate(payload.cnic_back, 'cnic-back');
     uploads.profile_photo_url = await uploadPublic(payload.profile_photo, 'profile');
 
-    const workFiles = Array.from(payload.work_photos || []);
-    const workPhotoUrls = [];
-    for (const file of workFiles) {
-      const path = await uploadPublic(file, 'work');
-      workPhotoUrls.push(path);
-    }
-
     const { data: worker, error } = await supabase.rpc('submit_worker_application', {
       p_display_name: payload.full_name.trim(),
       p_phone: phone,
@@ -182,7 +206,7 @@ export async function signUpWorker(payload, turnstileVerificationId) {
       p_areas_covered: payload.areas_covered,
       p_availability: payload.availability,
       p_expected_visit_charges: Number(payload.expected_visit_charges || 0),
-      p_work_photo_urls: workPhotoUrls
+      p_work_photo_urls: []
     });
     if (error) throw workerSignupError(error);
 
@@ -321,6 +345,15 @@ export async function completeServiceRequest(requestId, jobAmount, notes = '') {
   return data;
 }
 
+export async function createReviewInvitationForRequest(requestId) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('create_review_invitation_for_request', {
+    p_request_id: requestId
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function updateCommissionPayment(transactionId, paymentStatus) {
   requireSupabaseConfig();
   const { error } = await supabase
@@ -389,6 +422,13 @@ export async function markAllNotificationsRead() {
     .update({ is_read: true })
     .eq('is_read', false);
   if (error) throw error;
+}
+
+export async function clearMyNotifications() {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('clear_my_notifications');
+  if (error) throw error;
+  return data;
 }
 
 export async function getReviewContext(token) {

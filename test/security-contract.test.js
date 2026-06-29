@@ -26,6 +26,16 @@ const routeMeta = await readFile(new URL('../src/components/layout/RouteMeta.jsx
 const home = await readFile(new URL('../src/pages/public/Home.jsx', import.meta.url), 'utf8');
 const manifest = await readFile(new URL('../public/manifest.json', import.meta.url), 'utf8');
 const pwaInstall = await readFile(new URL('../src/components/pwa/PwaInstall.jsx', import.meta.url), 'utf8');
+const workerViews = await readFile(new URL('../src/pages/worker/WorkerViews.jsx', import.meta.url), 'utf8');
+const workerCard = await readFile(new URL('../src/components/cards/WorkerCard.jsx', import.meta.url), 'utf8');
+const verificationCard = await readFile(new URL('../src/components/worker/VerificationCard.jsx', import.meta.url), 'utf8');
+const publicWorkerProfile = await readFile(new URL('../src/pages/public/WorkerProfile.jsx', import.meta.url), 'utf8');
+const publicWorkerProfilesMigration = await readFile(new URL('../supabase/migrations/015_public_worker_profiles.sql', import.meta.url), 'utf8');
+const clearNotificationsMigration = await readFile(new URL('../supabase/migrations/016_clear_my_notifications.sql', import.meta.url), 'utf8');
+const createReviewInvitationMigration = await readFile(new URL('../supabase/migrations/017_create_review_invitation_for_completed_request.sql', import.meta.url), 'utf8');
+const allowReviewStatsMigration = await readFile(new URL('../supabase/migrations/018_allow_review_stat_updates.sql', import.meta.url), 'utf8');
+const optionalWorkPhotosMigration = await readFile(new URL('../supabase/migrations/019_make_worker_work_photos_optional.sql', import.meta.url), 'utf8');
+const adminPanel = await readFile(new URL('../src/components/dashboard/AdminPanel.jsx', import.meta.url), 'utf8');
 
 test('public worker view excludes private columns and filters approval', () => {
   const view = schema.slice(
@@ -85,6 +95,10 @@ test('review submission validates rating and updates worker aggregates', () => {
   assert.match(notificationsReviews, /rating_avg = stats\.rating_avg/);
   assert.match(notificationsReviews, /review_count = stats\.review_count/);
   assert.match(notificationsReviews, /w\.review_count/);
+  assert.match(allowReviewStatsMigration, /fsd\.allow_worker_review_stats/);
+  assert.match(allowReviewStatsMigration, /set_config\('fsd\.allow_worker_review_stats', 'on', true\)/);
+  assert.match(allowReviewStatsMigration, /new\.status is not distinct from old\.status/);
+  assert.match(allowReviewStatsMigration, /Only an admin can update approval and trust fields/);
 });
 
 test('completion creates one review invitation and requires an assignment', () => {
@@ -255,6 +269,58 @@ test('PWA install experience uses the browser prompt and iPhone fallback copy', 
   assert.doesNotMatch(home, /InstallAppButton/);
 });
 
+test('worker verification card can be downloaded and public workers show badge', () => {
+  assert.match(workerViews, /<VerificationCardPanel worker=\{data\.worker\} \/>/);
+  assert.match(workerCard, /<PublicVerificationBadge worker=\{worker\} \/>/);
+  assert.match(workerCard, /id=\{workerAnchorId\}/);
+  assert.match(verificationCard, /Verified Professional/);
+  assert.match(verificationCard, /Download PNG/);
+  assert.match(verificationCard, /Download PDF/);
+  assert.match(verificationCard, /QRCode\.toDataURL/);
+  assert.match(verificationCard, /new jsPDF/);
+  assert.match(verificationCard, /profile_photo_signed_url \|\| worker\.profile_photo_url/);
+  assert.match(verificationCard, /drawWorkerPhoto/);
+  assert.match(verificationCard, /Scan to verify/);
+  assert.match(verificationCard, /fsd-home-services\.vercel\.app/);
+  assert.match(verificationCard, /03099018308/);
+  assert.match(verificationCard, /FSD-0001/);
+  assert.match(verificationCard, /worker\.verified_at \|\| worker\.approved_at \|\| worker\.created_at/);
+  assert.match(verificationCard, /logoPath/);
+});
+
+test('public worker profiles are routable and expose only approved profile data', () => {
+  assert.match(router, /path: '\/workers\/:workerId'/);
+  assert.match(api, /getPublicWorkerProfile/);
+  assert.match(api, /public_worker_profiles/);
+  assert.match(api, /public_worker_reviews/);
+  assert.match(workerCard, /to=\{`\/workers\/\$\{encodeURIComponent\(worker\.id\)\}`\}/);
+  assert.match(verificationCard, /\/workers\/\$\{encodeURIComponent\(worker\.id\)\}/);
+  assert.match(publicWorkerProfile, /Customer Reviews/);
+  assert.doesNotMatch(publicWorkerProfile, /Work Photos|work photo|public_worker_photos/);
+  assert.match(publicWorkerProfile, /Request This Worker/);
+  assert.match(publicWorkerProfilesMigration, /where w\.status = 'approved'/);
+  assert.match(publicWorkerProfilesMigration, /wp\.status = 'approved'/);
+  assert.match(publicWorkerProfilesMigration, /grant select on public\.public_worker_profiles to anon, authenticated/);
+  assert.doesNotMatch(publicWorkerProfilesMigration, /phone|cnic_number|admin_rejection_reason/);
+});
+
+test('admin can copy review links and clear own notification inbox', () => {
+  assert.match(adminPanel, /Copy Review Link/);
+  assert.match(adminPanel, /Create Review Link/);
+  assert.match(adminPanel, /copiedReviewToken/);
+  assert.match(adminPanel, /Clear notifications/);
+  assert.match(adminPanel, /clearMyNotifications/);
+  assert.match(api, /createReviewInvitationForRequest/);
+  assert.match(api, /clear_my_notifications/);
+  assert.match(clearNotificationsMigration, /create or replace function public\.clear_my_notifications/);
+  assert.match(clearNotificationsMigration, /where recipient_id = auth\.uid\(\)/);
+  assert.match(clearNotificationsMigration, /grant execute on function public\.clear_my_notifications\(\) to authenticated/);
+  assert.match(createReviewInvitationMigration, /create or replace function public\.create_review_invitation_for_request/);
+  assert.match(createReviewInvitationMigration, /sr\.status = 'completed'/);
+  assert.match(createReviewInvitationMigration, /insert into public\.review_invitations/);
+  assert.match(createReviewInvitationMigration, /return invitation_token/);
+});
+
 test('worker signup prepares the authenticated profile and keeps applications pending', () => {
   assert.match(workerSignupFix, /prepare_worker_application_account/);
   assert.match(workerSignupFix, /values \(auth\.uid\(\), 'worker'/);
@@ -271,6 +337,7 @@ test('worker applications use phone and password without email confirmation', ()
   assert.match(workerSignupForm, /Email \(optional\)/);
   assert.match(workerSignupForm, /navigate\('\/worker', \{ replace: true \}\)/);
   assert.doesNotMatch(workerSignupForm, /Application Submitted|Open Worker Dashboard/);
+  assert.doesNotMatch(workerSignupForm, /Work photos|work_photos|Work photo/);
   assert.match(api, /create-worker-account/);
   assert.match(api, /signInWithPassword/);
   assert.match(api, /p_email: payload\.email/);
@@ -317,4 +384,11 @@ test('public worker applications block active duplicate phone and CNIC records',
   assert.match(publicWorkerApplications, /workers_active_cnic_unique_idx/);
   assert.match(publicWorkerApplications, /already exists with this phone number/);
   assert.match(publicWorkerApplications, /already exists with this CNIC/);
+});
+
+test('worker-facing profile and signup no longer collect work photos', () => {
+  assert.doesNotMatch(workerViews, /Work Photos|addWorkerWorkPhotos|removeWorkerWorkPhoto|Work photo/);
+  assert.doesNotMatch(workerViews, /worker\.worker_photos\?\.length/);
+  assert.match(optionalWorkPhotosMigration, /coalesce\(p_work_photo_urls, '\{\}'::text\[\]\)/);
+  assert.doesNotMatch(optionalWorkPhotosMigration, /Upload at least one work photo/);
 });

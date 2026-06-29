@@ -13,6 +13,7 @@ import { ServiceDetail } from '../pages/public/ServiceDetail';
 import { Services } from '../pages/public/Services';
 import { Terms } from '../pages/public/Terms';
 import { WorkerDirectory } from '../pages/public/WorkerDirectory';
+import { WorkerProfile as PublicWorkerProfile } from '../pages/public/WorkerProfile';
 import { WorkerLayout } from '../pages/worker/WorkerLayout';
 import { WorkerLogin } from '../pages/worker/WorkerLogin';
 import {
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
       { path: '/services', element: <Services /> },
       { path: '/services/:slug', element: <ServiceDetail /> },
       { path: '/workers', element: <WorkerDirectory /> },
+      { path: '/workers/:workerId', element: <PublicWorkerProfile /> },
       { path: '/become-a-worker', element: <BecomeWorker /> },
       { path: '/request-service', element: <RequestService /> },
       { path: '/review/:token', element: <Review /> },

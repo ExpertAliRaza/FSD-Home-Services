@@ -5,7 +5,9 @@ import { NotificationBell } from '../notifications/NotificationBell';
 import {
   addAdminNote,
   assignWorkerToRequest,
+  clearMyNotifications,
   completeServiceRequest,
+  createReviewInvitationForRequest,
   createComplaint,
   deleteServiceRequest,
   deleteWorker,
@@ -36,6 +38,7 @@ export function AdminPanel() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [actionKey, setActionKey] = useState('');
+  const [copiedReviewToken, setCopiedReviewToken] = useState('');
   const [completionInputs, setCompletionInputs] = useState({});
   const [complaintForm, setComplaintForm] = useState({
     request_id: '',
@@ -160,8 +163,44 @@ export function AdminPanel() {
     await runAction('notifications-all', markAllNotificationsRead);
   };
 
+  const clearNotifications = async () => {
+    const confirmed = window.confirm('Clear all notifications from this admin inbox?');
+    if (!confirmed) return;
+    await runAction('notifications-clear', clearMyNotifications);
+  };
+
   const copyReviewLink = async (token) => {
     await navigator.clipboard.writeText(`${window.location.origin}/review/${token}`);
+    setCopiedReviewToken(token);
+    window.setTimeout(() => setCopiedReviewToken(''), 2500);
+  };
+
+  const createReviewLink = async (requestId) => {
+    setActionKey(`review-link-${requestId}`);
+    setError('');
+    try {
+      const token = await createReviewInvitationForRequest(requestId);
+      setData((current) => ({
+        ...current,
+        requests: current.requests.map((request) => (
+          request.id === requestId
+            ? {
+                ...request,
+                review_invitations: [{
+                  token,
+                  expires_at: null,
+                  used_at: null
+                }]
+              }
+            : request
+        ))
+      }));
+      await copyReviewLink(token);
+    } catch (err) {
+      setError(err.message || 'Could not create the review link.');
+    } finally {
+      setActionKey('');
+    }
   };
 
   const logout = async () => {
@@ -234,16 +273,28 @@ export function AdminPanel() {
               <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs text-white">{unreadNotifications.length}</span>
             )}
           </h2>
-          {unreadNotifications.length > 0 && (
-            <button
-              onClick={readAllNotifications}
-              disabled={actionKey === 'notifications-all'}
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold hover:bg-slate-50 disabled:opacity-50"
-            >
-              <CheckCheck size={17} />
-              Mark all read
-            </button>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {unreadNotifications.length > 0 && (
+              <button
+                onClick={readAllNotifications}
+                disabled={actionKey === 'notifications-all'}
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold hover:bg-slate-50 disabled:opacity-50"
+              >
+                <CheckCheck size={17} />
+                Mark all read
+              </button>
+            )}
+            {data.notifications.length > 0 && (
+              <button
+                onClick={clearNotifications}
+                disabled={actionKey === 'notifications-clear'}
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-red-200 bg-white px-4 text-sm font-bold text-red-700 hover:bg-red-50 disabled:opacity-50"
+              >
+                <Trash2 size={17} />
+                Clear notifications
+              </button>
+            )}
+          </div>
         </div>
         <div className="grid gap-3">
           {data.notifications.map((notification) => (
@@ -390,9 +441,24 @@ export function AdminPanel() {
                           className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-lg bg-blue-700 px-4 font-bold text-white hover:bg-blue-600"
                         >
                           <Clipboard size={17} />
-                          Copy Review Link
+                          {copiedReviewToken === request.review_invitations[0].token ? 'Copied' : 'Copy Review Link'}
                         </button>
                       )}
+                    </div>
+                  )}
+                  {request.status === 'completed' && !request.review_invitations?.length && (
+                    <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm">
+                      <p className="font-bold text-blue-950">Customer review link</p>
+                      <p className="mt-1 text-blue-900">No review link exists for this completed request yet.</p>
+                      <button
+                        type="button"
+                        onClick={() => createReviewLink(request.id)}
+                        disabled={actionKey === `review-link-${request.id}`}
+                        className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-lg bg-blue-700 px-4 font-bold text-white hover:bg-blue-600 disabled:opacity-50"
+                      >
+                        <Clipboard size={17} />
+                        {actionKey === `review-link-${request.id}` ? 'Creating...' : 'Create Review Link'}
+                      </button>
                     </div>
                   )}
                 </div>
