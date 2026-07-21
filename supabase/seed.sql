@@ -6,6 +6,7 @@ insert into public.areas (id, name, slug) values
   ('Jinnah Colony', 'Jinnah Colony', 'jinnah-colony'),
   ('Gulberg', 'Gulberg', 'gulberg'),
   ('Susan Road', 'Susan Road', 'susan-road'),
+  ('Samundri Road', 'Samundri Road', 'samundri-road'),
   ('Canal Road', 'Canal Road', 'canal-road'),
   ('Satiana Road', 'Satiana Road', 'satiana-road'),
   ('Millat Town', 'Millat Town', 'millat-town'),

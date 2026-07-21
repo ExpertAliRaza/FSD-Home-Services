@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 import { WHATSAPP_REQUEST_URL } from '../support/WhatsAppButton';
-import { PublicVerificationBadge, formatWorkerId } from '../worker/VerificationCard';
+import { PublicVerificationBadge, formatWorkerId, isWorkerIdentityVerified } from '../worker/VerificationCard';
 
 export function WorkerCard({ worker }) {
   const initials = worker.display_name?.split(' ').map((part) => part[0]).slice(0, 2).join('');
   const workerAnchorId = `worker-${formatWorkerId(worker.id)}`;
+  const identityVerified = isWorkerIdentityVerified(worker);
 
   return (
     <article id={workerAnchorId} className="scroll-mt-24 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -23,9 +24,11 @@ export function WorkerCard({ worker }) {
         </div>
       </div>
 
-      <div className="px-4 pt-4">
-        <PublicVerificationBadge worker={worker} />
-      </div>
+      {identityVerified && (
+        <div className="px-4 pt-4">
+          <PublicVerificationBadge worker={worker} />
+        </div>
+      )}
 
       <Link
         to={`/workers/${encodeURIComponent(worker.id)}`}

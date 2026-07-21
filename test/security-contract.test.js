@@ -24,6 +24,8 @@ const workerDirectory = await readFile(new URL('../src/pages/public/WorkerDirect
 const layout = await readFile(new URL('../src/components/layout/Layout.jsx', import.meta.url), 'utf8');
 const routeMeta = await readFile(new URL('../src/components/layout/RouteMeta.jsx', import.meta.url), 'utf8');
 const home = await readFile(new URL('../src/pages/public/Home.jsx', import.meta.url), 'utf8');
+const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+const sitemap = await readFile(new URL('../public/sitemap.xml', import.meta.url), 'utf8');
 const manifest = await readFile(new URL('../public/manifest.json', import.meta.url), 'utf8');
 const pwaInstall = await readFile(new URL('../src/components/pwa/PwaInstall.jsx', import.meta.url), 'utf8');
 const workerViews = await readFile(new URL('../src/pages/worker/WorkerViews.jsx', import.meta.url), 'utf8');
@@ -35,7 +37,21 @@ const clearNotificationsMigration = await readFile(new URL('../supabase/migratio
 const createReviewInvitationMigration = await readFile(new URL('../supabase/migrations/017_create_review_invitation_for_completed_request.sql', import.meta.url), 'utf8');
 const allowReviewStatsMigration = await readFile(new URL('../supabase/migrations/018_allow_review_stat_updates.sql', import.meta.url), 'utf8');
 const optionalWorkPhotosMigration = await readFile(new URL('../supabase/migrations/019_make_worker_work_photos_optional.sql', import.meta.url), 'utf8');
+const optionalWorkerSignupFieldsMigration = await readFile(new URL('../supabase/migrations/020_make_worker_signup_optional_documents_and_pricing.sql', import.meta.url), 'utf8');
+const noWorkPhotosHotfixMigration = await readFile(new URL('../supabase/migrations/021_hotfix_worker_signup_no_work_photos.sql', import.meta.url), 'utf8');
+const samundriRoadAreaMigration = await readFile(new URL('../supabase/migrations/022_add_samundri_road_area.sql', import.meta.url), 'utf8');
+const minimalWorkerSignupMigration = await readFile(new URL('../supabase/migrations/023_make_worker_signup_minimal_required_fields.sql', import.meta.url), 'utf8');
+const adminWorkerAssetUploadsMigration = await readFile(new URL('../supabase/migrations/024_allow_admin_worker_asset_uploads.sql', import.meta.url), 'utf8');
+const identityVerifiedMigration = await readFile(new URL('../supabase/migrations/025_public_worker_identity_verified_flag.sql', import.meta.url), 'utf8');
+const clearFallbackCnicsMigration = await readFile(new URL('../supabase/migrations/026_clear_fallback_worker_cnics.sql', import.meta.url), 'utf8');
 const adminPanel = await readFile(new URL('../src/components/dashboard/AdminPanel.jsx', import.meta.url), 'utf8');
+const businessIntelligenceCenter = await readFile(new URL('../src/components/dashboard/BusinessIntelligenceCenter.jsx', import.meta.url), 'utf8');
+const businessIntelligence = await readFile(new URL('../src/lib/businessIntelligence.js', import.meta.url), 'utf8');
+const reportCenter = await readFile(new URL('../src/lib/reportCenter.js', import.meta.url), 'utf8');
+const exportCenter = await readFile(new URL('../src/lib/exportCenter.js', import.meta.url), 'utf8');
+const catalog = await readFile(new URL('../src/data/catalog.js', import.meta.url), 'utf8');
+const vercelConfig = await readFile(new URL('../vercel.json', import.meta.url), 'utf8');
+const serviceWorker = await readFile(new URL('../public/sw.js', import.meta.url), 'utf8');
 
 test('public worker view excludes private columns and filters approval', () => {
   const view = schema.slice(
@@ -44,6 +60,22 @@ test('public worker view excludes private columns and filters approval', () => {
   );
   assert.match(view, /where w\.status = 'approved'/);
   assert.doesNotMatch(view, /\bw\.phone\b|\bw\.cnic_number\b|admin_rejection_reason/);
+});
+
+test('Samundri Road is available anywhere service areas are sourced', () => {
+  assert.match(catalog, /'Samundri Road'/);
+  assert.match(seed, /\('Samundri Road', 'Samundri Road', 'samundri-road'\)/);
+  assert.match(samundriRoadAreaMigration, /values \('Samundri Road', 'Samundri Road', 'samundri-road'\)/);
+  assert.match(samundriRoadAreaMigration, /is_active = true/);
+});
+
+test('homepage hero links to worker signup instead of WhatsApp chat', () => {
+  const hero = home.slice(home.indexOf('<section className="bg-white">'), home.indexOf('<Trust icon={<ShieldCheck />}'));
+  assert.match(hero, /to="\/request-service"/);
+  assert.match(hero, /Request a Worker/);
+  assert.match(hero, /to="\/become-a-worker"/);
+  assert.match(hero, /Become a Worker/);
+  assert.doesNotMatch(hero, /WhatsAppButton|Chat on WhatsApp/);
 });
 
 test('raw workers are not publicly readable', () => {
@@ -227,6 +259,51 @@ test('public workers route keeps the public layout and remains indexable', () =>
   assert.match(routeMeta, /pathname\.startsWith\('\/worker\/'\)/);
 });
 
+test('app has production error handling, hardened exports, headers, and service-worker freshness', () => {
+  assert.match(router, /errorElement: <AppError \/>/);
+  assert.match(exportCenter, /escapeSpreadsheetFormula/);
+  assert.match(exportCenter, /\^\[=\+\\-@\]/);
+  assert.match(vercelConfig, /Strict-Transport-Security/);
+  assert.match(vercelConfig, /X-Download-Options/);
+  assert.match(serviceWorker, /fsd-home-services-v8/);
+  assert.match(serviceWorker, /\['style', 'script'\]\.includes/);
+});
+
+test('public worker directory ranks verified and complete profiles before name sorting', () => {
+  assert.match(api, /function comparePublicWorkers/);
+  assert.match(api, /function getPublicWorkerRank/);
+  assert.match(api, /worker\.identity_verified \? 10000 : 0/);
+  assert.match(api, /worker\.profile_photo_url/);
+  assert.match(api, /worker\.service_name/);
+  assert.match(api, /worker\.area_name/);
+  assert.match(api, /worker\.rating_avg/);
+  assert.match(api, /worker\.completed_jobs_count/);
+  assert.match(api, /worker\.repeat_customers_count/);
+  assert.match(api, /worker\.reliability_score/);
+  assert.match(api, /\.sort\(comparePublicWorkers\)/);
+  assert.doesNotMatch(api, /public_worker_cards'\)\s*\n\s*\.select\('\*'\)\s*\n\s*\.order\('display_name'\)/);
+});
+
+test('site exposes local-business and service structured data for SEO', () => {
+  assert.match(indexHtml, /application\/ld\+json/);
+  assert.match(indexHtml, /HomeAndConstructionBusiness/);
+  assert.match(indexHtml, /https:\/\/share\.google\/hN8X2NRB0svp7ZQdb/);
+  assert.match(indexHtml, /hasOfferCatalog/);
+  assert.match(indexHtml, /Plumber in Faisalabad/);
+  assert.match(indexHtml, /Electrician in Faisalabad/);
+  assert.match(indexHtml, /Samundri Road/);
+  assert.match(indexHtml, /facebook\.com\/FSD\.Home\.Services/);
+  assert.match(indexHtml, /instagram\.com\/fsd_home_services/);
+  assert.match(indexHtml, /linkedin\.com\/company\/134874243/);
+  assert.match(routeMeta, /setRouteStructuredData/);
+  assert.match(routeMeta, /'@type': 'Service'/);
+  assert.match(routeMeta, /'@type': 'ItemList'/);
+  assert.match(routeMeta, /'@type': 'BreadcrumbList'/);
+  assert.match(routeMeta, /areaServedStructuredData/);
+  assert.match(routeMeta, /termsOfService: `\$\{siteUrl\}\/terms`/);
+  assert.match(routeMeta, /element\?\.remove\(\)/);
+});
+
 test('worker login remains in the public layout while dashboard routes use the private shell', () => {
   assert.match(layout, /pathname !== '\/worker\/login'/);
   assert.doesNotMatch(layout, /\['\/worker\/login', 'Worker Login'\]/);
@@ -245,6 +322,14 @@ test('public footer is trust-focused, responsive, and contains official social l
   assert.match(layout, /xl:grid-cols-\[1\.55fr_repeat\(4,minmax\(0,1fr\)\)\]/);
   assert.match(layout, /Privacy Policy/);
   assert.match(layout, /Terms of Service/);
+  assert.match(layout, /Commission Policy/);
+  assert.match(layout, /Worker Verification Policy/);
+  assert.match(router, /path: '\/commission-policy'/);
+  assert.match(router, /path: '\/worker-verification-policy'/);
+  assert.match(routeMeta, /'\/commission-policy'/);
+  assert.match(routeMeta, /'\/worker-verification-policy'/);
+  assert.match(sitemap, /\/commission-policy/);
+  assert.match(sitemap, /\/worker-verification-policy/);
 });
 
 test('PWA install experience uses the browser prompt and iPhone fallback copy', () => {
@@ -271,8 +356,11 @@ test('PWA install experience uses the browser prompt and iPhone fallback copy', 
 
 test('worker verification card can be downloaded and public workers show badge', () => {
   assert.match(workerViews, /<VerificationCardPanel worker=\{data\.worker\} \/>/);
+  assert.match(workerCard, /isWorkerIdentityVerified\(worker\)/);
   assert.match(workerCard, /<PublicVerificationBadge worker=\{worker\} \/>/);
   assert.match(workerCard, /id=\{workerAnchorId\}/);
+  assert.match(verificationCard, /isWorkerIdentityVerified/);
+  assert.match(verificationCard, /hasRealCnic\(worker\.cnic_number, worker\.phone\)/);
   assert.match(verificationCard, /Verified Professional/);
   assert.match(verificationCard, /Download PNG/);
   assert.match(verificationCard, /Download PDF/);
@@ -286,6 +374,18 @@ test('worker verification card can be downloaded and public workers show badge',
   assert.match(verificationCard, /FSD-0001/);
   assert.match(verificationCard, /worker\.verified_at \|\| worker\.approved_at \|\| worker\.created_at/);
   assert.match(verificationCard, /logoPath/);
+});
+
+test('dummy fallback CNIC does not grant public identity verification', () => {
+  assert.match(identityVerifiedMigration, /has_real_worker_cnic/);
+  assert.match(identityVerifiedMigration, /identity_verified/);
+  assert.match(identityVerifiedMigration, /cnic_digits <> fallback_digits/);
+  assert.match(clearFallbackCnicsMigration, /set cnic_number = null/);
+  assert.match(clearFallbackCnicsMigration, /'98' \|\| substring/);
+  assert.match(adminPanel, /hasRealCnic\(worker\.cnic_number, worker\.phone\)/);
+  assert.match(adminPanel, /CNIC: \{realCnic \? worker\.cnic_number : 'Not provided'\}/);
+  assert.match(publicWorkerProfile, /isWorkerIdentityVerified\(worker\)/);
+  assert.match(publicWorkerProfile, /identityVerified && <PublicVerificationBadge worker=\{worker\} \/>/);
 });
 
 test('public worker profiles are routable and expose only approved profile data', () => {
@@ -321,6 +421,71 @@ test('admin can copy review links and clear own notification inbox', () => {
   assert.match(createReviewInvitationMigration, /return invitation_token/);
 });
 
+test('admin can edit worker profile details from the dashboard', () => {
+  assert.match(adminPanel, /Edit Profile/);
+  assert.match(adminPanel, /saveWorkerEdit/);
+  assert.match(adminPanel, /updateAdminWorkerProfile/);
+  assert.match(adminPanel, /workerEditForm\.display_name/);
+  assert.match(adminPanel, /workerEditForm\.phone/);
+  assert.match(adminPanel, /workerEditForm\.service_category_id/);
+  assert.match(adminPanel, /workerEditForm\.areas_covered/);
+  assert.match(adminPanel, /name="profile_photo"/);
+  assert.match(adminPanel, /name="cnic_front"/);
+  assert.match(adminPanel, /name="cnic_back"/);
+  assert.match(api, /export async function updateAdminWorkerProfile/);
+  assert.match(api, /uploadAdminWorkerImage/);
+  assert.match(api, /`\$\{userData\.user\.id\}\/admin-\$\{workerId\}\//);
+  assert.match(api, /profile_photo_url = profilePhotoUrl/);
+  assert.match(api, /cnic_front_url = cnicFrontUrl/);
+  assert.match(api, /cnic_back_url = cnicBackUrl/);
+  assert.match(api, /from\('workers'\)\s*\n\s*\.update\(updates\)/);
+  assert.match(api, /from\('profiles'\)\s*\n\s*\.update/);
+  assert.match(adminWorkerAssetUploadsMigration, /admins upload worker assets/);
+  assert.match(adminWorkerAssetUploadsMigration, /bucket_id in \('worker-public', 'worker-private'\)/);
+  assert.match(rls, /admins manage workers/);
+});
+
+test('admin dashboard includes a sanitized business intelligence and backup center', () => {
+  assert.match(adminPanel, /<BusinessIntelligenceCenter data=\{data\} loading=\{loading\} \/>/);
+  assert.match(businessIntelligenceCenter, /Executive Dashboard/);
+  assert.match(businessIntelligenceCenter, /Investor Reports/);
+  assert.match(businessIntelligenceCenter, /Business Snapshot/);
+  assert.match(businessIntelligenceCenter, /Admin Data Archive/);
+  assert.match(businessIntelligenceCenter, /Export Center/);
+  assert.match(businessIntelligenceCenter, /Backup Center/);
+  assert.match(businessIntelligenceCenter, /Create Full Backup/);
+  assert.match(businessIntelligence, /buildBusinessIntelligence/);
+  assert.match(businessIntelligence, /buildExportDatasets/);
+  assert.match(businessIntelligence, /sanitizeBackupData/);
+  assert.match(businessIntelligence, /normalizeAdminData/);
+  assert.match(businessIntelligence, /assignments: data\.assignments \|\| \[\]/);
+  assert.match(adminPanel, /assignments: \[\]/);
+  assert.match(businessIntelligence, /safeWorkerRow/);
+  assert.doesNotMatch(businessIntelligence, /cnic_front_signed_url|cnic_back_signed_url|cnic_front_url|cnic_back_url|profile_photo_signed_url/);
+  assert.match(reportCenter, /standard-admin-backup/);
+  assert.match(reportCenter, /checksum_sha256/);
+  assert.match(reportCenter, /CNIC images, signed URLs, passwords, private worker documents/);
+  assert.match(reportCenter, /archiveStorageKey/);
+  assert.match(reportCenter, /auditStorageKey/);
+  assert.match(reportCenter, /exportInvestorReport/);
+  assert.match(reportCenter, /exportBusinessSnapshot/);
+  assert.match(reportCenter, /createFullBackup/);
+  assert.match(exportCenter, /JSZip/);
+  assert.match(exportCenter, /downloadXlsx/);
+  assert.match(exportCenter, /sha256/);
+});
+
+test('worker document replacements can update only the selected file', () => {
+  assert.match(workerViews, /Choose at least one replacement file/);
+  assert.match(workerViews, /Replacement CNIC front \(optional\)/);
+  assert.match(workerViews, /Replacement CNIC back \(optional\)/);
+  assert.doesNotMatch(workerViews, /name="cnic_front"[^>]+required/);
+  assert.doesNotMatch(workerViews, /name="cnic_back"[^>]+required/);
+  assert.match(api, /replaceWorkerDocuments\(files, currentWorker = \{\}\)/);
+  assert.match(api, /p_cnic_front_url: front \|\| currentWorker\.cnic_front_url \|\| null/);
+  assert.match(api, /p_cnic_back_url: back \|\| currentWorker\.cnic_back_url \|\| null/);
+});
+
 test('worker signup prepares the authenticated profile and keeps applications pending', () => {
   assert.match(workerSignupFix, /prepare_worker_application_account/);
   assert.match(workerSignupFix, /values \(auth\.uid\(\), 'worker'/);
@@ -351,8 +516,9 @@ test('phone-password access creates a confirmed worker Auth account', () => {
   assert.match(createWorkerAccount, /email_confirm: true/);
   assert.match(createWorkerAccount, /role: 'worker'/);
   assert.match(createWorkerAccount, /auth\.fsdhomeservices\.pk/);
-  assert.match(createWorkerAccount, /cnic_number/);
-  assert.match(createWorkerAccount, /active worker application already exists/i);
+  assert.match(createWorkerAccount, /cnicNumber/);
+  assert.match(createWorkerAccount, /active worker application already exists with this phone number/i);
+  assert.doesNotMatch(createWorkerAccount, /\.eq\('cnic_number', cnicNumber\)/);
   assert.match(workerPhonePassword, /profile_id, display_name, phone, email/);
   assert.match(workerPhonePassword, /auth\.uid\(\), trim\(p_display_name\)/);
   assert.match(workerPhonePassword, /p_expected_visit_charges, 'pending'/);
@@ -390,5 +556,39 @@ test('worker-facing profile and signup no longer collect work photos', () => {
   assert.doesNotMatch(workerViews, /Work Photos|addWorkerWorkPhotos|removeWorkerWorkPhoto|Work photo/);
   assert.doesNotMatch(workerViews, /worker\.worker_photos\?\.length/);
   assert.match(optionalWorkPhotosMigration, /coalesce\(p_work_photo_urls, '\{\}'::text\[\]\)/);
+  assert.match(optionalWorkerSignupFieldsMigration, /drop function if exists public\.submit_worker_application/);
+  assert.match(optionalWorkerSignupFieldsMigration, /coalesce\(p_work_photo_urls, '\{\}'::text\[\]\)/);
+  assert.match(noWorkPhotosHotfixMigration, /coalesce\(p_work_photo_urls, '\{\}'::text\[\]\)/);
   assert.doesNotMatch(optionalWorkPhotosMigration, /Upload at least one work photo/);
+  assert.doesNotMatch(optionalWorkerSignupFieldsMigration, /At least one work photo is required/);
+  assert.doesNotMatch(noWorkPhotosHotfixMigration, /At least one work photo is required/);
+});
+
+test('worker signup only requires name, phone, service, and area fields', () => {
+  assert.match(workerSignupForm, /name="full_name"[^>]+required/);
+  assert.match(workerSignupForm, /name="phone"[^>]+required/);
+  assert.match(workerSignupForm, /name="service_category_id"[^>]+required/);
+  assert.match(workerSignupForm, /name="area_covered"[^>]+required/);
+  assert.match(workerSignupForm, /Password \(optional\)/);
+  assert.match(workerSignupForm, /CNIC number \(optional\)/);
+  assert.match(workerSignupForm, /CNIC front image \(optional\)/);
+  assert.match(workerSignupForm, /CNIC back image \(optional\)/);
+  assert.match(workerSignupForm, /Experience years \(optional\)/);
+  assert.match(workerSignupForm, /Profile photo \(optional\)/);
+  assert.doesNotMatch(workerSignupForm, /Availability \(optional\)|Expected visit charges \(optional\)/);
+  assert.doesNotMatch(workerSignupForm, /validateImage\(payload\.cnic_front, 'CNIC front image', true\)/);
+  assert.doesNotMatch(workerSignupForm, /validateImage\(payload\.cnic_back, 'CNIC back image', true\)/);
+  assert.match(api, /const accountPassword = payload\.password \|\| crypto\.randomUUID\(\)/);
+  assert.match(api, /fallbackCnicForPhone/);
+  assert.match(api, /const cnicNumber = payload\.cnic_number \? normalizeCnic\(payload\.cnic_number\) : fallbackCnicForPhone\(phone\)/);
+  assert.match(api, /p_availability: null/);
+  assert.match(api, /p_expected_visit_charges: null/);
+  assert.match(api, /normalized\.includes\('already exists'\) && normalized\.includes\('cnic'\)/);
+  assert.match(optionalWorkerSignupFieldsMigration, /p_cnic_front_url is not null/);
+  assert.match(optionalWorkerSignupFieldsMigration, /p_cnic_back_url is not null/);
+  assert.match(optionalWorkerSignupFieldsMigration, /nullif\(trim\(p_availability\), ''\)/);
+  assert.match(createWorkerAccount, /cnicNumber && !\/\^\[0-9\]/);
+  assert.match(minimalWorkerSignupMigration, /alter column cnic_number drop not null/);
+  assert.match(minimalWorkerSignupMigration, /p_cnic_number is not null and exists/);
+  assert.match(minimalWorkerSignupMigration, /p_profile_photo_url is not null/);
 });

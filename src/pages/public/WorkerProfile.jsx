@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, BadgeCheck, MessageCircle, Star } from 'lucide-react';
-import { PublicVerificationBadge, formatWorkerId } from '../../components/worker/VerificationCard';
+import { PublicVerificationBadge, formatWorkerId, isWorkerIdentityVerified } from '../../components/worker/VerificationCard';
 import { WHATSAPP_REQUEST_URL } from '../../components/support/WhatsAppButton';
 import { getPublicWorkerProfile } from '../../lib/api';
 
@@ -34,6 +34,7 @@ export function WorkerProfile() {
   const worker = state.worker;
   const initials = worker.display_name?.split(' ').map((part) => part[0]).slice(0, 2).join('');
   const rating = Number(worker.rating_avg || 0);
+  const identityVerified = isWorkerIdentityVerified(worker);
 
   return (
     <ProfileShell>
@@ -53,10 +54,12 @@ export function WorkerProfile() {
               </div>
             )}
             <div className="min-w-0">
-              <p className="mb-2 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase">
-                <BadgeCheck size={14} aria-hidden="true" />
-                Verified Professional
-              </p>
+              {identityVerified && (
+                <p className="mb-2 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase">
+                  <BadgeCheck size={14} aria-hidden="true" />
+                  Verified Professional
+                </p>
+              )}
               <h1 className="break-words text-3xl font-black sm:text-4xl">{worker.display_name}</h1>
               <p className="mt-2 text-brand-50">{worker.service_name} in {worker.area_name || 'Faisalabad'}</p>
             </div>
@@ -65,7 +68,7 @@ export function WorkerProfile() {
 
         <div className="grid gap-6 p-5 lg:grid-cols-[1fr_18rem] lg:p-6">
           <div className="min-w-0">
-            <PublicVerificationBadge worker={worker} />
+            {identityVerified && <PublicVerificationBadge worker={worker} />}
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <Info label="Worker ID" value={formatWorkerId(worker.id)} />
               <Info label="Experience" value={`${worker.experience_years || 0}+ years`} />

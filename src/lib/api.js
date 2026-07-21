@@ -1,5 +1,14 @@
 import { hasSupabaseConfig, supabase } from './supabaseClient';
-import { normalizeCnic, normalizePhone, safeFileName, workerAuthEmail } from './validation';
+import {
+  fallbackCnicForPhone,
+  getImageContentType,
+  isValidCnic,
+  isValidPakistanPhone,
+  normalizeCnic,
+  normalizePhone,
+  safeFileName,
+  workerAuthEmail
+} from './validation';
 
 const requestPhotoBucket = 'request-photos';
 const workerPrivateBucket = 'worker-private';
@@ -24,6 +33,10 @@ async function triggerAdminEmail(type, entityId) {
 
 export async function verifyTurnstileToken(token, purpose) {
   requireSupabaseConfig();
+  // Dev bypass: set VITE_SKIP_TURNSTILE=true to skip Cloudflare Turnstile
+  if (import.meta.env.VITE_SKIP_TURNSTILE === 'true') {
+    return '00000000-0000-0000-0000-000000000001';
+  }
   if (!token) throw new Error('Complete the human verification first.');
   const { data, error } = await supabase.functions.invoke('verify-turnstile', {
     body: { token, purpose }
@@ -38,16 +51,42 @@ export async function getPublicWorkers() {
 
   const { data, error } = await supabase
     .from('public_worker_cards')
-    .select('*')
-    .order('display_name');
+    .select('*');
 
   if (error) throw error;
-  return Promise.all((data || []).map(async (worker) => ({
+  return Promise.all((data || []).sort(comparePublicWorkers).map(async (worker) => ({
     ...worker,
     profile_photo_url: worker.profile_photo_url
       ? await signStoragePath(workerPublicBucket, worker.profile_photo_url)
       : ''
   })));
+}
+
+function comparePublicWorkers(a, b) {
+  const rankDifference = getPublicWorkerRank(b) - getPublicWorkerRank(a);
+  if (rankDifference !== 0) return rankDifference;
+
+  return String(a.display_name || '').localeCompare(String(b.display_name || ''));
+}
+
+function getPublicWorkerRank(worker) {
+  const profileScore = [
+    worker.profile_photo_url,
+    worker.service_name,
+    worker.area_name,
+    Number(worker.experience_years || 0) > 0,
+    Number(worker.rating_avg || 0) > 0,
+    Number(worker.completed_jobs_count || 0) > 0
+  ].filter(Boolean).length;
+
+  const verificationScore = worker.identity_verified ? 10000 : 0;
+  const completionScore = profileScore * 100;
+  const reviewScore = Math.round(Number(worker.rating_avg || 0) * 20);
+  const jobScore = Math.min(Number(worker.completed_jobs_count || 0), 20) * 3;
+  const repeatScore = Math.min(Number(worker.repeat_customers_count || 0), 10) * 2;
+  const reliabilityScore = Math.round(Number(worker.reliability_score || 0));
+
+  return verificationScore + completionScore + reviewScore + jobScore + repeatScore + reliabilityScore;
 }
 
 export async function getPublicWorkerProfile(workerId) {
@@ -88,6 +127,14 @@ async function signStoragePath(bucket, path, expiresIn = 3600) {
   return data.signedUrl;
 }
 
+async function uploadImage(bucket, path, file) {
+  const contentType = getImageContentType(file);
+  const { error } = await supabase.storage.from(bucket).upload(path, file, {
+    contentType: contentType || 'image/jpeg'
+  });
+  if (error) throw error;
+}
+
 function workerSignupError(error) {
   const message = error?.message || '';
   const normalized = message.toLowerCase();
@@ -95,7 +142,7 @@ function workerSignupError(error) {
   if (normalized.includes('phone number')) {
     return new Error('An active worker application already exists with this phone number.');
   }
-  if (normalized.includes('cnic')) {
+  if (normalized.includes('already exists') && normalized.includes('cnic')) {
     return new Error('An active worker application already exists with this CNIC number.');
   }
   if (normalized.includes('human verification')) {
@@ -110,10 +157,7 @@ export async function submitServiceRequest(form, turnstileVerificationId) {
   let photoUrl = null;
   if (form.problem_photo) {
     const path = `public/${crypto.randomUUID()}-${safeFileName(form.problem_photo.name)}`;
-    const { error: uploadError } = await supabase.storage
-      .from(requestPhotoBucket)
-      .upload(path, form.problem_photo);
-    if (uploadError) throw uploadError;
+    await uploadImage(requestPhotoBucket, path, form.problem_photo);
     photoUrl = path;
   }
 
@@ -140,31 +184,32 @@ export async function signUpWorker(payload, turnstileVerificationId) {
 
   const phone = normalizePhone(payload.phone);
   const authEmail = workerAuthEmail(phone);
+  const accountPassword = payload.password || crypto.randomUUID();
+  const cnicNumber = payload.cnic_number ? normalizeCnic(payload.cnic_number) : fallbackCnicForPhone(phone);
   const { error: accountError } = await supabase.functions.invoke('create-worker-account', {
     body: {
       phone,
-      password: payload.password,
+      password: accountPassword,
       fullName: payload.full_name.trim(),
-      cnicNumber: normalizeCnic(payload.cnic_number),
+      cnicNumber,
       verificationId: turnstileVerificationId
     }
   });
 
+  if (accountError) {
+    let message = accountError.message;
+    try {
+      const body = await accountError.context?.json();
+      message = body?.error || message;
+    } catch {}
+    throw new Error(message || 'Could not create worker account.');
+  }
+
   const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
     email: authEmail,
-    password: payload.password
+    password: accountPassword
   });
   if (signInError || !signInData.user) {
-    if (accountError) {
-      let accountMessage = accountError.message;
-      try {
-        const body = await accountError.context?.json();
-        accountMessage = body?.error || accountMessage;
-      } catch {
-        // The function client may already have consumed the error response.
-      }
-      throw new Error(accountMessage || 'Could not create worker account.');
-    }
     throw new Error('Worker account was created but login failed. Check your phone number and password.');
   }
 
@@ -172,18 +217,24 @@ export async function signUpWorker(payload, turnstileVerificationId) {
   const uploads = {};
   const uploadedObjects = [];
   const uploadPrivate = async (file, prefix) => {
-    if (!file) return null;
+    if (!file?.name) return null;
     const path = `${profileId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
-    const { error } = await supabase.storage.from(workerPrivateBucket).upload(path, file);
-    if (error) throw new Error(`Upload failed for ${prefix.replace('-', ' ')}: ${error.message}`);
+    try {
+      await uploadImage(workerPrivateBucket, path, file);
+    } catch (error) {
+      throw new Error(`Upload failed for ${prefix.replace('-', ' ')}: ${error.message}`);
+    }
     uploadedObjects.push({ bucket: workerPrivateBucket, path });
     return path;
   };
   const uploadPublic = async (file, prefix) => {
-    if (!file) return null;
+    if (!file?.name) return null;
     const path = `${profileId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
-    const { error } = await supabase.storage.from(workerPublicBucket).upload(path, file);
-    if (error) throw new Error(`Upload failed for ${prefix.replace('-', ' ')}: ${error.message}`);
+    try {
+      await uploadImage(workerPublicBucket, path, file);
+    } catch (error) {
+      throw new Error(`Upload failed for ${prefix.replace('-', ' ')}: ${error.message}`);
+    }
     uploadedObjects.push({ bucket: workerPublicBucket, path });
     return path;
   };
@@ -197,15 +248,15 @@ export async function signUpWorker(payload, turnstileVerificationId) {
       p_display_name: payload.full_name.trim(),
       p_phone: phone,
       p_email: payload.email?.trim().toLowerCase() || null,
-      p_cnic_number: normalizeCnic(payload.cnic_number),
+      p_cnic_number: cnicNumber,
       p_cnic_front_url: uploads.cnic_front_url,
       p_cnic_back_url: uploads.cnic_back_url,
       p_profile_photo_url: uploads.profile_photo_url,
       p_service_category_id: payload.service_category_id,
       p_experience_years: Number(payload.experience_years || 0),
       p_areas_covered: payload.areas_covered,
-      p_availability: payload.availability,
-      p_expected_visit_charges: Number(payload.expected_visit_charges || 0),
+      p_availability: null,
+      p_expected_visit_charges: null,
       p_work_photo_urls: []
     });
     if (error) throw workerSignupError(error);
@@ -214,6 +265,7 @@ export async function signUpWorker(payload, turnstileVerificationId) {
     await triggerAdminEmail('new_worker_signup', workerRecord.id);
     return workerRecord;
   } catch (error) {
+    // Clean up storage objects
     const removals = uploadedObjects.reduce((groups, object) => {
       groups[object.bucket] ||= [];
       groups[object.bucket].push(object.path);
@@ -284,6 +336,104 @@ export async function updateWorkerStatus(workerId, status, adminRejectionReason 
     .update({ status, admin_rejection_reason: adminRejectionReason })
     .eq('id', workerId);
   if (error) throw error;
+}
+
+export async function updateAdminWorkerProfile(workerId, payload) {
+  requireSupabaseConfig();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) throw new Error('Admin authentication is required.');
+
+  const phone = normalizePhone(payload.phone || '');
+  if (!isValidPakistanPhone(phone)) {
+    throw new Error('Enter a valid Pakistani mobile number, for example 03001234567.');
+  }
+
+  const cnicNumber = payload.cnic_number?.trim()
+    ? normalizeCnic(payload.cnic_number)
+    : fallbackCnicForPhone(phone);
+  if (!isValidCnic(cnicNumber)) {
+    throw new Error('Enter a valid 13-digit CNIC, for example 33100-1234567-1.');
+  }
+
+  const areasCovered = payload.areas_covered || [];
+  if (!areasCovered.length) {
+    throw new Error('Select at least one area covered.');
+  }
+
+  const uploadedObjects = [];
+  const uploadAdminWorkerImage = async (bucket, file, prefix) => {
+    if (!file?.name) return null;
+    const path = `${userData.user.id}/admin-${workerId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
+    await uploadImage(bucket, path, file);
+    uploadedObjects.push({ bucket, path });
+    return path;
+  };
+
+  const updates = {
+    display_name: payload.display_name.trim(),
+    phone,
+    email: payload.email?.trim().toLowerCase() || null,
+    cnic_number: cnicNumber,
+    service_category_id: payload.service_category_id,
+    experience_years: Number(payload.experience_years || 0),
+    areas_covered: areasCovered,
+    bio: payload.bio?.trim() || null,
+    updated_at: new Date().toISOString()
+  };
+
+  try {
+    const [profilePhotoUrl, cnicFrontUrl, cnicBackUrl] = await Promise.all([
+      uploadAdminWorkerImage(workerPublicBucket, payload.profile_photo, 'profile'),
+      uploadAdminWorkerImage(workerPrivateBucket, payload.cnic_front, 'cnic-front'),
+      uploadAdminWorkerImage(workerPrivateBucket, payload.cnic_back, 'cnic-back')
+    ]);
+
+    if (profilePhotoUrl) updates.profile_photo_url = profilePhotoUrl;
+    if (cnicFrontUrl) updates.cnic_front_url = cnicFrontUrl;
+    if (cnicBackUrl) updates.cnic_back_url = cnicBackUrl;
+
+    const { data: worker, error } = await supabase
+      .from('workers')
+      .update(updates)
+      .eq('id', workerId)
+      .select('profile_id, profile_photo_url, cnic_front_url, cnic_back_url')
+      .single();
+    if (error) throw workerSignupError(error);
+
+    if (worker?.profile_id) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: updates.display_name,
+          phone,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', worker.profile_id);
+      if (profileError) throw profileError;
+    }
+
+    await Promise.all([
+      profilePhotoUrl && payload.current_profile_photo_url
+        ? removeStoragePaths(workerPublicBucket, [payload.current_profile_photo_url])
+        : null,
+      cnicFrontUrl && payload.current_cnic_front_url
+        ? removeStoragePaths(workerPrivateBucket, [payload.current_cnic_front_url])
+        : null,
+      cnicBackUrl && payload.current_cnic_back_url
+        ? removeStoragePaths(workerPrivateBucket, [payload.current_cnic_back_url])
+        : null
+    ].filter(Boolean));
+  } catch (error) {
+    const removals = uploadedObjects.reduce((groups, object) => {
+      groups[object.bucket] ||= [];
+      groups[object.bucket].push(object.path);
+      return groups;
+    }, {});
+    await Promise.all(Object.entries(removals).map(([bucket, paths]) => (
+      supabase.storage.from(bucket).remove(paths)
+    )));
+    throw workerSignupError(error);
+  }
 }
 
 async function removeStoragePaths(bucket, paths) {
@@ -564,7 +714,7 @@ export async function updateWorkerProfile(payload) {
   return data;
 }
 
-export async function replaceWorkerDocuments(files) {
+export async function replaceWorkerDocuments(files, currentWorker = {}) {
   requireSupabaseConfig();
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) throw new Error('Worker authentication is required.');
@@ -572,16 +722,15 @@ export async function replaceWorkerDocuments(files) {
   const upload = async (bucket, file, prefix) => {
     if (!file?.name) return null;
     const path = `${profileId}/${prefix}-${crypto.randomUUID()}-${safeFileName(file.name)}`;
-    const { error } = await supabase.storage.from(bucket).upload(path, file);
-    if (error) throw error;
+    await uploadImage(bucket, path, file);
     return path;
   };
   const front = await upload(workerPrivateBucket, files.cnic_front, 'cnic-front');
   const back = await upload(workerPrivateBucket, files.cnic_back, 'cnic-back');
   const profilePhoto = await upload(workerPublicBucket, files.profile_photo, 'profile');
   const { data, error } = await supabase.rpc('replace_worker_documents', {
-    p_cnic_front_url: front,
-    p_cnic_back_url: back,
+    p_cnic_front_url: front || currentWorker.cnic_front_url || null,
+    p_cnic_back_url: back || currentWorker.cnic_back_url || null,
     p_profile_photo_url: profilePhoto
   });
   if (error) throw error;
@@ -595,8 +744,7 @@ export async function addWorkerWorkPhotos(files) {
   const paths = [];
   for (const file of files) {
     const path = `${userData.user.id}/work-${crypto.randomUUID()}-${safeFileName(file.name)}`;
-    const { error } = await supabase.storage.from(workerPublicBucket).upload(path, file);
-    if (error) throw error;
+    await uploadImage(workerPublicBucket, path, file);
     paths.push(path);
   }
   const { data, error } = await supabase.rpc('add_worker_work_photos', { p_photo_urls: paths });

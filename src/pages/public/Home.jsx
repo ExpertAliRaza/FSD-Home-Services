@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Lock, MapPin, ShieldCheck, UserCheck } from 'lucide-react';
 import { areas, services } from '../../data/catalog';
-import { WhatsAppButton } from '../../components/support/WhatsAppButton';
 
 export function Home() {
   return (
@@ -16,7 +15,9 @@ export function Home() {
               <Link to="/request-service" className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-700 px-5 py-3 font-bold text-white hover:bg-brand-600">
                 Request a Worker <ArrowRight size={18} />
               </Link>
-              <WhatsAppButton prefilled>Chat on WhatsApp</WhatsAppButton>
+              <Link to="/become-a-worker" className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 font-bold text-slate-900 hover:border-brand-500 hover:text-brand-700">
+                Become a Worker <ArrowRight size={18} />
+              </Link>
             </div>
             <Link to="/workers" className="mt-4 inline-block text-sm font-bold text-brand-700 hover:underline">
               View Approved Workers

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Search, X, ChevronDown } from 'lucide-react';
 import { areas, services } from '../../data/catalog';
 import { submitServiceRequest, verifyTurnstileToken } from '../../lib/api';
 import { isValidPakistanPhone, validateImage } from '../../lib/validation';
@@ -17,18 +18,42 @@ export function RequestForm({ preferredWorkerId, initialService }) {
   const [form, setForm] = useState({
     customer_name: '',
     customer_phone: '',
-    area_id: areas[0],
+    area_id: '',
     service_category_id: validInitialService,
     problem_description: '',
     urgency: 'Normal',
     preferred_time: ''
   });
+  const [areaOpen, setAreaOpen] = useState(false);
+  const [areaSearch, setAreaSearch] = useState('');
+  const [selectedArea, setSelectedArea] = useState('');
+  const [customArea, setCustomArea] = useState('');
 
   const serviceOptions = useMemo(() => services.map((service) => service.name), []);
+
+  const filteredAreas = useMemo(() => {
+    if (!areaSearch.trim()) return areas;
+    const keyword = areaSearch.toLowerCase();
+    return areas.filter((area) => area.toLowerCase().includes(keyword));
+  }, [areaSearch]);
 
   const update = (event) => {
     const { name, value, files } = event.target;
     setForm((current) => ({ ...current, [name]: files ? files[0] : value }));
+  };
+
+  const selectArea = (area) => {
+    setSelectedArea(area);
+    setForm((current) => ({ ...current, area_id: area }));
+    setAreaOpen(false);
+    setAreaSearch('');
+    setCustomArea('');
+  };
+
+  const confirmCustomArea = () => {
+    const trimmed = customArea.trim();
+    if (!trimmed) return;
+    selectArea(trimmed);
   };
 
   const submit = async (event) => {
@@ -82,9 +107,65 @@ export function RequestForm({ preferredWorkerId, initialService }) {
           <input className={inputClass} name="customer_phone" value={form.customer_phone} onChange={update} inputMode="tel" autoComplete="tel" placeholder="03001234567" required />
         </Field>
         <Field label="Area">
-          <select className={inputClass} name="area_id" value={form.area_id} onChange={update}>
-            {areas.map((area) => <option key={area}>{area}</option>)}
-          </select>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setAreaOpen(!areaOpen)}
+              className={`${inputClass} flex items-center justify-between text-left ${!selectedArea ? 'text-slate-400' : ''}`}
+            >
+              <span className="truncate">{selectedArea || 'Search and select your area...'}</span>
+              <ChevronDown size={16} className="shrink-0 text-slate-400" />
+            </button>
+            {areaOpen && (
+              <div className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg">
+                <div className="relative border-b border-slate-100 p-2">
+                  <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search areas..."
+                    value={areaSearch}
+                    onChange={(e) => setAreaSearch(e.target.value)}
+                    autoFocus
+                    className="min-h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-3 text-sm outline-none focus:border-brand-500"
+                  />
+                </div>
+                <div className="max-h-52 overflow-y-auto p-1">
+                  {filteredAreas.map((area) => (
+                    <button
+                      key={area}
+                      type="button"
+                      onClick={() => selectArea(area)}
+                      className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                        selectedArea === area
+                          ? 'bg-brand-50 font-semibold text-brand-800'
+                          : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      {area}
+                    </button>
+                  ))}
+                  {!filteredAreas.length && !customArea && (
+                    <p className="px-3 py-4 text-center text-xs text-slate-500">No areas match your search.</p>
+                  )}
+                </div>
+                <div className="flex gap-2 border-t border-slate-100 p-2">
+                  <input
+                    type="text"
+                    placeholder="Other area..."
+                    value={customArea}
+                    onChange={(e) => setCustomArea(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), confirmCustomArea())}
+                    className="min-h-9 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-brand-500"
+                  />
+                  <button type="button" onClick={confirmCustomArea} disabled={!customArea.trim()} className="min-h-9 rounded-lg bg-slate-800 px-3 text-xs font-semibold text-white hover:bg-slate-700 disabled:opacity-50">
+                    Add
+                  </button>
+                </div>
+              </div>
+            )}
+            {/* Hidden input for form submission */}
+            <input type="hidden" name="area_id" value={selectedArea} />
+          </div>
         </Field>
         <Field label="Service category">
           <select className={inputClass} name="service_category_id" value={form.service_category_id} onChange={update}>

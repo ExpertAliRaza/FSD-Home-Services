@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fsd-home-services-v6';
+const CACHE_NAME = 'fsd-home-services-v8';
 const APP_SHELL = [
   '/',
   '/manifest.json',
@@ -36,6 +36,19 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (!['style', 'script', 'image', 'font'].includes(event.request.destination)) return;
+  if (['style', 'script'].includes(event.request.destination)) {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      }).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
       if (response.ok) {

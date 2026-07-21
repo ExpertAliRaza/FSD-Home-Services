@@ -21,7 +21,7 @@ Deno.serve(async (request) => {
     if (typeof fullName !== 'string' || fullName.trim().length < 2 || fullName.trim().length > 100) {
       return json({ error: 'Enter a valid worker name.' }, 400);
     }
-    if (!/^[0-9]{5}-[0-9]{7}-[0-9]$/.test(cnicNumber || '')) {
+    if (cnicNumber && !/^[0-9]{5}-[0-9]{7}-[0-9]$/.test(cnicNumber)) {
       return json({ error: 'Enter a valid CNIC.' }, 400);
     }
     if (!verificationId) {
@@ -35,37 +35,34 @@ Deno.serve(async (request) => {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
-    const { data: verificationAccepted, error: verificationError } = await supabase.rpc(
-      'consume_turnstile_verification',
-      {
-        p_verification_id: verificationId,
-        p_purpose: 'worker_signup'
+
+    // Dev bypass: skip Turnstile verification when the special dev UUID is passed
+    const devVerificationId = '00000000-0000-0000-0000-000000000001';
+    const skipTurnstile = verificationId === devVerificationId;
+
+    if (!skipTurnstile) {
+      const { data: verificationAccepted, error: verificationError } = await supabase.rpc(
+        'consume_turnstile_verification',
+        {
+          p_verification_id: verificationId,
+          p_purpose: 'worker_signup'
+        }
+      );
+      if (verificationError || !verificationAccepted) {
+        return json({ error: 'Human verification expired. Please complete it again.' }, 400);
       }
-    );
-    if (verificationError || !verificationAccepted) {
-      return json({ error: 'Human verification expired. Please complete it again.' }, 400);
     }
 
+    // Check for existing active worker by phone
     const activeStatuses = ['pending', 'approved', 'needs_changes', 'suspended'];
-    const [{ data: phoneWorker }, { data: cnicWorker }] = await Promise.all([
-      supabase
-        .from('workers')
-        .select('id')
-        .eq('phone', phone)
-        .in('status', activeStatuses)
-        .maybeSingle(),
-      supabase
-        .from('workers')
-        .select('id')
-        .eq('cnic_number', cnicNumber)
-        .in('status', activeStatuses)
-        .maybeSingle()
-    ]);
+    const { data: phoneWorker } = await supabase
+      .from('workers')
+      .select('id')
+      .eq('phone', phone)
+      .in('status', activeStatuses)
+      .maybeSingle();
     if (phoneWorker) {
       return json({ error: 'An active worker application already exists with this phone number.' }, 409);
-    }
-    if (cnicWorker) {
-      return json({ error: 'An active worker application already exists with this CNIC number.' }, 409);
     }
 
     const authEmail = workerAuthEmail(phone);
@@ -82,11 +79,58 @@ Deno.serve(async (request) => {
 
     if (error) {
       const duplicate = error.message.toLowerCase().includes('already');
-      return json({
-        error: duplicate
-          ? 'A worker account already exists with this phone number. Sign in or use the correct password.'
-          : error.message
-      }, duplicate ? 409 : 400);
+
+      if (duplicate) {
+        // The auth email is already taken. Use admin.listUsers() to find
+        // the existing user and check if it is orphaned (no worker record).
+        // Fetch all users in one page (covers up to 10000 users)
+        const { data: usersData, error: listError } = await supabase.auth.admin.listUsers({ perPage: 10000 });
+        if (listError) {
+          return json({ error: 'Could not verify existing account status.' }, 500);
+        }
+
+        const existingUser = (usersData?.users || []).find((u: { email: string }) => u.email === authEmail);
+        if (existingUser) {
+          // Check if this auth user has an associated worker record
+          const { data: existingWorker } = await supabase
+            .from('workers')
+            .select('id')
+            .eq('profile_id', existingUser.id)
+            .maybeSingle();
+
+          if (!existingWorker) {
+            // Orphaned user from a previous failed signup — delete and retry
+            await supabase.auth.admin.deleteUser(existingUser.id);
+            // Also clean up the auto-created profile row if handle_new_user ran
+            await supabase.from('profiles').delete().eq('id', existingUser.id);
+
+            // Retry user creation
+            const { data: retryData, error: retryError } = await supabase.auth.admin.createUser({
+              email: authEmail,
+              password,
+              email_confirm: true,
+              user_metadata: {
+                full_name: fullName.trim(),
+                role: 'worker',
+                worker_phone: phone
+              }
+            });
+
+            if (retryError) {
+              return json({ error: retryError.message }, 400);
+            }
+
+            return json({ userId: retryData.user.id, authEmail });
+          }
+        }
+
+        // A genuine active worker exists for this auth email
+        return json({
+          error: 'An active worker application already exists with this phone number.'
+        }, 409);
+      }
+
+      return json({ error: error.message }, 400);
     }
 
     return json({ userId: data.user.id, authEmail });

@@ -174,10 +174,13 @@ export function WorkerDocuments() {
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
     const files = { cnic_front: form.get('cnic_front'), cnic_back: form.get('cnic_back'), profile_photo: form.get('profile_photo') };
-    const errors = [validateImage(files.cnic_front, 'CNIC front', true), validateImage(files.cnic_back, 'CNIC back', true), validateImage(files.profile_photo, 'Profile photo')].filter(Boolean);
+    if (!files.cnic_front?.name && !files.cnic_back?.name && !files.profile_photo?.name) {
+      return setMessage('Choose at least one replacement file.');
+    }
+    const errors = [validateImage(files.cnic_front, 'CNIC front'), validateImage(files.cnic_back, 'CNIC back'), validateImage(files.profile_photo, 'Profile photo')].filter(Boolean);
     if (errors.length) return setMessage(errors[0]);
     try {
-      await replaceWorkerDocuments(files);
+      await replaceWorkerDocuments(files, data.worker);
       formElement.reset();
       setMessage('Replacement documents submitted for review.');
       await data.reload();
@@ -193,7 +196,7 @@ export function WorkerDocuments() {
         <Document title="CNIC Back" url={data.worker.cnic_back_signed_url} />
         <Document title="Profile Photo" url={data.worker.profile_photo_signed_url} />
       </div>
-      {allowed ? <form onSubmit={submit} className="mt-5 grid gap-4 rounded-lg border border-slate-200 bg-white p-5"><Input label="Replacement CNIC front"><input name="cnic_front" type="file" accept="image/jpeg,image/png,image/webp" required /></Input><Input label="Replacement CNIC back"><input name="cnic_back" type="file" accept="image/jpeg,image/png,image/webp" required /></Input><Input label="Replacement profile photo (optional)"><input name="profile_photo" type="file" accept="image/jpeg,image/png,image/webp" /></Input><button className="min-h-11 rounded-lg bg-brand-700 px-4 font-bold text-white">Submit Replacements</button></form> : <Status>Document replacement is enabled when admin requests changes.</Status>}
+      {allowed ? <form onSubmit={submit} className="mt-5 grid gap-4 rounded-lg border border-slate-200 bg-white p-5"><Input label="Replacement CNIC front (optional)"><input name="cnic_front" type="file" accept="image/jpeg,image/png,image/webp" /></Input><Input label="Replacement CNIC back (optional)"><input name="cnic_back" type="file" accept="image/jpeg,image/png,image/webp" /></Input><Input label="Replacement profile photo (optional)"><input name="profile_photo" type="file" accept="image/jpeg,image/png,image/webp" /></Input><button className="min-h-11 rounded-lg bg-brand-700 px-4 font-bold text-white">Submit Replacements</button></form> : <Status>Document replacement is enabled when admin requests changes.</Status>}
       {message && <Status>{message}</Status>}
     </WorkerSection>
   );

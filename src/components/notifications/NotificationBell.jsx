@@ -9,6 +9,7 @@ export function NotificationBell({ notifications, onChange, resolveLink }) {
   const unread = notifications.filter((item) => !item.is_read);
 
   useEffect(() => {
+    if (!supabase) return undefined;
     let channel;
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return;

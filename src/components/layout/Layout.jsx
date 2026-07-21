@@ -189,6 +189,8 @@ function SiteFooter() {
           <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 sm:justify-end" aria-label="Legal">
             <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-white">Terms of Service</Link>
+            <Link to="/commission-policy" className="hover:text-white">Commission Policy</Link>
+            <Link to="/worker-verification-policy" className="hover:text-white">Worker Verification Policy</Link>
           </nav>
         </div>
       </div>

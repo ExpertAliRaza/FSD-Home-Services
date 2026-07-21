@@ -6,13 +6,14 @@ Release v1.1 for a Faisalabad-based verified home services marketplace.
 
 - Public website with home, services, service SEO pages, worker directory, request service, become a worker, contact, and login pages.
 - Anonymous customer service request form.
-- Worker signup with Supabase Auth, CNIC uploads, profile photo, areas, availability, expected visit charges, and work photos.
-- Admin dashboard for worker approval, request assignment, complaints, completion values, 10% commission tracking, notifications, and internal notes.
+- Worker signup with Supabase Auth. Name, phone, service, and area are required; password, CNIC, profile photo, and experience are optional.
+- Admin dashboard for worker approval, profile editing, request assignment, complaints, completion values, 10% commission tracking, notifications, internal notes, business intelligence, exports, and standard backups.
 - Worker dashboard with leads, jobs, earnings, reviews, realtime notifications, profile, documents, and settings.
 - Public worker directory shows approved workers only.
 - Worker phone numbers, customer phone numbers, CNIC data, and admin notes are not shown publicly.
 - Supabase SQL schema, seed data, RLS policies, and storage bucket policies.
 - PWA manifest and service worker.
+- SEO metadata, sitemap, robots.txt, legal pages, and structured data for local services.
 - Vercel-ready Vite deployment.
 
 ## Tech Stack
@@ -24,6 +25,7 @@ Release v1.1 for a Faisalabad-based verified home services marketplace.
 - Supabase Database
 - Supabase Storage
 - PWA support
+- jsPDF and JSZip for admin reports/backups
 
 ## Setup
 
@@ -62,14 +64,7 @@ npm run build
 
 Apply migrations in order:
 
-1. `supabase/migrations/001_phase1_schema.sql`
-2. `supabase/migrations/002_phase1_rls.sql`
-3. `supabase/migrations/003_phase1_security_fixes.sql`
-4. `supabase/migrations/004_notifications_reviews.sql`
-5. `supabase/migrations/005_launch_v1.sql`
-6. `supabase/migrations/006_release_v1_1_worker_dashboard.sql`
-7. `supabase/migrations/007_release_v1_1_worker_security.sql`
-8. `supabase/migrations/008_release_v1_1_rpc_fix.sql`
+Apply every SQL file in `supabase/migrations/` in numeric order, currently `001_phase1_schema.sql` through `026_clear_fallback_worker_cnics.sql`.
 
 Then run:
 
@@ -101,9 +96,10 @@ Deploy:
 ```bash
 supabase functions deploy verify-turnstile --no-verify-jwt
 supabase functions deploy notify-admin --no-verify-jwt
+supabase functions deploy create-worker-account --no-verify-jwt
 ```
 
-Worker signup supports either Supabase email mode. If **Confirm email** is enabled, the worker confirms the account and submits the still-filled form again with the same credentials; the app signs in and completes the private uploads. Disabling confirmation keeps the flow to one step.
+Worker signup uses a phone-based private Auth email internally. Keep Edge Function secrets configured and keep Turnstile enabled for public submissions.
 
 ## Admin User
 
@@ -127,6 +123,8 @@ Workers sign in at `/worker/login`. Approved and pending workers can access `/wo
 - Profile and work images use an approval-aware private bucket and signed URLs.
 - Customer request photos use the private `request-photos` bucket.
 - Worker phone, customer phone, CNIC, and admin notes are dashboard-only.
+- Investor reports and standard backups exclude CNIC images, signed URLs, passwords, private worker documents, and private notes by default.
+- Standard backup ZIPs are generated client-side for admin convenience. Production cloud backups/restores should be implemented with server-side encryption, offsite storage, retention, and restore dry-runs.
 
 ## Folder Structure
 
@@ -137,7 +135,12 @@ src/
     cards/
     dashboard/
     forms/
+    legal/
     layout/
+    notifications/
+    pwa/
+    support/
+    worker/
   data/
   lib/
   pages/
@@ -154,6 +157,7 @@ supabase/
 
 - No payments.
 - No automatic matching.
+- No server-side cloud backup/restore automation yet.
 - No complex reliability score logic.
 - Commission collection remains manual.
 - No SMS notifications.

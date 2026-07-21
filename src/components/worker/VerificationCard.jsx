@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BadgeCheck, Download, FileText } from 'lucide-react';
+import { hasRealCnic } from '../../lib/validation';
 
 const siteUrl = 'https://fsd-home-services.vercel.app';
 const supportNumber = '03099018308';
@@ -10,6 +11,7 @@ const logoPath = '/branding/FSD Home Services logo.png';
 export function VerificationCardPanel({ worker }) {
   const [status, setStatus] = useState('');
   const details = useMemo(() => getVerificationDetails(worker), [worker]);
+  const verified = isWorkerIdentityVerified(worker);
 
   const download = async (type) => {
     setStatus('');
@@ -46,27 +48,36 @@ export function VerificationCardPanel({ worker }) {
             Download a clean worker verification card for customers. The QR code opens your public worker listing.
           </p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <button type="button" onClick={() => download('png')} className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-bold text-white hover:bg-brand-600">
-            <Download size={17} aria-hidden="true" />
-            Download PNG
-          </button>
-          <button type="button" onClick={() => download('pdf')} className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 hover:bg-slate-50">
-            <FileText size={17} aria-hidden="true" />
-            Download PDF
-          </button>
-        </div>
+        {verified && (
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button type="button" onClick={() => download('png')} className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-bold text-white hover:bg-brand-600">
+              <Download size={17} aria-hidden="true" />
+              Download PNG
+            </button>
+            <button type="button" onClick={() => download('pdf')} className="focus-ring inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-800 hover:bg-slate-50">
+              <FileText size={17} aria-hidden="true" />
+              Download PDF
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="mt-5 max-w-3xl overflow-hidden rounded-lg border border-brand-100 bg-slate-50 p-3">
-        <VerificationCardPreview details={details} />
-      </div>
+      {verified ? (
+        <div className="mt-5 max-w-3xl overflow-hidden rounded-lg border border-brand-100 bg-slate-50 p-3">
+          <VerificationCardPreview details={details} />
+        </div>
+      ) : (
+        <p className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
+          Verification card will be available after a real CNIC is added and reviewed.
+        </p>
+      )}
       {status && <p className="mt-3 text-sm font-semibold text-slate-600">{status}</p>}
     </section>
   );
 }
 
 export function PublicVerificationBadge({ worker, className = '' }) {
+  if (!isWorkerIdentityVerified(worker)) return null;
   const details = getVerificationDetails(worker);
 
   return (
@@ -76,6 +87,11 @@ export function PublicVerificationBadge({ worker, className = '' }) {
       <span className="text-brand-700">| {details.workerId}</span>
     </span>
   );
+}
+
+export function isWorkerIdentityVerified(worker = {}) {
+  if (typeof worker.identity_verified === 'boolean') return worker.identity_verified;
+  return hasRealCnic(worker.cnic_number, worker.phone);
 }
 
 export function getVerificationDetails(worker = {}) {

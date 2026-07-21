@@ -19,23 +19,77 @@
     <meta name="apple-mobile-web-app-title" content="FSD Services" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>FSD Home Services</title>
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="business-structured-data">
       {
         "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": "FSD Home Services",
-        "url": "https://fsd-home-services.vercel.app",
-        "telephone": "+923099018308",
-        "image": "https://fsd-home-services.vercel.app/images/home-services-hero.jpg",
-        "areaServed": {
-          "@type": "City",
-          "name": "Faisalabad"
-        },
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Faisalabad",
-          "addressCountry": "PK"
-        }
+        "@graph": [
+          {
+            "@type": ["LocalBusiness", "HomeAndConstructionBusiness"],
+            "@id": "https://fsd-home-services.vercel.app/#business",
+            "name": "FSD Home Services",
+            "url": "https://fsd-home-services.vercel.app",
+            "telephone": "+923099018308",
+            "image": "https://fsd-home-services.vercel.app/images/home-services-hero.jpg",
+            "logo": "https://fsd-home-services.vercel.app/branding/FSD%20Home%20Services%20logo.png",
+            "priceRange": "PKR",
+            "hasMap": "https://share.google/hN8X2NRB0svp7ZQdb",
+            "sameAs": [
+              "https://share.google/hN8X2NRB0svp7ZQdb",
+              "https://www.facebook.com/FSD.Home.Services/",
+              "https://www.instagram.com/fsd_home_services/",
+              "https://www.linkedin.com/company/134874243"
+            ],
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Faisalabad",
+              "addressRegion": "Punjab",
+              "addressCountry": "PK"
+            },
+            "areaServed": [
+              { "@type": "City", "name": "Faisalabad" },
+              { "@type": "Place", "name": "People Colony" },
+              { "@type": "Place", "name": "Madina Town" },
+              { "@type": "Place", "name": "D Ground" },
+              { "@type": "Place", "name": "Samanabad" },
+              { "@type": "Place", "name": "Jinnah Colony" },
+              { "@type": "Place", "name": "Gulberg" },
+              { "@type": "Place", "name": "Susan Road" },
+              { "@type": "Place", "name": "Samundri Road" },
+              { "@type": "Place", "name": "Canal Road" },
+              { "@type": "Place", "name": "Satiana Road" },
+              { "@type": "Place", "name": "Millat Town" },
+              { "@type": "Place", "name": "Ghulam Muhammad Abad" }
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+923099018308",
+              "contactType": "customer support",
+              "areaServed": "PK",
+              "availableLanguage": ["en", "ur"]
+            },
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "FSD Home Services",
+              "itemListElement": [
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Plumber in Faisalabad" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Electrician in Faisalabad" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AC repair in Faisalabad" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Carpenter in Faisalabad" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Painter in Faisalabad" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Mason in Faisalabad" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Labor in Faisalabad" } }
+              ]
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://fsd-home-services.vercel.app/#website",
+            "url": "https://fsd-home-services.vercel.app",
+            "name": "FSD Home Services",
+            "publisher": { "@id": "https://fsd-home-services.vercel.app/#business" },
+            "inLanguage": "en-PK"
+          }
+        ]
       }
     </script>
   </head>

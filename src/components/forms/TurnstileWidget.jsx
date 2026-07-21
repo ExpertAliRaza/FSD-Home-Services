@@ -4,6 +4,23 @@ const scriptUrl = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=
 
 export function TurnstileWidget({ onToken, resetKey }) {
   const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+  const skipTurnstile = import.meta.env.VITE_SKIP_TURNSTILE === 'true';
+
+  // Dev bypass: set the bypass token once, then render nothing
+  useEffect(() => {
+    if (skipTurnstile) {
+      onToken('00000000-0000-0000-0000-000000000001');
+    }
+  }, [skipTurnstile, onToken]);
+
+  if (skipTurnstile) {
+    return (
+      <p className="rounded-lg bg-brand-50 p-3 text-sm font-semibold text-brand-800">
+        Development mode: Turnstile skipped
+      </p>
+    );
+  }
+
   const reactId = useId();
   const containerId = `turnstile-${reactId.replace(/:/g, '')}`;
   const widgetId = useRef(null);
