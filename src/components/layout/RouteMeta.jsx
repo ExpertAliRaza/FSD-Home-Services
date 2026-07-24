@@ -10,6 +10,7 @@ const pageMeta = {
   '/': ['FSD Home Services | Verified Workers in Faisalabad', defaultDescription],
   '/services': ['Home Services in Faisalabad | FSD Home Services', 'Browse verified home service categories available across Faisalabad.'],
   '/workers': ['Verified Workers in Faisalabad | FSD Home Services', 'Browse admin-approved local workers without exposing private phone numbers.'],
+  '/about': ['About FSD Home Services | Verified Local Workers in Faisalabad', 'Learn about FSD Home Services, our mission, worker verification process and how we help homeowners across Faisalabad connect with trusted local professionals.'],
   '/become-a-worker': ['Become a Verified Worker | FSD Home Services', 'Apply to join FSD Home Services as a verified local worker in Faisalabad.'],
   '/request-service': ['Request a Worker in Faisalabad | FSD Home Services', 'Submit a free request for a verified local worker in Faisalabad.'],
   '/contact': ['Customer Care | FSD Home Services', 'Contact FSD Home Services customer support by WhatsApp or phone.'],

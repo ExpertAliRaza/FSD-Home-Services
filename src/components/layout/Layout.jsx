@@ -24,6 +24,7 @@ import { RouteMeta } from './RouteMeta';
 const navItems = [
   ['/', 'Home'],
   ['/services', 'Services'],
+  ['/about', 'About Us'],
   ['/workers', 'Workers'],
   ['/become-a-worker', 'Become a Worker'],
   ['/request-service', 'Request Service'],

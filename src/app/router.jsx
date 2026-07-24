@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { AdminPage } from '../pages/admin/AdminPage';
 import { Login } from '../pages/auth/Login';
+import { About } from '../pages/public/About';
 import { AppError } from '../pages/public/AppError';
 import { BecomeWorker } from '../pages/public/BecomeWorker';
 import { CommissionPolicy } from '../pages/public/CommissionPolicy';
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
     errorElement: <AppError />,
     children: [
       { path: '/', element: <Home /> },
+      { path: '/about', element: <About /> },
       { path: '/services', element: <Services /> },
       { path: '/services/:slug', element: <ServiceDetail /> },
       { path: '/workers', element: <WorkerDirectory /> },
