@@ -28,8 +28,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <RouterProvider router={router} />
   </React.StrictMode>
 );
-
-// Trigger for prerenderer bot
-setTimeout(() => {
-  document.dispatchEvent(new Event('custom-render-trigger'));
-}, 500); // 500ms delay to ensure all async initial loads complete
