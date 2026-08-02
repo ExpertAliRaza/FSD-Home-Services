@@ -223,16 +223,7 @@ export function AdminPanel() {
     () => data.notifications.filter((notification) => !notification.is_read),
     [data.notifications]
   );
-  const verifiedWorkers = useMemo(() => data.workers.filter((worker) => {
-    if (typeof worker.identity_verified === 'boolean') return worker.identity_verified;
-    return hasRealCnic(worker.cnic_number, worker.phone);
-  }), [data.workers]);
-  const metrics = useMemo(() => [
-    { label: 'Total Workers', value: data.workers.length, color: 'bg-blue-50 text-blue-700 border-blue-200', icon: UserCheck },
-    { label: 'Pending Review', value: data.workers.filter((worker) => worker.status === 'pending').length, color: 'bg-amber-50 text-amber-700 border-amber-200', icon: Clock },
-    { label: 'Identity Verified', value: verifiedWorkers.length, color: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: ShieldCheck },
-    { label: 'Service Requests', value: data.requests.length, color: 'bg-purple-50 text-purple-700 border-purple-200', icon: Bell }
-  ], [data.workers.length, verifiedWorkers.length, data.requests.length]);
+
 
   const commissionTotals = useMemo(() => data.commissions.reduce((totals, item) => ({
     jobValue: totals.jobValue + Number(item.job_amount || 0),
@@ -493,23 +484,6 @@ export function AdminPanel() {
         </div>
       )}
 
-      {/* Metrics Cards */}
-      <div className={`mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 ${loading ? 'pointer-events-none opacity-60' : ''}`}>
-        {metrics.map((metric) => {
-          const Icon = metric.icon;
-          return (
-            <div key={metric.label} className={`rounded-xl border p-5 ${metric.color} transition-shadow hover:shadow-sm`}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-semibold opacity-80">{metric.label}</p>
-                  <p className="mt-1 text-3xl font-bold">{metric.value}</p>
-                </div>
-                <Icon size={24} className="opacity-60" />
-              </div>
-            </div>
-          );
-        })}
-      </div>
 
       {/* Business Intelligence */}
       <div className={loading ? 'pointer-events-none opacity-60' : ''}>
