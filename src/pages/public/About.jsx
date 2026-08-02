@@ -384,7 +384,7 @@ function CoverageAreas() {
 const faqs = [
   {
     q: 'What is FSD Home Services?',
-    a: 'FSD Home Services is a local platform that connects homeowners across Faisalabad with manually verified workers for plumbing, electrical work, AC services, carpentry, painting, masonry and more.'
+    a: 'FSD Home Services is a local marketplace that connects homeowners across Faisalabad with manually verified workers for plumbing, electrical work, AC services, carpentry, painting, masonry and more.'
   },
   {
     q: 'How are workers verified?',
