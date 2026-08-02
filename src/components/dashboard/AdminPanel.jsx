@@ -602,7 +602,12 @@ export function AdminPanel() {
                             <InfoRow label="Phone" value={worker.phone} />
                             <InfoRow label="Email" value={worker.email || 'Not provided'} />
                             <InfoRow label="CNIC" value={realCnic ? worker.cnic_number : 'Not provided'} />
-                            <InfoRow label="Areas" value={(worker.areas_covered || []).join(', ') || 'Not set'} />
+                            <InfoRow label="Areas" value={
+                              !(worker.areas_covered?.length) ? 'Not set' :
+                              worker.areas_covered.length === areas.length ? 'All over Faisalabad' :
+                              worker.areas_covered.length > 3 ? `${worker.areas_covered.slice(0, 3).join(', ')} ... +${worker.areas_covered.length - 3} more` :
+                              worker.areas_covered.join(', ')
+                            } />
                             <InfoRow label="Rating" value={worker.rating_avg ? `${Number(worker.rating_avg).toFixed(1)} ★` : 'No ratings'} />
                             <InfoRow label="Completed Jobs" value={worker.completed_jobs_count || 0} />
                           </div>
