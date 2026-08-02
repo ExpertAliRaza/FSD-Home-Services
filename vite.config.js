@@ -2,8 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 import prerenderer from '@prerenderer/rollup-plugin';
-import puppeteer from '@prerenderer/renderer-puppeteer';
-
+import JSDOMRenderer from '@prerenderer/renderer-jsdom';
 
 export default defineConfig({
   plugins: [
@@ -20,9 +19,8 @@ export default defineConfig({
         '/commission-policy',
         '/worker-verification-policy'
       ],
-      renderer: new puppeteer({
-        renderAfterDocumentEvent: 'custom-render-trigger',
-        headless: true
+      renderer: new JSDOMRenderer({
+        renderAfterDocumentEvent: 'custom-render-trigger'
       })
     })
   ],
