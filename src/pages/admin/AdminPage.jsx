@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AdminPanel } from '../../components/dashboard/AdminPanel';
+import { ChatWidget } from '../../components/dashboard/ChatWidget';
 import { getCurrentUserRole } from '../../lib/api';
 import { hasSupabaseConfig, supabase } from '../../lib/supabaseClient';
 
@@ -35,7 +36,12 @@ export function AdminPage() {
     return <Navigate to="/login" replace state={{ message: state.error || 'Admin access is required.' }} />;
   }
 
-  return <AdminPanel />;
+  return (
+    <>
+      <AdminPanel />
+      <ChatWidget />
+    </>
+  );
 }
 
 function AccessMessage({ title, children }) {

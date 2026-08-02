@@ -22,7 +22,9 @@ export function RequestForm({ preferredWorkerId, initialService }) {
     service_category_id: validInitialService,
     problem_description: '',
     urgency: 'Normal',
-    preferred_time: ''
+    preferred_time: '',
+    coupon_code: '',
+    referral_code: ''
   });
   const [areaOpen, setAreaOpen] = useState(false);
   const [areaSearch, setAreaSearch] = useState('');
@@ -181,6 +183,14 @@ export function RequestForm({ preferredWorkerId, initialService }) {
         </Field>
         <Field label="Preferred time">
           <input className={inputClass} name="preferred_time" value={form.preferred_time} onChange={update} placeholder="Morning, evening, or exact time" />
+        </Field>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Field label="Coupon code (Optional)">
+          <input className={inputClass} name="coupon_code" value={form.coupon_code} onChange={update} placeholder="Enter coupon if you have one" />
+        </Field>
+        <Field label="Referral code (Optional)">
+          <input className={inputClass} name="referral_code" value={form.referral_code} onChange={update} placeholder="Enter friend's phone number" />
         </Field>
       </div>
       <Field label="Problem description">

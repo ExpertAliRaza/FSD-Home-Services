@@ -171,7 +171,9 @@ export async function submitServiceRequest(form, turnstileVerificationId) {
     p_preferred_time: form.preferred_time?.trim() || null,
     p_preferred_worker_id: form.preferred_worker_id || null,
     p_photo_path: photoUrl,
-    p_turnstile_verification_id: turnstileVerificationId
+    p_turnstile_verification_id: turnstileVerificationId,
+    p_coupon_code: form.coupon_code?.trim() || null,
+    p_referral_code: form.referral_code?.trim() ? normalizePhone(form.referral_code) : null
   });
 
   if (error) throw error;
@@ -281,14 +283,16 @@ export async function signUpWorker(payload, turnstileVerificationId) {
 export async function getAdminData() {
   requireSupabaseConfig();
 
-  const [workers, requests, assignments, notes, notifications, commissions, complaints] = await Promise.all([
+  const [workers, requests, assignments, notes, notifications, commissions, complaints, coupons, referrals] = await Promise.all([
     supabase.from('workers').select('*, service_categories(name), worker_photos(*)').order('created_at', { ascending: false }),
     supabase.from('service_requests').select('*, areas(name), service_categories(name), request_photos(*), review_invitations(token, expires_at, used_at), lead_assignments(*, workers(display_name))').order('created_at', { ascending: false }),
     supabase.from('lead_assignments').select('*'),
     supabase.from('admin_notes').select('*').order('created_at', { ascending: false }),
     supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(50),
     supabase.from('commission_transactions').select('*, workers(display_name), service_requests(service_category_id, area_id)').order('created_at', { ascending: false }),
-    supabase.from('complaints').select('*, workers(display_name)').order('created_at', { ascending: false })
+    supabase.from('complaints').select('*, workers(display_name)').order('created_at', { ascending: false }),
+    supabase.from('coupons').select('*').order('created_at', { ascending: false }),
+    supabase.from('referrals').select('*, service_requests!fk_referrals_request(customer_name, status)').order('created_at', { ascending: false })
   ]);
 
   if (workers.error) throw workers.error;
@@ -298,6 +302,8 @@ export async function getAdminData() {
   if (notifications.error) throw notifications.error;
   if (commissions.error) throw commissions.error;
   if (complaints.error) throw complaints.error;
+  if (coupons.error) throw coupons.error;
+  if (referrals.error) throw referrals.error;
 
   const workersWithAssets = await Promise.all((workers.data || []).map(async (worker) => ({
     ...worker,
@@ -325,7 +331,9 @@ export async function getAdminData() {
     notes: notes.data || [],
     notifications: notifications.data || [],
     commissions: commissions.data || [],
-    complaints: complaints.data || []
+    complaints: complaints.data || [],
+    coupons: coupons.data || [],
+    referrals: referrals.data || []
   };
 }
 
@@ -613,6 +621,27 @@ export async function getCurrentUserRole() {
   return data.role;
 }
 
+export async function getAnalyticsTimeseries(startDate, endDate, granularity) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('get_analytics_timeseries', {
+    p_start_date: startDate,
+    p_end_date: endDate,
+    p_granularity: granularity
+  });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getAnalyticsBreakdown(startDate, endDate) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('get_analytics_breakdown', {
+    p_start_date: startDate,
+    p_end_date: endDate
+  });
+  if (error) throw error;
+  return data || { top_services: [], top_areas: [] };
+}
+
 export async function signOutAdmin() {
   requireSupabaseConfig();
   const { error } = await supabase.auth.signOut();
@@ -794,4 +823,29 @@ export function subscribeToNotifications(recipientId, onNotification) {
 
 export async function signOut() {
   return signOutAdmin();
+}
+
+export async function createCoupon(payload) {
+  requireSupabaseConfig();
+  const { error } = await supabase.from('coupons').insert({
+    code: payload.code.toUpperCase().trim(),
+    discount_type: payload.discount_type,
+    discount_value: payload.discount_value,
+    usage_limit: payload.usage_limit || null,
+    per_customer_limit: payload.per_customer_limit || 1,
+    is_active: payload.is_active !== false
+  });
+  if (error) throw error;
+}
+
+export async function updateCouponStatus(couponId, isActive) {
+  requireSupabaseConfig();
+  const { error } = await supabase.from('coupons').update({ is_active: isActive }).eq('id', couponId);
+  if (error) throw error;
+}
+
+export async function updateReferralStatus(referralId, status) {
+  requireSupabaseConfig();
+  const { error } = await supabase.from('referrals').update({ status }).eq('id', referralId);
+  if (error) throw error;
 }

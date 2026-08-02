@@ -28,7 +28,13 @@ try {
 console.log('Creating Vercel config.json...');
 fs.writeFileSync(
   path.join(outputDir, 'config.json'),
-  JSON.stringify({ version: 3 }, null, 2)
+  JSON.stringify({
+    version: 3,
+    routes: [
+      { handle: 'filesystem' },
+      { src: '/(.*)', dest: '/index.html' }
+    ]
+  }, null, 2)
 );
 
 // Deploy

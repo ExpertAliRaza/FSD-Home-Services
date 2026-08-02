@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   Bell, CheckCheck, Clipboard, Edit3, LogOut, Trash2, X,
   ChevronDown, ChevronUp, Search, UserCheck, Clock, AlertTriangle, ShieldCheck,
-  Users, FileText, MessageSquareWarning, Filter as FilterIcon, RotateCcw
+  Users, FileText, MessageSquareWarning, Filter as FilterIcon, RotateCcw, Megaphone, BarChart3
 } from 'lucide-react';
 import { BusinessIntelligenceCenter } from './BusinessIntelligenceCenter';
+import { BannerGenerator } from './BannerGenerator';
+import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { areas, services } from '../../data/catalog';
 import { hasRealCnic } from '../../lib/validation';
@@ -26,7 +28,10 @@ import {
   updateComplaintStatus,
   updateAdminWorkerProfile,
   updateRequestStatus,
-  updateWorkerStatus
+  updateWorkerStatus,
+  createCoupon,
+  updateCouponStatus,
+  updateReferralStatus
 } from '../../lib/api';
 
 const workerStatuses = ['pending', 'approved', 'rejected', 'needs_changes', 'suspended'];
@@ -42,7 +47,9 @@ export function AdminPanel() {
     notes: [],
     notifications: [],
     commissions: [],
-    complaints: []
+    complaints: [],
+    coupons: [],
+    referrals: []
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -55,6 +62,14 @@ export function AdminPanel() {
     request_id: '',
     complaint_text: '',
     notes: ''
+  });
+  const [couponForm, setCouponForm] = useState({
+    code: '',
+    discount_type: 'fixed',
+    discount_value: '',
+    usage_limit: '',
+    per_customer_limit: 1,
+    is_active: true
   });
   const [activeTab, setActiveTab] = useState('workers');
   // Worker filters
@@ -430,14 +445,49 @@ export function AdminPanel() {
     setComplaintForm({ request_id: '', complaint_text: '', notes: '' });
   };
 
+  const submitCoupon = async (event) => {
+    event.preventDefault();
+    try {
+      await createCoupon(couponForm);
+      await loadAll();
+      setCouponForm({
+        code: '', discount_type: 'fixed', discount_value: '', usage_limit: '', per_customer_limit: 1, is_active: true
+      });
+    } catch (err) {
+      alert(err.message || 'Could not create coupon.');
+    }
+  };
+
+  const toggleCoupon = async (coupon) => {
+    try {
+      await updateCouponStatus(coupon.id, !coupon.is_active);
+      await loadAll();
+    } catch (err) {
+      alert(err.message || 'Could not update coupon.');
+    }
+  };
+
+  const updateReferral = async (referral, status) => {
+    try {
+      await updateReferralStatus(referral.id, status);
+      await loadAll();
+    } catch (err) {
+      alert(err.message || 'Could not update referral.');
+    }
+  };
+
   const notesFor = (entityType, entityId) =>
     data.notes.filter((item) => item.entity_type === entityType && item.entity_id === entityId);
 
   const adminTabs = [
+    { key: 'analytics', label: 'Analytics', icon: BarChart3, count: null },
     { key: 'workers', label: 'Workers', icon: Users, count: data.workers.length },
     { key: 'requests', label: 'Service Requests', icon: FileText, count: data.requests.length },
     { key: 'commissions', label: 'Commissions', icon: CheckCheck, count: data.commissions.length },
     { key: 'complaints', label: 'Complaints', icon: MessageSquareWarning, count: data.complaints.length },
+    { key: 'referrals', label: 'Referrals', icon: Users, count: data.referrals.filter(r => r.status === 'pending' || r.status === 'completed').length },
+    { key: 'coupons', label: 'Coupons', icon: Clipboard, count: data.coupons.length },
+    { key: 'marketing', label: 'Banners', icon: Megaphone, count: null },
     { key: 'notifications', label: 'Notifications', icon: Bell, count: unreadNotifications.length > 0 ? `${unreadNotifications.length} new` : null }
   ];
 
@@ -1207,6 +1257,98 @@ export function AdminPanel() {
                 </div>
               </div>
             </div>
+          </section>
+        )}
+        {/* ===== REFERRALS TAB ===== */}
+        {activeTab === 'referrals' && (
+          <section id="referrals" className="scroll-mt-20">
+            <div className="rounded-lg border border-slate-200 bg-white">
+              <div className="border-b border-slate-200 px-5 py-4">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-slate-950">
+                  <Users size={20} className="text-brand-700" />
+                  Referral Program
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">{data.referrals.length} total</span>
+                </h2>
+              </div>
+              <div className="p-5 grid gap-4">
+                {data.referrals.map(referral => (
+                  <div key={referral.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Referrer: <span className="font-bold">{referral.referrer_phone}</span></p>
+                      <p className="text-sm text-slate-600">Referred: {referral.referred_customer_phone} ({referral.service_requests?.customer_name})</p>
+                      <p className="text-sm text-slate-600 mt-1">Reward: Rs {referral.reward_amount}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <StatusBadge status={referral.status === 'rewarded' ? 'approved' : referral.status === 'completed' ? 'pending' : 'needs_changes'} />
+                      <p className="text-xs text-slate-500 uppercase">{referral.status}</p>
+                      {referral.status === 'completed' && (
+                        <button onClick={() => updateReferral(referral, 'rewarded')} className="bg-brand-600 text-white px-3 py-1 text-xs font-bold rounded">
+                          Mark Rewarded
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {data.referrals.length === 0 && <p className="text-slate-500 text-sm">No referrals yet.</p>}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ===== COUPONS TAB ===== */}
+        {activeTab === 'coupons' && (
+          <section id="coupons" className="scroll-mt-20">
+            <div className="rounded-lg border border-slate-200 bg-white">
+              <div className="border-b border-slate-200 px-5 py-4">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-slate-950">
+                  <Clipboard size={20} className="text-brand-700" />
+                  Coupons
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">{data.coupons.length} total</span>
+                </h2>
+              </div>
+              <div className="p-5">
+                <form onSubmit={submitCoupon} className="mb-6 rounded-lg border border-brand-200 bg-brand-50 p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <h3 className="col-span-full font-bold text-brand-900">Create New Coupon</h3>
+                  <input placeholder="Code (e.g. FSD200)" required value={couponForm.code} onChange={e => setCouponForm(c => ({...c, code: e.target.value}))} className="rounded border border-brand-200 p-2 text-sm" />
+                  <select value={couponForm.discount_type} onChange={e => setCouponForm(c => ({...c, discount_type: e.target.value}))} className="rounded border border-brand-200 p-2 text-sm">
+                    <option value="fixed">Fixed Amount</option>
+                    <option value="percentage">Percentage %</option>
+                  </select>
+                  <input type="number" placeholder="Value (e.g. 200)" required value={couponForm.discount_value} onChange={e => setCouponForm(c => ({...c, discount_value: e.target.value}))} className="rounded border border-brand-200 p-2 text-sm" />
+                  <input type="number" placeholder="Total Uses Limit (Optional)" value={couponForm.usage_limit} onChange={e => setCouponForm(c => ({...c, usage_limit: e.target.value}))} className="rounded border border-brand-200 p-2 text-sm" />
+                  <button className="col-span-full bg-brand-700 text-white font-bold py-2 rounded">Create Coupon</button>
+                </form>
+
+                <div className="grid gap-4">
+                  {data.coupons.map(coupon => (
+                    <div key={coupon.id} className="rounded-lg border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <p className="font-bold text-lg">{coupon.code} <span className="text-sm font-normal text-slate-500">({coupon.discount_type === 'fixed' ? 'Rs' : ''}{coupon.discount_value}{coupon.discount_type === 'percentage' ? '%' : ''})</span></p>
+                        <p className="text-sm text-slate-600 mt-1">Used: {coupon.used_count} {coupon.usage_limit ? `/ ${coupon.usage_limit}` : 'times'}</p>
+                      </div>
+                      <button onClick={() => toggleCoupon(coupon)} className={`px-4 py-1.5 rounded text-sm font-bold ${coupon.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                        {coupon.is_active ? 'Active' : 'Inactive'}
+                      </button>
+                    </div>
+                  ))}
+                  {data.coupons.length === 0 && <p className="text-slate-500 text-sm">No coupons created yet.</p>}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ===== ANALYTICS TAB ===== */}
+        {activeTab === 'analytics' && (
+          <section id="analytics" className="scroll-mt-20">
+            <AnalyticsDashboard />
+          </section>
+        )}
+
+        {/* ===== MARKETING TAB ===== */}
+        {activeTab === 'marketing' && (
+          <section id="marketing" className="scroll-mt-20">
+            <BannerGenerator />
           </section>
         )}
       </div>

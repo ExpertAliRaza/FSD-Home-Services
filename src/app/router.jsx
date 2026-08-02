@@ -11,6 +11,7 @@ import { Home } from '../pages/public/Home';
 import { NotFound } from '../pages/public/NotFound';
 import { Privacy } from '../pages/public/Privacy';
 import { RequestService } from '../pages/public/RequestService';
+import { ReferAndEarn } from '../pages/public/ReferAndEarn';
 import { Review } from '../pages/public/Review';
 import { ServiceDetail } from '../pages/public/ServiceDetail';
 import { Services } from '../pages/public/Services';
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
       { path: '/workers/:workerId', element: <PublicWorkerProfile /> },
       { path: '/become-a-worker', element: <BecomeWorker /> },
       { path: '/request-service', element: <RequestService /> },
+      { path: '/refer-and-earn', element: <ReferAndEarn /> },
       { path: '/review/:token', element: <Review /> },
       { path: '/contact', element: <Contact /> },
       { path: '/privacy', element: <Privacy /> },
