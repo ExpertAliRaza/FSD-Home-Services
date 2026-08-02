@@ -1,8 +1,30 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+import prerenderer from '@prerenderer/rollup-plugin';
+import puppeteer from '@prerenderer/renderer-puppeteer';
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    prerenderer({
+      routes: [
+        '/',
+        '/about',
+        '/services',
+        '/workers',
+        '/become-a-worker',
+        '/request-service',
+        '/contact',
+        '/commission-policy',
+        '/worker-verification-policy'
+      ],
+      renderer: new puppeteer({
+        renderAfterDocumentEvent: 'custom-render-trigger',
+        headless: true
+      })
+    })
+  ],
   build: {
     rollupOptions: {
       output: {
