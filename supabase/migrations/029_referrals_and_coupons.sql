@@ -83,7 +83,7 @@ set search_path = public
 as $$
 declare
   new_request_id uuid;
-  v_coupon_record record;
+  v_coupon_record public.coupons;
   v_usage_count int;
   v_referral_id uuid;
 begin
