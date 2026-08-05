@@ -9,7 +9,7 @@ import {
   Phone
 } from 'lucide-react';
 import { useState } from 'react';
-import { services } from '../../data/catalog';
+import { useCatalog } from '../../contexts/CatalogContext';
 import { FloatingWhatsAppButton } from '../support/FloatingWhatsAppButton';
 import {
   SUPPORT_NAME,
@@ -40,6 +40,7 @@ const socialLinks = [
 ];
 
 export function Layout() {
+  const { services } = useCatalog();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   const workerDashboard = pathname === '/worker'
@@ -99,13 +100,13 @@ export function Layout() {
           <Outlet />
         </main>
         {!workerDashboard && <FloatingWhatsAppButton />}
-        {!workerDashboard && <SiteFooter />}
+        {!workerDashboard && <SiteFooter services={services} />}
       </div>
     </PwaInstallProvider>
   );
 }
 
-function SiteFooter() {
+function SiteFooter({ services }) {
   return (
     <footer className="border-t border-slate-200 bg-slate-950 text-slate-300">
       <div className="mx-auto grid max-w-7xl gap-x-8 gap-y-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[1.55fr_repeat(4,minmax(0,1fr))] xl:py-14">

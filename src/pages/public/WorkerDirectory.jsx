@@ -22,10 +22,7 @@ import { getPublicWorkers } from '../../lib/api';
 import { areas, services } from '../../data/catalog';
 import { WHATSAPP_URL } from '../../components/support/WhatsAppButton';
 
-const SERVICE_OPTIONS = [
-  'All',
-  ...services.map((service) => service.name)
-];
+
 
 const faqItems = [
   {
@@ -63,6 +60,7 @@ const faqItems = [
 ];
 
 export function WorkerDirectory() {
+  const SERVICE_OPTIONS = ['All', ...services.map((service) => service.name)];
   const [workers, setWorkers] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);

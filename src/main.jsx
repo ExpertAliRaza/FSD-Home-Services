@@ -23,9 +23,13 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
   }
 }
 
+import { CatalogProvider } from './contexts/CatalogContext.jsx';
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <CatalogProvider>
+      <RouterProvider router={router} />
+    </CatalogProvider>
   </React.StrictMode>
 );
 

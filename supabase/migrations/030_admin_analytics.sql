@@ -27,7 +27,7 @@ begin
   reqs as (
     select date_trunc(p_granularity, created_at) as p_date,
            count(*) as total,
-           count(*) filter (where status in ('completed', 'assigned', 'in_progress')) as completed
+           count(*) filter (where status = 'completed') as completed
     from public.service_requests
     where created_at >= p_start_date and created_at < (p_end_date + interval '1 day')
     group by 1

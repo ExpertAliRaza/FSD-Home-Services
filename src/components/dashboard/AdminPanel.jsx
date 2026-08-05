@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import {
   Bell, CheckCheck, Clipboard, Edit3, LogOut, Trash2, X,
   ChevronDown, ChevronUp, Search, UserCheck, Clock, AlertTriangle, ShieldCheck,
-  Users, FileText, MessageSquareWarning, Filter as FilterIcon, RotateCcw, Megaphone, BarChart3
+  Users, FileText, MessageSquareWarning, Filter as FilterIcon, RotateCcw, Megaphone, BarChart3, Settings
 } from 'lucide-react';
 import { BusinessIntelligenceCenter } from './BusinessIntelligenceCenter';
 import { BannerGenerator } from './BannerGenerator';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
+import { AdminServicesTab } from './AdminServicesTab';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { areas, services } from '../../data/catalog';
 import { hasRealCnic } from '../../lib/validation';
@@ -174,8 +175,9 @@ export function AdminPanel() {
       if (workerStatusFilter !== 'all' && worker.status !== workerStatusFilter) return false;
       // Service filter
       if (workerServiceFilter !== 'all') {
-        const workerService = worker.service_categories?.name || worker.service_category_id || '';
-        if (workerService !== workerServiceFilter) return false;
+        const primaryService = worker.service_categories?.name || worker.service_category_id || '';
+        const allServices = [primaryService, ...(worker.additional_services || [])].filter(Boolean);
+        if (!allServices.includes(workerServiceFilter)) return false;
       }
       // Area filter
       if (workerAreaFilter !== 'all') {
@@ -268,6 +270,7 @@ export function AdminPanel() {
       email: worker.email || '',
       cnic_number: realCnic ? worker.cnic_number : '',
       service_category_id: worker.service_category_id || services[0]?.name || '',
+      additional_services: worker.additional_services || [],
       experience_years: worker.experience_years ?? 0,
       areas_covered: worker.areas_covered?.length ? worker.areas_covered : [],
       bio: worker.bio || ''
@@ -283,13 +286,27 @@ export function AdminPanel() {
     setWorkerEditForm((current) => ({ ...current, [field]: value }));
   };
 
-  const toggleWorkerEditArea = (area, checked) => {
+  const toggleWorkerEditArea = (area) => {
     setWorkerEditForm((current) => ({
       ...current,
-      areas_covered: checked
-        ? [...new Set([...(current.areas_covered || []), area])]
-        : (current.areas_covered || []).filter((item) => item !== area)
+      areas_covered: (current.areas_covered || []).includes(area)
+        ? (current.areas_covered || []).filter((item) => item !== area)
+        : [...new Set([...(current.areas_covered || []), area])]
     }));
+  };
+
+  const toggleWorkerEditService = (service) => {
+    setWorkerEditForm((current) => {
+      const isSelected = (current.additional_services || []).includes(service);
+      let newAdditional = isSelected 
+        ? (current.additional_services || []).filter((item) => item !== service)
+        : [...new Set([...(current.additional_services || []), service])];
+      
+      if (newAdditional.length > 2) {
+        newAdditional = newAdditional.slice(0, 2);
+      }
+      return { ...current, additional_services: newAdditional };
+    });
   };
 
   const saveWorkerEdit = async (event, worker) => {
@@ -481,6 +498,7 @@ export function AdminPanel() {
 
   const adminTabs = [
     { key: 'analytics', label: 'Analytics', icon: BarChart3, count: null },
+    { key: 'services', label: 'Services', icon: Settings, count: data.serviceCategories?.length },
     { key: 'workers', label: 'Workers', icon: Users, count: data.workers.length },
     { key: 'requests', label: 'Service Requests', icon: FileText, count: data.requests.length },
     { key: 'commissions', label: 'Commissions', icon: CheckCheck, count: data.commissions.length },
@@ -535,6 +553,8 @@ export function AdminPanel() {
       )}
 
 
+
+
       {/* Business Intelligence */}
       <div className={loading ? 'pointer-events-none opacity-60' : ''}>
         <BusinessIntelligenceCenter data={data} loading={false} />
@@ -573,6 +593,14 @@ export function AdminPanel() {
 
       {/* Tab Content */}
       <div className="mt-5">
+        {/* ===== SERVICES TAB ===== */}
+        {activeTab === 'services' && (
+          <AdminServicesTab 
+            services={data.serviceCategories || []} 
+            reloadData={loadAll} 
+          />
+        )}
+
         {/* ===== WORKERS TAB ===== */}
         {activeTab === 'workers' && (
           <section id="workers" className="scroll-mt-20">
@@ -647,7 +675,18 @@ export function AdminPanel() {
                             <StatusBadge status={worker.status} />
                           </div>
                           <div className="mt-3 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2 lg:grid-cols-3">
-                            <InfoRow label="Service" value={worker.service_categories?.name || worker.service_category_id || 'Not set'} />
+                            <div className="flex items-center gap-2">
+                              <span className="text-slate-500 font-medium">Service</span>
+                              <div className="flex flex-wrap gap-1">
+                                {worker.service_categories?.name || worker.service_category_id ? (
+                                  <span className="inline-flex rounded border border-orange-200 bg-orange-50 px-1.5 py-0.5 text-xs font-semibold text-orange-800">{worker.service_categories?.name || worker.service_category_id}</span>
+                                ) : null}
+                                {worker.additional_services?.map(s => (
+                                  <span key={s} className="inline-flex rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs font-medium text-slate-700">{s}</span>
+                                ))}
+                                {!(worker.service_categories?.name || worker.service_category_id) && !worker.additional_services?.length && 'Not set'}
+                              </div>
+                            </div>
                             <InfoRow label="Experience" value={`${worker.experience_years || 0} years`} />
                             <InfoRow label="Phone" value={worker.phone} />
                             <InfoRow label="Email" value={worker.email || 'Not provided'} />
@@ -734,10 +773,26 @@ export function AdminPanel() {
                             <AdminField label="CNIC">
                               <input value={workerEditForm.cnic_number} onChange={(event) => setWorkerEditField('cnic_number', event.target.value)} inputMode="numeric" className={adminInputClass} />
                             </AdminField>
-                            <AdminField label="Service">
+                            <AdminField label="Primary Service">
                               <select value={workerEditForm.service_category_id} onChange={(event) => setWorkerEditField('service_category_id', event.target.value)} className={adminInputClass} required>
                                 {services.map((service) => <option key={service.name} value={service.name}>{service.name}</option>)}
                               </select>
+                            </AdminField>
+                            <AdminField label="Additional Services (Max 2)">
+                              <div className="mt-1 grid gap-2 rounded-lg border border-slate-200 bg-white p-3 h-32 overflow-y-auto">
+                                {services.filter(s => s.name !== workerEditForm.service_category_id).map((service) => (
+                                  <label key={service.name} className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-slate-900">
+                                    <input
+                                      type="checkbox"
+                                      checked={(workerEditForm.additional_services || []).includes(service.name)}
+                                      onChange={() => toggleWorkerEditService(service.name)}
+                                      disabled={(workerEditForm.additional_services || []).length >= 2 && !(workerEditForm.additional_services || []).includes(service.name)}
+                                      className="rounded border-slate-300"
+                                    />
+                                    {service.name}
+                                  </label>
+                                ))}
+                              </div>
                             </AdminField>
                             <AdminField label="Experience years">
                               <input value={workerEditForm.experience_years} onChange={(event) => setWorkerEditField('experience_years', event.target.value)} type="number" min="0" max="80" className={adminInputClass} />
@@ -750,7 +805,7 @@ export function AdminPanel() {
                                   <input
                                     type="checkbox"
                                     checked={(workerEditForm.areas_covered || []).includes(area)}
-                                    onChange={(event) => toggleWorkerEditArea(area, event.target.checked)}
+                                    onChange={() => toggleWorkerEditArea(area)}
                                     className="rounded border-slate-300"
                                   />
                                   {area}

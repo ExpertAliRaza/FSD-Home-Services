@@ -17,7 +17,8 @@ import {
 import { RequestForm } from '../../components/forms/RequestForm';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { WhatsAppButton, WHATSAPP_URL } from '../../components/support/WhatsAppButton';
-import { areas, services } from '../../data/catalog';
+import { areas } from '../../data/catalog';
+import { useCatalog } from '../../contexts/CatalogContext';
 
 const faqItems = [
   {
@@ -55,6 +56,8 @@ const faqItems = [
 ];
 
 export function RequestService() {
+  const { services } = useCatalog();
+
   const [params] = useSearchParams();
   const [openFaq, setOpenFaq] = useState(null);
 

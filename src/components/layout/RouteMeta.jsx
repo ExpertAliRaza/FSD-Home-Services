@@ -66,7 +66,8 @@ export function RouteMeta() {
       pathname,
       privateRoute,
       service,
-      title
+      title,
+      services
     });
   }, [pathname]);
 
@@ -83,7 +84,7 @@ function setMeta(name, content) {
   element.content = content;
 }
 
-function setRouteStructuredData({ canonicalUrl, description, pathname, privateRoute, service, title }) {
+function setRouteStructuredData({ canonicalUrl, description, pathname, privateRoute, service, title, services }) {
   let element = document.querySelector('script[data-route-structured-data="true"]');
 
   if (privateRoute) {
@@ -99,15 +100,16 @@ function setRouteStructuredData({ canonicalUrl, description, pathname, privateRo
   }
 
   element.textContent = JSON.stringify(buildRouteStructuredData({
-    canonicalUrl,
-    description,
-    pathname,
-    service,
-    title
-  }));
+      canonicalUrl,
+      description,
+      pathname,
+      service,
+      title,
+      services
+    }));
 }
 
-function buildRouteStructuredData({ canonicalUrl, description, pathname, service, title }) {
+function buildRouteStructuredData({ canonicalUrl, description, pathname, service, title, services }) {
   const graph = [
     {
       '@type': 'WebPage',

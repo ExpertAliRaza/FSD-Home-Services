@@ -259,7 +259,8 @@ export async function signUpWorker(payload, turnstileVerificationId) {
       p_areas_covered: payload.areas_covered,
       p_availability: null,
       p_expected_visit_charges: null,
-      p_work_photo_urls: []
+      p_work_photo_urls: [],
+      p_additional_services: payload.additional_services || []
     });
     if (error) throw workerSignupError(error);
 
@@ -283,7 +284,7 @@ export async function signUpWorker(payload, turnstileVerificationId) {
 export async function getAdminData() {
   requireSupabaseConfig();
 
-  const [workers, requests, assignments, notes, notifications, commissions, complaints, coupons, referrals] = await Promise.all([
+  const [workers, requests, assignments, notes, notifications, commissions, complaints, coupons, referrals, serviceCategories] = await Promise.all([
     supabase.from('workers').select('*, service_categories(name), worker_photos(*)').order('created_at', { ascending: false }),
     supabase.from('service_requests').select('*, areas(name), service_categories(name), request_photos(*), review_invitations(token, expires_at, used_at), lead_assignments(*, workers(display_name))').order('created_at', { ascending: false }),
     supabase.from('lead_assignments').select('*'),
@@ -292,7 +293,8 @@ export async function getAdminData() {
     supabase.from('commission_transactions').select('*, workers(display_name), service_requests(service_category_id, area_id)').order('created_at', { ascending: false }),
     supabase.from('complaints').select('*, workers(display_name)').order('created_at', { ascending: false }),
     supabase.from('coupons').select('*').order('created_at', { ascending: false }),
-    supabase.from('referrals').select('*, service_requests!fk_referrals_request(customer_name, status)').order('created_at', { ascending: false })
+    supabase.from('referrals').select('*, service_requests!fk_referrals_request(customer_name, status)').order('created_at', { ascending: false }),
+    supabase.from('service_categories').select('*').order('created_at', { ascending: false })
   ]);
 
   if (workers.error) throw workers.error;
@@ -304,6 +306,7 @@ export async function getAdminData() {
   if (complaints.error) throw complaints.error;
   if (coupons.error) throw coupons.error;
   if (referrals.error) throw referrals.error;
+  if (serviceCategories.error) throw serviceCategories.error;
 
   const workersWithAssets = await Promise.all((workers.data || []).map(async (worker) => ({
     ...worker,
@@ -333,7 +336,8 @@ export async function getAdminData() {
     commissions: commissions.data || [],
     complaints: complaints.data || [],
     coupons: coupons.data || [],
-    referrals: referrals.data || []
+    referrals: referrals.data || [],
+    serviceCategories: serviceCategories.data || []
   };
 }
 
@@ -383,6 +387,7 @@ export async function updateAdminWorkerProfile(workerId, payload) {
     email: payload.email?.trim().toLowerCase() || null,
     cnic_number: cnicNumber,
     service_category_id: payload.service_category_id,
+    additional_services: payload.additional_services || [],
     experience_years: Number(payload.experience_years || 0),
     areas_covered: areasCovered,
     bio: payload.bio?.trim() || null,
@@ -847,5 +852,67 @@ export async function updateCouponStatus(couponId, isActive) {
 export async function updateReferralStatus(referralId, status) {
   requireSupabaseConfig();
   const { error } = await supabase.from('referrals').update({ status }).eq('id', referralId);
+  if (error) throw error;
+}
+
+export async function uploadServiceImage(file) {
+  requireSupabaseConfig();
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+  
+  const { error: uploadError, data } = await supabase.storage
+    .from('service-images')
+    .upload(fileName, file, { upsert: false });
+
+  if (uploadError) throw uploadError;
+  
+  const { data: { publicUrl } } = supabase.storage
+    .from('service-images')
+    .getPublicUrl(fileName);
+    
+  return publicUrl;
+}
+
+export async function getServiceCategories() {
+  requireSupabaseConfig();
+  const { data, error } = await supabase
+    .from('service_categories')
+    .select('*')
+    .order('name');
+  if (error) throw error;
+  return data;
+}
+
+export async function createServiceCategory(payload) {
+  requireSupabaseConfig();
+  const { error } = await supabase.from('service_categories').insert({
+    id: payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    name: payload.name,
+    slug: payload.slug || payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    image_url: payload.image_url || null,
+    description: payload.description || null,
+    keywords: payload.keywords || null,
+    is_active: payload.is_active !== false
+  });
+  if (error) throw error;
+}
+
+export async function updateServiceCategory(id, payload) {
+  requireSupabaseConfig();
+  const { error } = await supabase.from('service_categories').update({
+    name: payload.name,
+    slug: payload.slug || payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    image_url: payload.image_url || null,
+    description: payload.description || null,
+    keywords: payload.keywords || null,
+    is_active: payload.is_active !== false,
+    updated_at: new Date().toISOString()
+  }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteServiceCategory(id) {
+  requireSupabaseConfig();
+  const { error } = await supabase.from('service_categories').delete().eq('id', id);
   if (error) throw error;
 }

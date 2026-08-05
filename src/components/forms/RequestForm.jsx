@@ -1,13 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, X, ChevronDown } from 'lucide-react';
-import { areas, services } from '../../data/catalog';
+import { areas } from '../../data/catalog';
+import { useCatalog } from '../../contexts/CatalogContext';
 import { submitServiceRequest, verifyTurnstileToken } from '../../lib/api';
 import { isValidPakistanPhone, validateImage } from '../../lib/validation';
 import { Field, inputClass } from './Field';
 import { TurnstileWidget } from './TurnstileWidget';
 
 export function RequestForm({ preferredWorkerId, initialService }) {
+  const { services } = useCatalog();
+
   const validInitialService = services.some((service) => service.name === initialService)
     ? initialService
     : services[0].name;

@@ -294,7 +294,7 @@ export function ServiceDetail() {
       <FaqSection items={content.faqs} />
 
       {/* Section 10: Related Services */}
-      <RelatedServices items={content.related} serviceMap={serviceMap} />
+      <RelatedServices items={content.related} serviceMap={services} />
 
       {/* Section 11: Final CTA */}
       <FinalCta serviceName={content.serviceName} />

@@ -19,7 +19,7 @@ import {
 import { WorkerSignupForm } from '../../components/forms/WorkerSignupForm';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { WhatsAppButton, WHATSAPP_URL } from '../../components/support/WhatsAppButton';
-import { services } from '../../data/catalog';
+import { useCatalog } from '../../contexts/CatalogContext';
 
 const iconMap = {
   Plumber: 'Wrench',
@@ -121,6 +121,8 @@ const LucideIcon = ({ name, size }) => {
 };
 
 export function BecomeWorker() {
+  const { services } = useCatalog();
+
   const [openFaq, setOpenFaq] = useState(null);
 
   return (

@@ -110,7 +110,7 @@ export function buildExportDatasets(data, range) {
     commissions: scoped.commissions.map(commissionRow),
     reviews: source.workers.map(reviewStatsRow),
     complaints: scoped.complaints.map(complaintRow),
-    services: services.map((service) => ({ name: service.name, slug: service.slug, description: service.description })),
+    services: source.serviceCategories.map((service) => ({ name: service.name, slug: service.slug, description: service.description })),
     notifications: scoped.notifications.map(notificationRow),
     assignments: source.assignments.map(assignmentRow),
     areas: areas.map((area) => ({ area }))
@@ -133,7 +133,7 @@ export function sanitizeBackupData(data) {
       note: note.note,
       created_at: note.created_at
     })),
-    service_catalog: services.map((service) => ({ name: service.name, slug: service.slug, description: service.description })),
+    service_catalog: source.serviceCategories.map((service) => ({ name: service.name, slug: service.slug, description: service.description })),
     areas: areas.map((area) => ({ area }))
   };
 }
@@ -150,7 +150,8 @@ export function normalizeAdminData(data = {}) {
     notes: data.notes || [],
     notifications: data.notifications || [],
     commissions: data.commissions || [],
-    complaints: data.complaints || []
+    complaints: data.complaints || [],
+    serviceCategories: data.serviceCategories || []
   };
 }
 

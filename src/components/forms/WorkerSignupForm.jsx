@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
-import { areas, services } from '../../data/catalog';
+import { areas } from '../../data/catalog';
+import { useCatalog } from '../../contexts/CatalogContext';
 import { signUpWorker, verifyTurnstileToken } from '../../lib/api';
 import { isValidCnic, isValidPakistanPhone, validateImage } from '../../lib/validation';
 import { Field, inputClass } from './Field';
 import { TurnstileWidget } from './TurnstileWidget';
 
 export function WorkerSignupForm() {
+  const { services } = useCatalog();
+
   const navigate = useNavigate();
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');

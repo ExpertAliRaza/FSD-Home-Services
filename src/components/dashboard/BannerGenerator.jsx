@@ -16,13 +16,13 @@ export function BannerGenerator() {
   });
 
   const [couponData, setCouponData] = useState({
-    discount: '20% OFF',
-    subtitle: 'Aapki agli service par',
-    descriptionLine1: 'Koi bhi home service book karen aur',
-    descriptionLine2: 'checkout par ye code istemal karen.',
-    couponCode: 'WELCOME20',
+    discountType: 'FLAT',
+    discountAmount: 'Rs. 200 OFF',
+    subtitle: 'Your First Service',
+    minBooking: 'Minimum Booking Rs. 1000',
+    couponCode: 'HOME200',
     expiryText: 'Valid till 30 Aug 2026',
-    contactNumber: '0321-1234567'
+    contactNumber: '0309-9018308'
   });
 
   // Draw Functions
@@ -109,69 +109,203 @@ export function BannerGenerator() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    // Background solid (Coral)
-    ctx.fillStyle = '#D85A30';
+    // Background gradient (Dark Orange)
+    const gradient = ctx.createLinearGradient(0, 0, 680, 380);
+    gradient.addColorStop(0, '#C54602');
+    gradient.addColorStop(1, '#9A3000');
+    ctx.fillStyle = gradient;
     ctx.beginPath();
     ctx.roundRect(0, 0, 680, 380, 16);
     ctx.fill();
 
-    // Decorative Circles
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    // Subtle wavy pattern
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
     ctx.beginPath();
-    ctx.arc(580, 100, 180, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(100, 350, 120, 0, Math.PI * 2);
+    ctx.moveTo(0, 380);
+    ctx.lineTo(0, 150);
+    ctx.bezierCurveTo(200, 280, 400, 80, 680, 220);
+    ctx.lineTo(680, 380);
     ctx.fill();
 
-    // Content
+    // Set default baseline
+    ctx.textBaseline = 'middle';
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    // -- TOP LEFT: LOGO & BRANDING --
+    // House (Lucide Home path)
+    const homePath = new Path2D("m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10");
+    ctx.save();
+    ctx.translate(28, 25); // Position
+    ctx.scale(1.5, 1.5);
+    ctx.lineWidth = 1.8;
+    ctx.strokeStyle = 'white';
+    ctx.stroke(homePath);
+    ctx.restore();
+
+    // Brand Text
     ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.font = 'bold 16px Inter, sans-serif';
-    ctx.fillText('FSD HOME SERVICES', 40, 50);
-
-    // Large Discount text
+    ctx.font = 'bold 22px Inter, sans-serif';
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 64px Inter, sans-serif';
-    ctx.fillText(couponData.discount, 40, 140);
+    ctx.fillText('FSD HOME SERVICES', 85, 38);
+    ctx.font = '12px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillText('— YOUR TRUSTED PARTNER —', 85, 56);
+
+    // -- MAIN DISCOUNT TEXT --
+    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.fillStyle = 'white';
+    ctx.fillText(couponData.discountType, 30, 105);
+    
+    ctx.font = 'bold 58px Inter, sans-serif';
+    ctx.fillText(couponData.discountAmount, 26, 145);
     
     ctx.font = 'bold 22px Inter, sans-serif';
-    ctx.fillStyle = '#ffedd5'; 
-    ctx.fillText(couponData.subtitle, 40, 180);
+    ctx.fillText(couponData.subtitle, 30, 195);
 
-    // Description
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.font = '16px Inter, sans-serif';
-    ctx.fillText(couponData.descriptionLine1, 40, 230);
-    ctx.fillText(couponData.descriptionLine2, 40, 255);
-
-    // Coupon Box
-    ctx.strokeStyle = 'white';
-    ctx.setLineDash([6, 6]);
-    ctx.lineWidth = 2;
+    // -- RIGHT SIDE: COUPON BOX --
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.setLineDash([8, 8]);
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.roundRect(420, 110, 220, 90, 8);
+    ctx.roundRect(415, 60, 230, 150, 12);
     ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.textAlign = 'center';
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 12px Inter, sans-serif';
-    ctx.fillText('USE COUPON CODE', 530, 135);
+    ctx.font = 'bold 16px Inter, sans-serif';
+    ctx.fillText('USE COUPON CODE', 530, 85);
     
-    ctx.font = 'bold 26px monospace';
-    ctx.fillText(couponData.couponCode, 530, 170);
+    // White Box for code
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.roundRect(435, 102, 190, 42, 8);
+    ctx.fill();
 
-    // Expiry text inside the box
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillStyle = '#A63200';
+    ctx.font = 'bold 30px Inter, sans-serif';
+    ctx.fillText(couponData.couponCode, 530, 124);
+
+    // Separators and text inside dashed box
+    ctx.fillStyle = 'white';
     ctx.font = '13px Inter, sans-serif';
-    ctx.fillText(couponData.expiryText, 530, 190);
+    ctx.fillText(couponData.minBooking, 530, 163);
+    
+    ctx.beginPath();
+    ctx.moveTo(445, 180);
+    ctx.lineTo(615, 180);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
-    // Footer contact
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 13px Inter, sans-serif';
+    ctx.fillText(couponData.expiryText, 530, 195);
+
+    // -- BOTTOM SECTION: OUR SERVICES --
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 15px Inter, sans-serif';
+    ctx.fillText('OUR SERVICES', 340, 245);
+    
+    ctx.beginPath();
+    ctx.moveTo(240, 245);
+    ctx.lineTo(300, 245);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(380, 245);
+    ctx.lineTo(440, 245);
+    ctx.stroke();
+
+    // Services icons and text
+    const services = ['PLUMBING', 'ELECTRICAL', 'AC REPAIR', 'PAINTING', 'CARPENTRY'];
+    const serviceX = [85, 212, 340, 467, 595];
+    
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1.8;
+
+    for (let i = 0; i < services.length; i++) {
+      const sx = serviceX[i];
+      const sy = 285; // Icon Center Y
+      
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 1.8;
+      
+      // Draw accurate SVG icons using Path2D
+      ctx.save();
+      ctx.translate(sx - 12, sy - 12); // Center 24x24 icon exactly at sx, sy
+      
+      if (i === 0) { // Droplet
+        const droplet = new Path2D("M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z");
+        ctx.stroke(droplet);
+      } else if (i === 1) { // Zap
+        const zap = new Path2D("M13 2L3 14h9l-1 8 10-12h-9l1-8z");
+        ctx.stroke(zap);
+      } else if (i === 2) { // Wind/AC
+        const wind = new Path2D("M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2");
+        ctx.stroke(wind);
+      } else if (i === 3) { // Roller
+        ctx.roundRect(1, 1, 16, 8, 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(17, 5); ctx.lineTo(21, 5); ctx.lineTo(21, 13); ctx.lineTo(10, 13); ctx.lineTo(10, 17);
+        ctx.stroke();
+        ctx.beginPath(); ctx.roundRect(8, 17, 4, 6, 1); ctx.stroke();
+      } else if (i === 4) { // Wrench
+        const wrench = new Path2D("M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z");
+        ctx.stroke(wrench);
+      }
+      ctx.restore();
+      
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.fillStyle = 'white';
+      ctx.fillText(services[i], sx, 315);
+      
+      // Bottom dash
+      ctx.beginPath();
+      ctx.moveTo(sx-10, 326);
+      ctx.lineTo(sx+10, 326);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.stroke();
+      
+      if (i < services.length - 1) {
+         // Vertical separator
+         ctx.beginPath();
+         ctx.moveTo(sx + 63, 265);
+         ctx.lineTo(sx + 63, 325);
+         ctx.lineWidth = 1;
+         ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+         ctx.stroke();
+      }
+    }
+
+    // -- BOTTOM WHATSAPP BUBBLE --
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(170, 340, 340, 34, 17);
+    ctx.fill();
+    ctx.stroke();
+    
+    // WhatsApp Logo (Lucide MessageCircle)
+    const msgPath = new Path2D("M7.9 20A9 9 0 1 0 4 16.1L2 22Z");
+    ctx.save();
+    ctx.translate(210, 345); // Y=357 is center, so Y=345 puts it right in the 340-374 bubble
+    ctx.scale(0.9, 0.9);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'white';
+    ctx.stroke(msgPath);
+    ctx.restore();
+
+    ctx.fillStyle = 'white';
     ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.font = '14px Inter, sans-serif';
-    ctx.fillText(`WhatsApp: ${couponData.contactNumber}`, 40, 340);
+    ctx.font = '15px Inter, sans-serif';
+    ctx.fillText(`WhatsApp:`, 245, 357);
+    ctx.font = 'bold 15px Inter, sans-serif';
+    ctx.fillText(couponData.contactNumber, 325, 357);
 
   }, [couponData]);
 
@@ -272,20 +406,20 @@ export function BannerGenerator() {
               ) : (
                 <>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Discount Text</label>
-                    <input type="text" name="discount" value={couponData.discount} onChange={handleCouponChange} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                    <label className="mb-1 block text-sm font-medium text-slate-700">Discount Type (e.g. FLAT)</label>
+                    <input type="text" name="discountType" value={couponData.discountType} onChange={handleCouponChange} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700">Discount Amount</label>
+                    <input type="text" name="discountAmount" value={couponData.discountAmount} onChange={handleCouponChange} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">Subtitle</label>
                     <input type="text" name="subtitle" value={couponData.subtitle} onChange={handleCouponChange} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
                   </div>
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Description Line 1</label>
-                    <input type="text" name="descriptionLine1" value={couponData.descriptionLine1} onChange={handleCouponChange} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Description Line 2</label>
-                    <input type="text" name="descriptionLine2" value={couponData.descriptionLine2} onChange={handleCouponChange} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                    <label className="mb-1 block text-sm font-medium text-slate-700">Minimum Booking Text</label>
+                    <input type="text" name="minBooking" value={couponData.minBooking} onChange={handleCouponChange} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">Coupon Code</label>

@@ -19,8 +19,14 @@ export function WorkerCard({ worker }) {
         )}
         <div className="min-w-0">
           <h3 className="truncate text-lg font-bold text-slate-950">{worker.display_name}</h3>
-          <p className="text-sm text-slate-600">{worker.service_name} | {worker.area_name}</p>
-          <p className="mt-1 text-sm text-slate-600">{worker.experience_years || 0}+ years experience</p>
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-xs font-bold text-brand-800">{worker.service_name}</span>
+            {worker.additional_services?.map(s => (
+               <span key={s} className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-700">{s}</span>
+            ))}
+          </div>
+          <p className="mt-1.5 text-sm font-medium text-slate-600">{worker.area_name}</p>
+          <p className="mt-1 text-sm text-slate-500">{worker.experience_years || 0}+ years experience</p>
         </div>
       </div>
 

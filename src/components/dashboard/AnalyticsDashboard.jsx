@@ -146,12 +146,19 @@ export function AnalyticsDashboard() {
     METRICS.forEach(m => {
       const val = curr[m.id];
       const prevVal = prev[m.id];
-      let change = 0;
-      if (prevVal > 0) {
-        change = ((val - prevVal) / prevVal) * 100;
-      } else if (val > 0) {
-        change = 100;
+      let change = null;
+      
+      if (m.id === 'completion_rate') {
+        // Absolute change for percentages
+        if (prevVal > 0 || val > 0) {
+          change = val - prevVal;
+        }
+      } else {
+        if (prevVal > 0) {
+          change = ((val - prevVal) / prevVal) * 100;
+        }
       }
+      
       result[m.id] = { value: val, change };
     });
     return result;
@@ -233,15 +240,17 @@ export function AnalyticsDashboard() {
                 </span>
               </div>
               <div className="mt-2 flex items-center gap-1 text-xs">
-                {change !== 0 ? (
+                {change !== null && change !== 0 ? (
                   <>
                     {isPositive ? <TrendingUp size={14} className="text-emerald-600" /> : <TrendingDown size={14} className="text-red-600" />}
                     <span className={isPositive ? 'font-medium text-emerald-600' : 'font-medium text-red-600'}>
                       {Math.abs(change).toFixed(1)}%
                     </span>
                   </>
-                ) : (
+                ) : change === 0 ? (
                   <span className="text-slate-400">No change</span>
+                ) : (
+                  <span className="text-slate-400">New period</span>
                 )}
               </div>
             </button>
@@ -316,60 +325,7 @@ export function AnalyticsDashboard() {
         )}
       </div>
 
-      {/* Breakdown Tables */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white">
-          <div className="border-b border-slate-200 p-4">
-            <h3 className="font-bold text-slate-800">Top Services</h3>
-          </div>
-          <div className="p-0">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-600">
-                <tr>
-                  <th className="p-4 font-semibold">Service</th>
-                  <th className="p-4 text-right font-semibold">Requests</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {breakdown.top_services.length > 0 ? breakdown.top_services.map((item, i) => (
-                  <tr key={i} className="hover:bg-slate-50">
-                    <td className="p-4 text-slate-900 font-medium">{item.name}</td>
-                    <td className="p-4 text-right text-slate-600">{item.total}</td>
-                  </tr>
-                )) : (
-                  <tr><td colSpan="2" className="p-4 text-center text-slate-500">No data</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white">
-          <div className="border-b border-slate-200 p-4">
-            <h3 className="font-bold text-slate-800">Top Areas</h3>
-          </div>
-          <div className="p-0">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-600">
-                <tr>
-                  <th className="p-4 font-semibold">Area</th>
-                  <th className="p-4 text-right font-semibold">Requests</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {breakdown.top_areas.length > 0 ? breakdown.top_areas.map((item, i) => (
-                  <tr key={i} className="hover:bg-slate-50">
-                    <td className="p-4 text-slate-900 font-medium">{item.name}</td>
-                    <td className="p-4 text-right text-slate-600">{item.total}</td>
-                  </tr>
-                )) : (
-                  <tr><td colSpan="2" className="p-4 text-center text-slate-500">No data</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

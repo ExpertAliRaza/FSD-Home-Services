@@ -11,7 +11,7 @@ import {
   X
 } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { services } from '../../data/catalog';
+import { useCatalog } from '../../contexts/CatalogContext';
 import { WHATSAPP_URL } from '../../components/support/WhatsAppButton';
 
 const categories = [
@@ -60,6 +60,8 @@ const faqItems = [
 ];
 
 export function Services() {
+  const { services } = useCatalog();
+
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [openFaq, setOpenFaq] = useState(null);
@@ -78,7 +80,7 @@ export function Services() {
       );
     }
     return result;
-  }, [activeCategory, search]);
+  }, [activeCategory, search, services]);
 
   return (
     <>

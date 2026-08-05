@@ -14,13 +14,16 @@ import {
   ShieldCheck,
   UserCheck
 } from 'lucide-react';
-import { areas, services } from '../../data/catalog';
+import { areas } from '../../data/catalog';
+import { useCatalog } from '../../contexts/CatalogContext';
 import { WHATSAPP_URL } from '../../components/support/WhatsAppButton';
 
 const POPULAR_AREAS_COUNT = 22;
 const DEFAULT_AREAS_COVERED = areas.length;
 
 export function Home() {
+  const { services } = useCatalog();
+
   return (
     <>
       {/* ── Hero Section — UNCHANGED ── */}

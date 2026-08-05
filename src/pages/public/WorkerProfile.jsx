@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, BadgeCheck, MessageCircle, Star } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, MessageCircle, Star, MapPin } from 'lucide-react';
 import { PublicVerificationBadge, formatWorkerId, isWorkerIdentityVerified } from '../../components/worker/VerificationCard';
 import { WHATSAPP_REQUEST_URL } from '../../components/support/WhatsAppButton';
 import { getPublicWorkerProfile } from '../../lib/api';
@@ -61,7 +61,13 @@ export function WorkerProfile() {
                 </p>
               )}
               <h1 className="break-words text-3xl font-black sm:text-4xl">{worker.display_name}</h1>
-              <p className="mt-2 text-brand-50">{worker.service_name} in {worker.area_name || 'Faisalabad'}</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-sm font-medium">
+                <span className="inline-flex rounded-full bg-white/20 px-3 py-1 text-white">{worker.service_name}</span>
+                {worker.additional_services?.map(s => (
+                   <span key={s} className="inline-flex rounded-full bg-white/10 px-3 py-1 text-brand-100">{s}</span>
+                ))}
+              </div>
+              <p className="mt-2 font-medium text-brand-50 flex items-center gap-1"><MapPin size={16} /> {worker.area_name || 'Faisalabad'}</p>
             </div>
           </div>
         </div>
