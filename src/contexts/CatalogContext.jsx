@@ -11,42 +11,14 @@ const CatalogContext = createContext({
 });
 
 export function CatalogProvider({ children }) {
-  const [services, setServices] = useState(fallbackServices);
+  const [services] = useState(fallbackServices);
   const [areas] = useState(fallbackAreas); // Areas remain static for now
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading] = useState(false);
+  const [error] = useState(null);
 
   const fetchCatalog = async () => {
-    try {
-      setLoading(true);
-      const dbServices = await getServiceCategories();
-      
-      // If DB has services, use them, otherwise stick to fallback
-      if (dbServices && dbServices.length > 0) {
-        // Map DB fields to match what the frontend expects
-        const mappedServices = dbServices.filter(s => s.is_active !== false).map(s => ({
-          id: s.id,
-          name: s.name,
-          slug: s.slug,
-          image: s.image_url || `/images/services/${s.slug}.jpg`,
-          description: s.description || '',
-          keywords: s.keywords || ''
-        }));
-        setServices(mappedServices);
-      }
-      setError(null);
-    } catch (err) {
-      console.error('Failed to load services from DB, using fallback.', err);
-      setError(err);
-      // Fallback is already set
-    } finally {
-      setLoading(false);
-    }
+    // Disabled dynamic fetching as per request
   };
-
-  useEffect(() => {
-    fetchCatalog();
-  }, []);
 
   return (
     <CatalogContext.Provider value={{ services, areas, loading, error, refreshCatalog: fetchCatalog }}>

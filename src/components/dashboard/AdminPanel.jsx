@@ -8,7 +8,6 @@ import {
 import { BusinessIntelligenceCenter } from './BusinessIntelligenceCenter';
 import { BannerGenerator } from './BannerGenerator';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
-import { AdminServicesTab } from './AdminServicesTab';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { areas, services } from '../../data/catalog';
 import { hasRealCnic } from '../../lib/validation';
@@ -32,7 +31,8 @@ import {
   updateWorkerStatus,
   createCoupon,
   updateCouponStatus,
-  updateReferralStatus
+  updateReferralStatus,
+  updateServiceRequest
 } from '../../lib/api';
 
 const workerStatuses = ['pending', 'approved', 'rejected', 'needs_changes', 'suspended'];
@@ -52,11 +52,21 @@ export function AdminPanel() {
     coupons: [],
     referrals: []
   });
+    assignments: [],
+    notes: [],
+    notifications: [],
+    commissions: [],
+    complaints: [],
+    coupons: [],
+    referrals: []
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [actionKey, setActionKey] = useState('');
   const [editingWorkerId, setEditingWorkerId] = useState('');
   const [workerEditForm, setWorkerEditForm] = useState(null);
+  const [editingRequestId, setEditingRequestId] = useState(null);
+  const [requestEditForm, setRequestEditForm] = useState(null);
   const [copiedReviewToken, setCopiedReviewToken] = useState('');
   const [completionInputs, setCompletionInputs] = useState({});
   const [complaintForm, setComplaintForm] = useState({
@@ -436,6 +446,42 @@ export function AdminPanel() {
     }
   };
 
+  
+  const startRequestEdit = (request) => {
+    setEditingRequestId(request.id);
+    setRequestEditForm({
+      customer_name: request.customer_name || '',
+      customer_phone: request.customer_phone || '',
+      urgency: request.urgency || 'Normal',
+      preferred_time: request.preferred_time || '',
+      problem_description: request.problem_description || '',
+      status: request.status || 'pending',
+    });
+  };
+
+  const cancelRequestEdit = () => {
+    setEditingRequestId(null);
+    setRequestEditForm(null);
+  };
+
+  const saveRequestEdit = async () => {
+    if (!editingRequestId || !requestEditForm) return;
+    try {
+      setActionKey(`save-request-${editingRequestId}`);
+      const payload = { ...requestEditForm };
+      if (payload.status === 'pending') payload.status = 'new';
+      if (payload.preferred_time === '') payload.preferred_time = null;
+      await updateServiceRequest(editingRequestId, payload);
+      await loadAll();
+      cancelRequestEdit();
+    } catch (err) {
+      alert('Error updating request: ' + (err.message || err.details || 'Check inputs (e.g. description > 10 chars)'));
+    } finally {
+      setActionKey('');
+    }
+  };
+
+
   const logout = async () => {
     await signOutAdmin();
     navigate('/login', { replace: true });
@@ -498,7 +544,6 @@ export function AdminPanel() {
 
   const adminTabs = [
     { key: 'analytics', label: 'Analytics', icon: BarChart3, count: null },
-    { key: 'services', label: 'Services', icon: Settings, count: data.serviceCategories?.length },
     { key: 'workers', label: 'Workers', icon: Users, count: data.workers.length },
     { key: 'requests', label: 'Service Requests', icon: FileText, count: data.requests.length },
     { key: 'commissions', label: 'Commissions', icon: CheckCheck, count: data.commissions.length },
@@ -593,13 +638,6 @@ export function AdminPanel() {
 
       {/* Tab Content */}
       <div className="mt-5">
-        {/* ===== SERVICES TAB ===== */}
-        {activeTab === 'services' && (
-          <AdminServicesTab 
-            services={data.serviceCategories || []} 
-            reloadData={loadAll} 
-          />
-        )}
 
         {/* ===== WORKERS TAB ===== */}
         {activeTab === 'workers' && (
@@ -931,6 +969,44 @@ export function AdminPanel() {
                 <div className="grid gap-4">
                   {filteredRequests.map((request) => (
                     <div key={request.id} className="rounded-lg border border-slate-200 bg-white transition-shadow hover:shadow-sm">
+                      {editingRequestId === request.id ? (
+                        <div className="p-5 flex flex-col gap-4">
+                          <h3 className="text-lg font-bold">Edit Service Request</h3>
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-1">Customer Name</label>
+                              <input type="text" value={requestEditForm.customer_name} onChange={e => setRequestEditForm({...requestEditForm, customer_name: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-1">Customer Phone</label>
+                              <input type="text" value={requestEditForm.customer_phone} onChange={e => setRequestEditForm({...requestEditForm, customer_phone: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-1">Urgency</label>
+                              <select value={requestEditForm.urgency} onChange={e => setRequestEditForm({...requestEditForm, urgency: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm">
+                                <option value="Normal">Normal</option>
+                                <option value="Today">Today</option>
+                                <option value="Emergency">Emergency</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-1">Preferred Time</label>
+                              <input type="text" value={requestEditForm.preferred_time} onChange={e => setRequestEditForm({...requestEditForm, preferred_time: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <label className="block text-xs font-semibold text-slate-500 mb-1">Problem Description</label>
+                              <textarea rows="3" value={requestEditForm.problem_description} onChange={e => setRequestEditForm({...requestEditForm, problem_description: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm"></textarea>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <button onClick={saveRequestEdit} disabled={actionKey === `save-request-${request.id}`} className="rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50">
+                              {actionKey === `save-request-${request.id}` ? 'Saving...' : 'Save Changes'}
+                            </button>
+                            <button onClick={cancelRequestEdit} className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
                       <div className="flex flex-col gap-4 p-5 md:flex-row md:items-start md:justify-between">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-3">
@@ -1049,6 +1125,12 @@ export function AdminPanel() {
                           )}
                           <div className="flex gap-1.5">
                             <button
+                              onClick={() => startRequestEdit(request)}
+                              className="min-h-9 flex-1 rounded-lg bg-blue-100 text-xs font-bold text-blue-700 hover:bg-blue-200 transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
                               disabled={actionKey === `request-${request.id}`}
                               onClick={() => note('request', request.id)}
                               className="min-h-9 flex-1 rounded-lg bg-slate-800 text-xs font-bold text-white hover:bg-slate-700 disabled:opacity-50 transition-colors"
@@ -1066,6 +1148,8 @@ export function AdminPanel() {
                           </div>
                         </div>
                       </div>
+                        </>
+                      )}
                       <div className="border-t border-slate-100 px-5 py-4">
                         <AssetGallery assets={(request.request_photos || []).map((photo, index) => ({ label: `Problem ${index + 1}`, url: photo.signed_url }))} />
                         <Notes items={notesFor('request', request.id)} />

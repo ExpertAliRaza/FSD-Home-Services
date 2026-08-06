@@ -488,6 +488,12 @@ export async function updateRequestStatus(requestId, status) {
   if (error) throw error;
 }
 
+export async function updateServiceRequest(requestId, payload) {
+  requireSupabaseConfig();
+  const { error } = await supabase.from('service_requests').update(payload).eq('id', requestId);
+  if (error) throw error;
+}
+
 export async function assignWorkerToRequest(serviceRequestId, workerId) {
   requireSupabaseConfig();
   const { error } = await supabase.rpc('assign_worker_to_request', {
