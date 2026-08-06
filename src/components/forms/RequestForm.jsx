@@ -64,6 +64,10 @@ export function RequestForm({ preferredWorkerId, initialService }) {
   const submit = async (event) => {
     event.preventDefault();
     setError('');
+    if (!form.area_id) {
+      setError('Please select your area from the list.');
+      return;
+    }
     if (!isValidPakistanPhone(form.customer_phone)) {
       setError('Enter a valid Pakistani mobile number, for example 03001234567.');
       return;

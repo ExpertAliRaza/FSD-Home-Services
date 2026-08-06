@@ -16,6 +16,7 @@ export function WorkerSignupForm() {
   const [error, setError] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
+  const [selectedServices, setSelectedServices] = useState([]);
   const [selectedAreas, setSelectedAreas] = useState([]);
   const [areaSearch, setAreaSearch] = useState('');
   const [customArea, setCustomArea] = useState('');
@@ -25,6 +26,14 @@ export function WorkerSignupForm() {
     const keyword = areaSearch.toLowerCase();
     return areas.filter((area) => area.toLowerCase().includes(keyword));
   }, [areaSearch]);
+
+  const toggleService = (service) => {
+    setSelectedServices((prev) => {
+      if (prev.includes(service)) return prev.filter((s) => s !== service);
+      if (prev.length >= 3) return prev;
+      return [...prev, service];
+    });
+  };
 
   const isAllOver = selectedAreas.includes('All Over Faisalabad');
 
@@ -56,6 +65,7 @@ export function WorkerSignupForm() {
     const formElement = event.currentTarget;
     const data = new FormData(formElement);
     const payload = Object.fromEntries(data.entries());
+    payload.services = selectedServices;
     payload.cnic_front = data.get('cnic_front');
     payload.cnic_back = data.get('cnic_back');
     payload.profile_photo = data.get('profile_photo');
@@ -73,6 +83,14 @@ export function WorkerSignupForm() {
     }
     if (payload.cnic_number && !isValidCnic(payload.cnic_number)) {
       setError('Enter a valid 13-digit CNIC, for example 33100-1234567-1.');
+      return;
+    }
+    if (selectedServices.length === 0) {
+      setError('Select at least 1 service.');
+      return;
+    }
+    if (selectedServices.length > 3) {
+      setError('You can select a maximum of 3 services.');
       return;
     }
     if (!payload.areas_covered.length) {
@@ -113,9 +131,27 @@ export function WorkerSignupForm() {
         <Field label="Password (optional)"><input className={inputClass} name="password" type="password" minLength="8" autoComplete="new-password" /></Field>
         <Field label="Email (optional)"><input className={inputClass} name="email" type="email" autoComplete="email" /></Field>
         <Field label="CNIC number (optional)"><input className={inputClass} name="cnic_number" inputMode="numeric" placeholder="33100-1234567-1" /></Field>
-        <Field label="Service">
-          <select className={inputClass} name="service_category_id" required>{services.map((service) => <option key={service.name} value={service.name}>{service.name}</option>)}</select>
-        </Field>
+        <div className="md:col-span-2">
+          <div className="grid gap-1.5 text-sm font-semibold text-slate-700">
+            <span>Services (Select 1 to 3)</span>
+            <div className="flex flex-wrap gap-2">
+              {services.map((service) => (
+                <button
+                  key={service.name}
+                  type="button"
+                  onClick={() => toggleService(service.name)}
+                  className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                    selectedServices.includes(service.name)
+                      ? 'border-brand-600 bg-brand-50 font-bold text-brand-800'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-brand-200'
+                  }`}
+                >
+                  {service.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         <div className="md:col-span-2">
           <div className="grid gap-1.5 text-sm font-semibold text-slate-700">
             <span>Areas covered</span>

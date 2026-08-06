@@ -52,14 +52,7 @@ export function AdminPanel() {
     coupons: [],
     referrals: []
   });
-    assignments: [],
-    notes: [],
-    notifications: [],
-    commissions: [],
-    complaints: [],
-    coupons: [],
-    referrals: []
-  });
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [actionKey, setActionKey] = useState('');

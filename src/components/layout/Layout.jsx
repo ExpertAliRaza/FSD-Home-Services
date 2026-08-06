@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, ScrollRestoration } from 'react-router-dom';
 import {
   CheckCircle2,
   Facebook,
@@ -49,6 +49,7 @@ export function Layout() {
   return (
     <PwaInstallProvider>
       <div className="min-h-screen bg-slate-50 text-ink">
+        <ScrollRestoration />
         <RouteMeta />
         {!workerDashboard && <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">

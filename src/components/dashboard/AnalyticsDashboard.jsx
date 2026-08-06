@@ -29,7 +29,7 @@ export function AnalyticsDashboard() {
   const [activePreset, setActivePreset] = useState(PRESETS[3]); // Last 28 days default
   const [customRange, setCustomRange] = useState({ start: '', end: '' });
   const [isCustom, setIsCustom] = useState(false);
-  const [activeMetrics, setActiveMetrics] = useState(['total_requests', 'completed_requests']);
+  const [activeMetrics, setActiveMetrics] = useState(['total_requests', 'completed_requests', 'new_customers', 'new_workers', 'revenue']);
   
   const [loading, setLoading] = useState(false);
   const [currentData, setCurrentData] = useState([]);

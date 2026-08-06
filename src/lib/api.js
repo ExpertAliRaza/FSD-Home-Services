@@ -254,13 +254,13 @@ export async function signUpWorker(payload, turnstileVerificationId) {
       p_cnic_front_url: uploads.cnic_front_url,
       p_cnic_back_url: uploads.cnic_back_url,
       p_profile_photo_url: uploads.profile_photo_url,
-      p_service_category_id: payload.service_category_id,
+      p_service_category_id: payload.services?.[0] || payload.service_category_id,
       p_experience_years: Number(payload.experience_years || 0),
       p_areas_covered: payload.areas_covered,
       p_availability: null,
       p_expected_visit_charges: null,
       p_work_photo_urls: [],
-      p_additional_services: payload.additional_services || []
+      p_additional_services: payload.services?.slice(1) || payload.additional_services || []
     });
     if (error) throw workerSignupError(error);
 
