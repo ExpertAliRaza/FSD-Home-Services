@@ -13,11 +13,19 @@ export function RequestForm({ preferredWorkerId, initialService }) {
 
   const validInitialService = services.some((service) => service.name === initialService)
     ? initialService
-    : services[0].name;
+    : null;
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
+  const [selectedServices, setSelectedServices] = useState(validInitialService ? [validInitialService] : []);
+  const toggleService = (serviceName) => {
+    setSelectedServices(prev => {
+      if (prev.includes(serviceName)) return prev.filter(s => s !== serviceName);
+      if (prev.length >= 3) return prev;
+      return [...prev, serviceName];
+    });
+  };
   const [form, setForm] = useState({
     customer_name: '',
     customer_phone: '',
@@ -64,6 +72,14 @@ export function RequestForm({ preferredWorkerId, initialService }) {
   const submit = async (event) => {
     event.preventDefault();
     setError('');
+    if (selectedServices.length === 0) {
+      setError('Please select at least 1 service.');
+      return;
+    }
+    if (selectedServices.length > 3) {
+      setError('You can select a maximum of 3 services.');
+      return;
+    }
     if (!form.area_id) {
       setError('Please select your area from the list.');
       return;
@@ -88,7 +104,7 @@ export function RequestForm({ preferredWorkerId, initialService }) {
     setStatus('loading');
     try {
       const verificationId = await verifyTurnstileToken(turnstileToken, 'service_request');
-      await submitServiceRequest({ ...form, preferred_worker_id: preferredWorkerId }, verificationId);
+      await submitServiceRequest({ ...form, services: selectedServices, preferred_worker_id: preferredWorkerId }, verificationId);
       setStatus('success');
     } catch (err) {
       setError(err.message || 'Could not submit request.');
@@ -176,11 +192,27 @@ export function RequestForm({ preferredWorkerId, initialService }) {
             <input type="hidden" name="area_id" value={selectedArea} />
           </div>
         </Field>
-        <Field label="Service category">
-          <select className={inputClass} name="service_category_id" value={form.service_category_id} onChange={update}>
-            {serviceOptions.map((service) => <option key={service}>{service}</option>)}
-          </select>
-        </Field>
+        <div className="md:col-span-2">
+          <div className="grid gap-1.5 text-sm font-semibold text-slate-700">
+            <span>Services (Select 1 to 3)</span>
+            <div className="flex flex-wrap gap-2">
+              {services.map((service) => (
+                <button
+                  key={service.name}
+                  type="button"
+                  onClick={() => toggleService(service.name)}
+                  className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                    selectedServices.includes(service.name)
+                      ? 'border-brand-600 bg-brand-50 font-bold text-brand-800'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-brand-200'
+                  }`}
+                >
+                  {service.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         <Field label="Urgency">
           <select className={inputClass} name="urgency" value={form.urgency} onChange={update}>
             <option>Normal</option>

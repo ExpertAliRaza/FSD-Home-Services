@@ -14,6 +14,7 @@ import { hasRealCnic } from '../../lib/validation';
 import {
   addAdminNote,
   assignWorkerToRequest,
+  unassignWorkerFromRequest,
   clearMyNotifications,
   completeServiceRequest,
   createReviewInvitationForRequest,
@@ -354,9 +355,14 @@ export function AdminPanel() {
     await runAction(`request-${request.id}`, () => deleteServiceRequest(request.id), ['requests', 'commissions', 'complaints']);
   };
 
-  const assign = async (requestId, workerId) => {
+  const unassign = async (requestId, workerId) => {
     if (!workerId) return;
-    await runAction(`request-${requestId}`, () => assignWorkerToRequest(requestId, workerId), ['requests']);
+    await runAction(`request-${requestId}`, () => unassignWorkerFromRequest(requestId, workerId), ['requests']);
+  };
+
+  const assign = async (requestId, workerId, serviceName = null) => {
+    if (!workerId) return;
+    await runAction(`request-${requestId}`, () => assignWorkerToRequest(requestId, workerId, serviceName), ['requests']);
   };
 
   const complete = async (requestId) => {
@@ -440,6 +446,19 @@ export function AdminPanel() {
   };
 
   
+  const toggleRequestService = (service) => {
+    setRequestEditForm(prev => {
+      if (!prev) return prev;
+      let newServices = [...(prev.services || [])];
+      if (newServices.includes(service)) {
+        newServices = newServices.filter(s => s !== service);
+      } else if (newServices.length < 3) {
+        newServices.push(service);
+      }
+      return { ...prev, services: newServices };
+    });
+  };
+
   const startRequestEdit = (request) => {
     setEditingRequestId(request.id);
     setRequestEditForm({
@@ -449,6 +468,7 @@ export function AdminPanel() {
       preferred_time: request.preferred_time || '',
       problem_description: request.problem_description || '',
       status: request.status || 'pending',
+      services: [request.service_category_id, ...(request.additional_services || [])].filter(Boolean),
     });
   };
 
@@ -462,6 +482,11 @@ export function AdminPanel() {
     try {
       setActionKey(`save-request-${editingRequestId}`);
       const payload = { ...requestEditForm };
+      if (payload.services && payload.services.length > 0) {
+        payload.service_category_id = payload.services[0];
+        payload.additional_services = payload.services.slice(1);
+      }
+      delete payload.services;
       if (payload.status === 'pending') payload.status = 'new';
       if (payload.preferred_time === '') payload.preferred_time = null;
       await updateServiceRequest(editingRequestId, payload);
@@ -966,6 +991,21 @@ export function AdminPanel() {
                         <div className="p-5 flex flex-col gap-4">
                           <h3 className="text-lg font-bold">Edit Service Request</h3>
                           <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="sm:col-span-2">
+                              <label className="block text-xs font-semibold text-slate-500 mb-1">Services (Max 3)</label>
+                              <div className="flex flex-wrap gap-2">
+                                {services.map(s => (
+                                  <button
+                                    key={s.name}
+                                    type="button"
+                                    onClick={() => toggleRequestService(s.name)}
+                                    className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${(requestEditForm.services || []).includes(s.name) ? 'border-brand-600 bg-brand-50 font-bold text-brand-800' : 'border-slate-200 bg-white text-slate-600 hover:border-brand-200'}`}
+                                  >
+                                    {s.name}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
                             <div>
                               <label className="block text-xs font-semibold text-slate-500 mb-1">Customer Name</label>
                               <input type="text" value={requestEditForm.customer_name} onChange={e => setRequestEditForm({...requestEditForm, customer_name: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
@@ -1004,11 +1044,14 @@ export function AdminPanel() {
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-3">
                             <h3 className="text-lg font-bold text-slate-950">{request.service_categories?.name || request.service_category_id}</h3>
+                            {(request.additional_services || []).map(s => (
+                              <span key={s} className="inline-flex rounded border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-800">{s}</span>
+                            ))}
                             <StatusBadge status={request.status} />
                             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{request.areas?.name || request.area_id}</span>
                           </div>
                           <div className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
-                            <InfoRow label="Customer" value={request.customer_name} />
+                              <InfoRow label="Customer" value={request.customer_name} />
                             <InfoRow label="Phone" value={request.customer_phone} />
                             <InfoRow label="Urgency" value={request.urgency} />
                             {request.preferred_time && <InfoRow label="Preferred time" value={request.preferred_time} />}
@@ -1019,7 +1062,10 @@ export function AdminPanel() {
                               <span className="font-semibold text-brand-800">Assigned:</span>
                               {request.lead_assignments.map((assignment) => (
                                 <span key={assignment.id} className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-brand-700">
-                                  {assignment.workers?.display_name}
+                                  {assignment.workers?.display_name} {assignment.assigned_service ? `(${assignment.assigned_service})` : ''}
+                                  <button type="button" onClick={() => unassign(request.id, assignment.worker_id)} disabled={actionKey === `request-${request.id}`} className="hover:text-red-600 disabled:opacity-50 ml-1">
+                                    <X size={12} />
+                                  </button>
                                 </span>
                               ))}
                             </div>
@@ -1070,22 +1116,37 @@ export function AdminPanel() {
                               {requestStatuses.map((status) => <option key={status}>{status}</option>)}
                             </select>
                           )}
-                          <select
-                            disabled={actionKey === `request-${request.id}` || request.status === 'completed'}
-                            className="min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm disabled:opacity-50"
-                            onChange={(event) => assign(request.id, event.target.value)}
-                            defaultValue=""
-                          >
-                            <option value="">Assign approved worker...</option>
-                            {approvedWorkers
-                              .filter((worker) => worker.service_category_id === request.service_category_id)
-                              .sort((a, b) => Number((b.areas_covered || []).includes(request.area_id)) - Number((a.areas_covered || []).includes(request.area_id)))
-                              .map((worker) => (
-                                <option key={worker.id} value={worker.id}>
-                                  {worker.display_name}{(worker.areas_covered || []).includes(request.area_id) ? ' ✓ Area match' : ''}
-                                </option>
-                              ))}
-                          </select>
+                          {[request.service_category_id, ...(request.additional_services || [])].filter(Boolean).map((reqService, idx) => {
+                            const isAlreadyAssigned = request.lead_assignments?.some(
+                              (a) => a.assigned_service === reqService && ['assigned', 'accepted'].includes(a.status)
+                            );
+                            if (isAlreadyAssigned) return null;
+                            return (
+                              <select
+                                key={idx}
+                                disabled={actionKey === `request-${request.id}` || request.status === 'completed'}
+                                className="min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm disabled:opacity-50 mb-2"
+                                onChange={(event) => {
+                                  assign(request.id, event.target.value, reqService);
+                                  event.target.value = "";
+                                }}
+                                defaultValue=""
+                              >
+                                <option value="">Assign {reqService}...</option>
+                                {approvedWorkers
+                                  .filter((worker) => {
+                                    const wServices = [worker.service_category_id, ...(worker.additional_services || [])].filter(Boolean);
+                                    return wServices.includes(reqService);
+                                  })
+                                  .sort((a, b) => Number((b.areas_covered || []).includes(request.area_id)) - Number((a.areas_covered || []).includes(request.area_id)))
+                                  .map((worker) => (
+                                    <option key={worker.id} value={worker.id}>
+                                      {worker.display_name}{(worker.areas_covered || []).includes(request.area_id) ? ' ✓ Area match' : ''}
+                                    </option>
+                                  ))}
+                              </select>
+                            );
+                          })}
                           {request.status !== 'completed' && request.status !== 'cancelled' && (
                             <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                               <label className="text-xs font-semibold text-slate-600">

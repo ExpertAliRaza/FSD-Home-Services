@@ -165,7 +165,8 @@ export async function submitServiceRequest(form, turnstileVerificationId) {
     p_customer_name: form.customer_name.trim(),
     p_customer_phone: normalizePhone(form.customer_phone),
     p_area_id: form.area_id,
-    p_service_category_id: form.service_category_id,
+    p_service_category_id: form.services?.[0] || form.service_category_id,
+    p_additional_services: form.services?.slice(1) || [],
     p_problem_description: form.problem_description.trim(),
     p_urgency: form.urgency,
     p_preferred_time: form.preferred_time?.trim() || null,
@@ -494,13 +495,28 @@ export async function updateServiceRequest(requestId, payload) {
   if (error) throw error;
 }
 
-export async function assignWorkerToRequest(serviceRequestId, workerId) {
+export async function unassignWorkerFromRequest(serviceRequestId, workerId) {
   requireSupabaseConfig();
-  const { error } = await supabase.rpc('assign_worker_to_request', {
+  const { error } = await supabase.rpc('unassign_worker_from_request', {
     p_request_id: serviceRequestId,
     p_worker_id: workerId
   });
   if (error) throw error;
+}
+
+export async function assignWorkerToRequest(serviceRequestId, workerId, serviceName = null) {
+  requireSupabaseConfig();
+  console.log("Assigning worker...", { serviceRequestId, workerId, serviceName });
+  const { error } = await supabase.rpc('assign_worker_to_request', {
+    p_request_id: serviceRequestId,
+    p_worker_id: workerId,
+    p_service: serviceName
+  });
+  if (error) {
+    console.error("RPC ERROR:", error);
+    alert("DB Error: " + error.message);
+    throw error;
+  }
 }
 
 export async function completeServiceRequest(requestId, jobAmount, notes = '') {
