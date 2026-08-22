@@ -101,6 +101,48 @@ supabase functions deploy create-worker-account --no-verify-jwt
 
 Worker signup uses a phone-based private Auth email internally. Keep Edge Function secrets configured and keep Turnstile enabled for public submissions.
 
+## Google Reviews (Homepage)
+
+The homepage "What Our Customers Say" section currently renders a premium review
+carousel from the static `googleReviews` array in `src/data/googleReviews.js`.
+The working reviews stay isolated in that one file so they can be swapped for
+live Google review data later (via the `fetch-google-reviews` Supabase Edge
+Function, which proxies the Google Places API (New)) without touching the
+carousel UI.
+
+Required Google Cloud setup (external to this repository):
+
+1. Create or reuse a **Google Cloud project**, enable the **Places API (New)**,
+   and attach a billing account.
+2. Create a **Places API key** and restrict it to the Places API.
+3. Find the **Place ID** of the FSD Home Services Google Business Profile using
+   Google's Place ID finder at
+   <https://developers.google.com/maps/documentation/places/web-service/place-id>.
+
+Configure the Supabase Edge Function secrets:
+
+```bash
+supabase secrets set GOOGLE_PLACES_API_KEY=your-google-places-api-key
+supabase secrets set GOOGLE_PLACE_ID=your-google-place-id
+```
+
+Deploy the function:
+
+```bash
+supabase functions deploy fetch-google-reviews --no-verify-jwt
+```
+
+Notes:
+
+- Google Places API returns up to 5 text reviews; the carousel shows 3 cards on
+  desktop, 2 on tablet and 1 on mobile, with arrows, pagination dots, autoplay,
+  swipe and keyboard navigation.
+- Until live data replaces the static array, the carousel uses the supplied
+  working reviews; the compact 4.8 rating summary and "Read reviews on Google"
+  link always use the owner-verified Google figures.
+- The Google API key is server-side only (`GOOGLE_PLACES_API_KEY` secret); it
+  is never exposed in the browser bundle.
+
 ## Admin User
 
 Create a user in Supabase Auth, then mark that profile as admin:

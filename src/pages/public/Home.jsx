@@ -2,21 +2,27 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
+  BadgeCheck,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  CircleDollarSign,
   ClipboardList,
+  CreditCard,
   Lock,
   MapPin,
   MessageCircle,
   PhoneCall,
   Search,
   ShieldCheck,
-  UserCheck
+  Star,
+  UserCheck,
+  Wrench
 } from 'lucide-react';
 import { areas } from '../../data/catalog';
 import { useCatalog } from '../../contexts/CatalogContext';
 import { WHATSAPP_URL } from '../../components/support/WhatsAppButton';
+import { GoogleReviewsSection } from '../../components/sections/GoogleReviewsSection';
 
 const POPULAR_AREAS_COUNT = 22;
 const DEFAULT_AREAS_COVERED = areas.length;
@@ -68,6 +74,29 @@ export function Home() {
         </div>
       </section>
 
+      {/* ══════════════════════════════════════════════════════
+          Trust Stats Strip — compact proof bar
+         ══════════════════════════════════════════════════════ */}
+      <section className="border-b border-slate-200 bg-white" aria-label="FSD Home Services statistics">
+        <div className="mx-auto max-w-7xl px-4 py-7 lg:py-9">
+          <div className="grid grid-cols-2 gap-y-8 lg:grid-cols-4 lg:divide-x lg:divide-slate-200">
+            <StatItem icon={<UserCheck size={20} />} value="32+" label="Verified Workers" />
+            <StatItem icon={<BadgeCheck size={20} />} value="54" label="Completed Jobs" />
+            <StatItem icon={<ClipboardList size={20} />} value="74+" label="Service Requests" />
+            <StatItem
+              icon={<Star size={20} className="fill-current" />}
+              value={
+                <span className="inline-flex items-baseline gap-1.5">
+                  4.8
+                  <Star aria-hidden="true" className="h-[0.85em] w-[0.85em] fill-current text-brand-500" />
+                </span>
+              }
+              label="Google Rating"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ── Popular Services — UNCHANGED ── */}
       <section className="mx-auto max-w-7xl px-4 py-10">
         <div className="flex items-end justify-between gap-4">
@@ -89,6 +118,8 @@ export function Home() {
           ))}
         </div>
       </section>
+
+      <GoogleReviewsSection />
 
       {/* ══════════════════════════════════════════════════════
           SECTION 1 — Why Homeowners Choose FSD Home Services
@@ -133,27 +164,55 @@ export function Home() {
           <p className="text-sm font-bold text-brand-700">Process</p>
           <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">How It Works</h2>
           <p className="mt-3 text-slate-600">Getting help is simple.</p>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <HowItWorksCard
-              step={1}
-              icon={<ClipboardList size={22} />}
-              title="Submit Your Request"
-              description="Choose the service you need and tell us about your problem."
-              hasConnector
-            />
-            <HowItWorksCard
-              step={2}
-              icon={<Search size={22} />}
-              title="Admin Reviews"
-              description="Our team reviews your request and selects a verified professional for the job."
-              hasConnector
-            />
-            <HowItWorksCard
-              step={3}
-              icon={<PhoneCall size={22} />}
-              title="Worker Contacts You"
-              description="The assigned worker contacts you directly and completes the service."
-            />
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                icon: <ClipboardList size={22} />,
+                title: 'Submit Your Request',
+                description: "Choose the service you need and tell us about the problem you're facing."
+              },
+              {
+                icon: <Search size={22} />,
+                title: 'Admin Reviews',
+                description: 'Our team reviews your request and selects a suitable verified professional for the job.'
+              },
+              {
+                icon: <PhoneCall size={22} />,
+                title: 'Worker Contacts You',
+                description: 'The assigned professional contacts you directly, understands the issue and discusses the required work with you.'
+              },
+              {
+                icon: <CircleDollarSign size={22} />,
+                title: 'Agree on the Price',
+                description: 'After understanding the issue, the professional explains the required work and gives you the expected price before starting.',
+                trustLine: 'No surprise pricing.',
+                emphasized: true
+              },
+              {
+                icon: <Wrench size={22} />,
+                title: 'Get the Problem Fixed',
+                description: 'Once you agree on the work and price, the professional completes the service and fixes the issue.'
+              },
+              {
+                icon: <CreditCard size={22} />,
+                title: 'Pay After Completion',
+                description: "You pay after the service has been completed and you're satisfied with the work.",
+                trustLine: 'Your service comes first.',
+                emphasized: true
+              }
+            ].map((step, index) => (
+              <HowItWorksCard
+                key={step.title}
+                step={index + 1}
+                icon={step.icon}
+                title={step.title}
+                description={step.description}
+                trustLine={step.trustLine}
+                emphasized={Boolean(step.emphasized)}
+                hasConnector={(index + 1) % 3 !== 0}
+                hasVerticalConnector={index < 5}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -214,7 +273,7 @@ export function Home() {
                   'Verified Workers',
                   'Manual Approval',
                   'Local Platform',
-                  'Growing Community'
+                  'Trusted Local Network'
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-3">
                     <CheckCircle2 size={20} className="shrink-0 text-brand-700" />
@@ -287,6 +346,19 @@ function Trust({ icon, title, text }) {
   );
 }
 
+/* ── Trust Stat — polished strip item ── */
+function StatItem({ icon, value, label }) {
+  return (
+    <div className="group flex flex-col items-center justify-center px-4 py-1 text-center">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-700 transition-colors duration-200 group-hover:bg-brand-100">
+        {icon}
+      </div>
+      <div className="text-3xl font-bold tracking-tight text-slate-950 lg:text-4xl">{value}</div>
+      <p className="mt-1.5 text-sm font-medium text-slate-500">{label}</p>
+    </div>
+  );
+}
+
 /* ── Why Choose card — polished ── */
 function ChooseCard({ icon, title, description }) {
   return (
@@ -301,20 +373,56 @@ function ChooseCard({ icon, title, description }) {
 }
 
 /* ── How It Works step card with connector ── */
-function HowItWorksCard({ step, icon, title, description, hasConnector }) {
+function HowItWorksCard({
+  step,
+  icon,
+  title,
+  description,
+  hasConnector,
+  hasVerticalConnector,
+  trustLine,
+  emphasized
+}) {
+  const emphasisClasses = emphasized
+    ? 'rounded-xl border border-brand-100 bg-brand-50/40 p-4 sm:p-5'
+    : '';
+
   return (
-    <div className="relative text-center">
-      {hasConnector && (
-        <div className="absolute left-1/2 top-11 hidden h-px w-[calc(100%-3rem)] bg-slate-200 md:block" />
-      )}
-      <div className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-700">
-        {icon}
+    <div className={`h-full ${emphasisClasses}`}>
+      <div className="relative flex items-start gap-4 lg:block lg:text-center">
+        {/* Mobile / tablet: vertical rail connecting the numbered indicators */}
+        {hasVerticalConnector && (
+          <div
+            aria-hidden="true"
+            className="absolute left-[27px] top-3 -bottom-6 w-px bg-slate-200 lg:hidden"
+          />
+        )}
+        {/* Desktop: horizontal connector between steps in a row */}
+        {hasConnector && (
+          <div
+            aria-hidden="true"
+            className="absolute left-1/2 top-11 hidden h-px w-[calc(100%-3rem)] bg-slate-200 lg:block"
+          />
+        )}
+        <div className="relative z-10 flex shrink-0 flex-col items-center lg:mx-auto lg:block">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-700 lg:mx-auto">
+            {icon}
+          </div>
+          <div className="mt-2 flex h-7 w-7 items-center justify-center rounded-full bg-brand-700 text-xs font-bold text-white lg:mt-4 lg:mx-auto">
+            {step}
+          </div>
+        </div>
+        <div className="min-w-0 pb-1 text-left lg:py-0 lg:mx-auto lg:text-center">
+          <h3 className="font-bold text-slate-950 lg:mt-4">{title}</h3>
+          <p className="mt-2 leading-relaxed text-slate-600">{description}</p>
+          {trustLine && (
+            <p className="mt-2.5 inline-flex items-center gap-1.5 text-sm font-bold text-brand-700">
+              <CheckCircle2 size={15} aria-hidden="true" className="shrink-0" />
+              {trustLine}
+            </p>
+          )}
+        </div>
       </div>
-      <div className="mx-auto mt-4 flex h-7 w-7 items-center justify-center rounded-full bg-brand-700 text-xs font-bold text-white">
-        {step}
-      </div>
-      <h3 className="mt-4 font-bold text-slate-950">{title}</h3>
-      <p className="mt-2 leading-relaxed text-slate-600">{description}</p>
     </div>
   );
 }

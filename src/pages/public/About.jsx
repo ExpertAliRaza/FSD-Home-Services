@@ -161,7 +161,7 @@ export function About() {
             />
             <DifferenceCard
               icon={<UserCheck size={22} />}
-              title="Growing Community"
+              title="Trusted Local Network"
               description="We continue expanding our network of trusted local professionals."
             />
           </div>
