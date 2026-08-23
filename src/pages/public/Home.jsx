@@ -82,7 +82,7 @@ export function Home() {
           <div className="grid grid-cols-2 gap-y-8 lg:grid-cols-4 lg:divide-x lg:divide-slate-200">
             <StatItem icon={<UserCheck size={20} />} value="32+" label="Verified Workers" />
             <StatItem icon={<BadgeCheck size={20} />} value="54" label="Completed Jobs" />
-            <StatItem icon={<ClipboardList size={20} />} value="74+" label="Service Requests" />
+            <StatItem icon={<ClipboardList size={20} />} value="74+" label="Service Requested" />
             <StatItem
               icon={<Star size={20} className="fill-current" />}
               value={
