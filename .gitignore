@@ -1,11 +1,11 @@
 node_modules/
 dist/
+
 .env
 .env.*
 !.env.example
+
 .vercel/
 supabase/.temp/
-*.log
 
-.vercel
-.env*
+*.log
