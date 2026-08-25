@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://fsd-home-services.vercel.app/</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/services</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/services/plumber-faisalabad</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/services/electrician-faisalabad</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/services/ac-repair-faisalabad</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/services/carpenter-faisalabad</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/services/painter-faisalabad</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/services/mason-faisalabad</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/services/labor-faisalabad</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/workers</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/become-a-worker</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/request-service</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/contact</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/privacy</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/terms</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/commission-policy</loc></url>
-  <url><loc>https://fsd-home-services.vercel.app/worker-verification-policy</loc></url>
+  <url><loc>https://fsd-home-services.vercel.app/</loc><lastmod>2026-08-25</lastmod><priority>1.0</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/about</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/services</loc><lastmod>2026-08-25</lastmod><priority>0.9</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/services/plumber-faisalabad</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/services/electrician-faisalabad</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/services/ac-repair-faisalabad</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/services/carpenter-faisalabad</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/services/painter-faisalabad</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/services/mason-faisalabad</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/services/labor-faisalabad</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/workers</loc><lastmod>2026-08-25</lastmod><priority>0.7</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/become-a-worker</loc><lastmod>2026-08-25</lastmod><priority>0.7</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/request-service</loc><lastmod>2026-08-25</lastmod><priority>0.8</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/refer-and-earn</loc><lastmod>2026-08-25</lastmod><priority>0.6</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/contact</loc><lastmod>2026-08-25</lastmod><priority>0.7</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/privacy</loc><lastmod>2026-08-25</lastmod><priority>0.5</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/terms</loc><lastmod>2026-08-25</lastmod><priority>0.5</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/commission-policy</loc><lastmod>2026-08-25</lastmod><priority>0.5</priority></url>
+  <url><loc>https://fsd-home-services.vercel.app/worker-verification-policy</loc><lastmod>2026-08-25</lastmod><priority>0.5</priority></url>
 </urlset>
+

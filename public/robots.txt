@@ -5,3 +5,4 @@ Disallow: /login
 Disallow: /review/
 
 Sitemap: https://fsd-home-services.vercel.app/sitemap.xml
+LLMs: https://fsd-home-services.vercel.app/llms.txt
