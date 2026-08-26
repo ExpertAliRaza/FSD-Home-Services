@@ -17,12 +17,8 @@ if (!fs.existsSync(staticDir)) {
 
 // Copy dist to static
 console.log('Copying prebuilt dist/ to .vercel/output/static/...');
-// For cross-platform (mostly for Windows user):
-try {
-  execSync('xcopy /E /I /Y dist\\* .vercel\\output\\static\\', { stdio: 'inherit' });
-} catch (e) {
-  // Ignore error if already copied or use a fallback
-}
+const distPath = path.join(process.cwd(), 'dist');
+fs.cpSync(distPath, staticDir, { recursive: true });
 
 // Create config
 console.log('Creating Vercel config.json...');
@@ -32,13 +28,16 @@ fs.writeFileSync(
     version: 3,
     routes: [
       { handle: 'filesystem' },
-      { src: '/(.*)', dest: '/index.html' }
+      { src: '/((?!google[a-z0-9]+\\.html).*)', dest: '/index.html' }
     ]
   }, null, 2)
 );
 
 // Deploy
-console.log('Deploying to Vercel...');
-execSync('npx vercel deploy --prebuilt --prod --yes', { stdio: 'inherit' });
+console.log('Deploying pre-rendered build to Vercel production...');
+const token = process.env.VERCEL_TOKEN;
+const vercelCli = path.join(process.cwd(), 'node_modules', 'vercel', 'dist', 'index.js');
+const tokenArg = token ? ` --token ${token}` : '';
+execSync(`node "${vercelCli}" deploy --prebuilt --prod --yes${tokenArg}`, { stdio: 'inherit' });
 
-console.log('Deployment complete!');
+console.log('🎉 Deployment complete!');
