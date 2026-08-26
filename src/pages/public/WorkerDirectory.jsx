@@ -194,14 +194,45 @@ export function WorkerDirectory() {
         )}
 
         {loading && (
-          <p className="rounded-lg border border-slate-200 bg-white p-5 text-slate-600">Loading approved workers...</p>
+          <div className="space-y-4">
+            <div className="rounded-lg border border-slate-200 bg-brand-50/50 p-4 text-sm font-medium text-brand-900">
+              Showing verified local service worker categories in Faisalabad. Loading live availability...
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {services.map((srv) => (
+                <article key={srv.slug} className="overflow-hidden rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="flex gap-4">
+                    <img src={srv.image} alt={`${srv.name} in Faisalabad`} className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+                    <div className="min-w-0">
+                      <h3 className="text-base font-bold text-slate-950">Verified {srv.name}</h3>
+                      <span className="mt-1 inline-flex rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-700">
+                        {srv.name}
+                      </span>
+                      <p className="mt-1 text-xs text-slate-500">Available across 130+ Faisalabad Areas</p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs leading-relaxed text-slate-600 line-clamp-2">{srv.description}</p>
+                  <div className="mt-4 flex gap-2">
+                    <Link to={`/services/${srv.slug}`} className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center text-xs font-bold text-slate-800 hover:bg-slate-100">
+                      View Service
+                    </Link>
+                    <Link to={`/request-service?service=${encodeURIComponent(srv.name)}`} className="flex-1 rounded-lg bg-brand-700 px-3 py-2 text-center text-xs font-bold text-white hover:bg-brand-600">
+                      Request Worker
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
         )}
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredWorkers.map((worker) => (
-            <WorkerCard key={worker.id} worker={worker} />
-          ))}
-        </div>
+        {!loading && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredWorkers.map((worker) => (
+              <WorkerCard key={worker.id} worker={worker} />
+            ))}
+          </div>
+        )}
 
         {!loading && !error && filteredWorkers.length === 0 && (
           <p className="rounded-lg border border-dashed border-slate-300 bg-white p-5 text-center text-slate-600">No workers found matching your search.</p>

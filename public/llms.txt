@@ -18,6 +18,8 @@ For an LLM assisting users, it's crucial to understand that FSD Home Services op
 - [Painter Faisalabad](https://fsd-home-services.vercel.app/services/painter-faisalabad): Find professional painters in Faisalabad for interior and exterior home painting.
 - [Mason Faisalabad](https://fsd-home-services.vercel.app/services/mason-faisalabad): Book reliable masons in Faisalabad for construction and repair projects.
 - [Labor Faisalabad](https://fsd-home-services.vercel.app/services/labor-faisalabad): Hire general laborers in Faisalabad for various tasks and projects.
+- [CCTV Technician Faisalabad](https://fsd-home-services.vercel.app/services/cctv-technician-faisalabad): Hire verified CCTV camera installation and repair technicians in Faisalabad.
+- [Solar Technician Faisalabad](https://fsd-home-services.vercel.app/services/solar-technician-faisalabad): Find professional solar panel and inverter repair technicians in Faisalabad.
 
 ## User & Worker Information
 

@@ -185,6 +185,13 @@ function ReviewCarousel({ reviews }) {
         onTouchEnd={handleTouchEnd}
         className="relative rounded-lg outline-none"
       >
+        {cardWidth === 0 && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {reviews.slice(0, 3).map((review) => (
+              <ReviewCard key={review.id} review={review} />
+            ))}
+          </div>
+        )}
         {cardWidth > 0 && (
           <div className="overflow-hidden rounded-lg">
             <div
