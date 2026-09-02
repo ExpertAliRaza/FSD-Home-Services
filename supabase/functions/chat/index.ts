@@ -7,13 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-// Model selection: llama-3.3-70b-versatile was moved to Groq's Enterprise-only
-// tier, so a normal developer key gets "model_not_found / no access" for it.
-// Default to a production model that every developer key can call and that
-// supports function/tool calling. Override with the GROQ_MODEL secret if needed
-// (e.g. set GROQ_MODEL=openai/gpt-oss-20b for lower cost).
-const GROQ_MODEL = Deno.env.get('GROQ_MODEL') || 'openai/gpt-oss-120b';
+const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') || '';
+const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash';
 const MAX_TOOL_ROUNDS = 3;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -31,8 +26,6 @@ interface ToolResult {
   error?: string;
 }
 
-// Strict YYYY-MM-DD validation. Rejects malformed, future, and pre-2000 dates so
-// no invalid values ever reach Postgres and no AI-written SQL/operators can be injected.
 function validateDate(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   if (!DATE_RE.test(value)) return null;
@@ -56,8 +49,7 @@ function cleanText(value: unknown): string | null {
   const trimmed = value.trim();
   return trimmed ? trimmed : null;
 }
-// Builds only the fixed, typed RPC arguments for a tool name.
-// This is a whitelist by construction: the model never supplies SQL or dynamic params.
+
 function buildRpcArgs(toolName: string, args: Record<string, unknown>): { args: Record<string, unknown>; error?: string } {
   const out: Record<string, unknown> = {};
   switch (toolName) {
@@ -167,7 +159,7 @@ function buildRpcArgs(toolName: string, args: Record<string, unknown>): { args: 
       out.p_limit = clampLimit(args.limit, 200, 500);
       return { args: out };
     }
-case 'ai_reviews': {
+    case 'ai_reviews': {
       const s = validateDate(args.start_date);
       const e = validateDate(args.end_date);
       if (args.start_date !== undefined && args.start_date !== null && !s) {
@@ -264,7 +256,6 @@ case 'ai_reviews': {
   }
 }
 
-// Executes a tool against Supabase using the service role. Only guarded, admin-checked RPCs.
 async function callTool(
   adminSupabase: ReturnType<typeof createClient>,
   toolName: string,
@@ -276,6 +267,7 @@ async function callTool(
   if (rpcError) return { ok: false, error: `${toolName} failed: ${rpcError.message}` };
   return { ok: true, data };
 }
+
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -301,10 +293,9 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const groqApiKey = Deno.env.get('GROQ_API_KEY') || '';
 
-    if (!groqApiKey) {
-      throw new Error('GROQ_API_KEY is missing');
+    if (!GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY is missing');
     }
 
     const authHeader = req.headers.get('Authorization');
@@ -312,7 +303,6 @@ Deno.serve(async (req) => {
       return json({ error: 'Unauthorized' }, 401);
     }
 
-    // 1) Verify the caller is a real authenticated user.
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -321,7 +311,6 @@ Deno.serve(async (req) => {
       return json({ error: 'Unauthorized' }, 401);
     }
 
-    // 2) Double admin gate: profiles.role AND auth.users raw_user_meta_data.role.
     const profileClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -350,15 +339,13 @@ Deno.serve(async (req) => {
     const systemPrompt = buildSystemPrompt(todayIso);
     const tools = buildTools();
 
-    // Filter history to valid roles only.
     const validHistory = (Array.isArray(history) ? history : []).filter(
       (m: ChatMessage) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim()
     ).map((m: ChatMessage) => ({ role: m.role, content: m.content }));
 
-    const messages: ChatMessage[] = [
-      { role: 'system', content: systemPrompt },
-      ...validHistory.slice(-12),
-      { role: 'user', content: message.trim() },
+    const contents: Array<{ role: string; parts: Array<{ text?: string; functionCall?: { name: string; args: string }; functionResponse?: { name: string; response: unknown } }> }> = [
+      ...validHistory.slice(-12).map((m) => ({ role: m.role, parts: [{ text: m.content }] })),
+      { role: 'user', parts: [{ text: message.trim() }] },
     ];
 
     const sources: string[] = [];
@@ -367,49 +354,51 @@ Deno.serve(async (req) => {
 
     while (rounds < MAX_TOOL_ROUNDS) {
       rounds += 1;
-      const groqResponse = await fetch(GROQ_URL, {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      const body = {
+        contents,
+        tools,
+        toolConfig: { functionCallingConfig: { mode: 'AUTO' } },
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        generationConfig: { temperature: 0.3, maxOutputTokens: 8192 },
+      };
+
+      const geminiResponse = await fetch(geminiUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${groqApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: GROQ_MODEL,
-          messages,
-          tools,
-          tool_choice: 'auto',
-          temperature: 0.3,
-          max_tokens: 2048,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
       });
 
-      if (!groqResponse.ok) {
-        const errTxt = await groqResponse.text();
-        console.error('Groq Error:', errTxt);
-        return json({ reply: `Groq API Error: ${errTxt}` });
+      if (!geminiResponse.ok) {
+        const errTxt = await geminiResponse.text();
+        console.error('Gemini Error:', errTxt);
+        return json({ reply: `Gemini API Error: ${errTxt}` });
       }
 
-      const groqData = await groqResponse.json();
-      const choice = groqData.choices?.[0]?.message;
-      const toolCalls = choice?.tool_calls;
+      const geminiData = await geminiResponse.json();
+      const candidate = geminiData.candidates?.[0];
+      const parts = (candidate?.content?.parts || []).filter((p: Record<string, unknown>) => !('thoughtSignature' in p));
 
-      if (!toolCalls || toolCalls.length === 0) {
-        finalReply = choice?.content || finalReply;
+      const functionCalls = parts.filter((p: Record<string, unknown>) => 'functionCall' in p);
+      const textParts = parts.filter((p: Record<string, unknown>) => 'text' in p);
+
+      if (functionCalls.length === 0) {
+        finalReply = textParts.map((p: Record<string, unknown>) => (p as any).text).join('\n') || finalReply;
         break;
       }
 
-      messages.push({
-        role: 'assistant',
-        content: choice?.content ?? null,
-        tool_calls: toolCalls,
+      contents.push({
+        role: 'model',
+        parts: functionCalls.map((p: Record<string, unknown>) => ({ functionCall: (p as any).functionCall })),
       });
 
-      for (const toolCall of toolCalls) {
-        const toolName = safeToolName(toolCall?.function?.name);
+      const functionResponses: Array<{ functionResponse: { name: string; response: unknown } }> = [];
+      for (const fc of functionCalls) {
+        const toolName = safeToolName((fc as any).functionCall.name);
         if (!toolName) continue;
         let parsedArgs: Record<string, unknown> = {};
         try {
-          const raw = toolCall.function.arguments;
+          const raw = (fc as any).functionCall.args;
           if (typeof raw === 'string' && raw.trim()) {
             parsedArgs = JSON.parse(raw);
           }
@@ -421,13 +410,18 @@ Deno.serve(async (req) => {
         const label = toolName.replace(/^ai_/, '');
         sources.push(toolResult.ok ? label : `${label} (error)`);
 
-        messages.push({
-          role: 'tool',
-          tool_call_id: String(toolCall.id || ''),
-          content: toolResult.ok ? JSON.stringify(toolResult.data) : JSON.stringify({ error: toolResult.error }),
-          name: toolName,
+        functionResponses.push({
+          functionResponse: {
+            name: toolName,
+            response: toolResult.ok ? { result: toolResult.data } : { error: toolResult.error },
+          },
         });
       }
+
+      contents.push({
+        role: 'user',
+        parts: functionResponses,
+      });
     }
 
     return json({ reply: finalReply, sources });

@@ -130,7 +130,17 @@ test('chat edge function validates dates and caps tool rounds', () => {
   assert.match(chatIndex, /DATE_RE/);
   assert.match(chatIndex, /validateDate/);
   assert.match(chatIndex, /MAX_TOOL_ROUNDS = 3/);
-  assert.match(chatIndex, /tool_choice: 'auto'/);
+  assert.match(chatIndex, /toolConfig/);
+  assert.match(chatIndex, /functionCallingConfig/);
+  assert.match(chatIndex, /mode: 'AUTO'/);
+});
+
+test('chat edge function uses Gemini with a supported tool-calling model', () => {
+  assert.match(chatIndex, /GEMINI_API_KEY/);
+  assert.match(chatIndex, /GEMINI_MODEL/);
+  assert.match(chatIndex, /gemini-3\.6-flash/);
+  assert.match(chatIndex, /generativelanguage\.googleapis\.com/);
+  assert.match(chatIndex, /generateContent/);
 });
 
 test('chat edge function admin gate requires both role sources', () => {

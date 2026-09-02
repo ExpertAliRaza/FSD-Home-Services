@@ -7,9 +7,9 @@
 // 3) Run this script. It prints each question, the tool calls made (sources),
 //    and the final AI answer so you can verify the numbers match the Admin Panel.
 //
-// Requires env vars (from .env): VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, GROQ_API_KEY
-// (GROQ_API_KEY is only used by the deployed edge function, not the client, but
-//  the function must already have it configured).
+// Requires env vars (from .env): VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, ADMIN_TOKEN.
+// The Gemini API key is configured as an Edge Function secret in the Supabase dashboard,
+// not needed by this client-side script.
 
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'node:fs';

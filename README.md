@@ -146,17 +146,15 @@ Notes:
 ## Admin AI Assistant
 
 The `/admin` dashboard includes an AI assistant backed by the `chat` Supabase Edge
-Function, which calls Groq and answers data questions through guarded read-only
+Function, which calls Gemini and answers data questions through guarded read-only
 RPCs (`ai_*` functions in `supabase/migrations/037_admin_ai.sql`).
 
 Configure its secrets, then deploy:
 
 ```bash
-supabase secrets set GROQ_API_KEY=your-groq-api-key
-# Optional: override the model id. Defaults to openai/gpt-oss-120b in code.
-# NOTE: llama-3.3-70b-versatile is no longer accessible to developer-plan keys
-# (Enterprise-only tier), so it must NOT be used unless your key has access.
-# supabase secrets set GROQ_MODEL=openai/gpt-oss-20b
+supabase secrets set GEMINI_API_KEY=your-gemini-api-key
+# Optional: override the model id. Defaults to gemini-3.6-flash in code.
+# supabase secrets set GEMINI_MODEL=gemini-3.6-flash
 supabase functions deploy chat
 ```
 
