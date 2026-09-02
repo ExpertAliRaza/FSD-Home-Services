@@ -344,7 +344,7 @@ Deno.serve(async (req) => {
     ).map((m: ChatMessage) => ({ role: m.role, content: m.content }));
 
     const contents: Array<{ role: string; parts: Array<{ text?: string; functionCall?: { name: string; args: string }; functionResponse?: { name: string; response: unknown } }> }> = [
-      ...validHistory.slice(-12).map((m) => ({ role: m.role, parts: [{ text: m.content }] })),
+      ...validHistory.slice(-12).map((m) => ({ role: m.role === 'assistant' ? 'model' : m.role, parts: [{ text: m.content }] })),
       { role: 'user', parts: [{ text: message.trim() }] },
     ];
 
@@ -377,7 +377,7 @@ Deno.serve(async (req) => {
 
       const geminiData = await geminiResponse.json();
       const candidate = geminiData.candidates?.[0];
-      const parts = (candidate?.content?.parts || []).filter((p: Record<string, unknown>) => !('thoughtSignature' in p));
+      const parts = candidate?.content?.parts || [];
 
       const functionCalls = parts.filter((p: Record<string, unknown>) => 'functionCall' in p);
       const textParts = parts.filter((p: Record<string, unknown>) => 'text' in p);
@@ -389,7 +389,11 @@ Deno.serve(async (req) => {
 
       contents.push({
         role: 'model',
-        parts: functionCalls.map((p: Record<string, unknown>) => ({ functionCall: (p as any).functionCall })),
+        parts: functionCalls.map((p: Record<string, unknown>) => {
+          const out: Record<string, unknown> = { functionCall: (p as any).functionCall };
+          if ('thoughtSignature' in p) out.thoughtSignature = (p as any).thoughtSignature;
+          return out;
+        }),
       });
 
       const functionResponses: Array<{ functionResponse: { name: string; response: unknown } }> = [];
