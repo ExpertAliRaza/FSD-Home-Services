@@ -38,6 +38,26 @@ function validateDate(value: unknown): string | null {
   return value;
 }
 
+function defaultRange(daysAgo: number): { start: string; end: string } {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const start = new Date(today);
+  start.setUTCDate(start.getUTCDate() - daysAgo);
+  return {
+    start: start.toISOString().slice(0, 10),
+    end: today.toISOString().slice(0, 10),
+  };
+}
+
+function monthBounds(reference: Date): { start: string; end: string } {
+  const start = new Date(reference.getUTCFullYear(), reference.getUTCMonth(), 1);
+  const end = new Date(reference.getUTCFullYear(), reference.getUTCMonth() + 1, 0);
+  return {
+    start: start.toISOString().slice(0, 10),
+    end: end.toISOString().slice(0, 10),
+  };
+}
+
 function clampLimit(value: unknown, def: number, max: number): number {
   const n = Number(value);
   if (Number.isNaN(n)) return def;
@@ -57,7 +77,10 @@ function buildRpcArgs(toolName: string, args: Record<string, unknown>): { args: 
       const s = validateDate(args.start_date);
       const e = validateDate(args.end_date);
       if (!s || !e) {
-        return { args: out, error: 'start_date and end_date must both be valid YYYY-MM-DD dates between 2000-01-01 and today.' };
+        const fallback = defaultRange(7);
+        out.p_start_date = fallback.start;
+        out.p_end_date = fallback.end;
+        return { args: out };
       }
       out.p_start_date = s;
       out.p_end_date = e;
@@ -227,14 +250,18 @@ function buildRpcArgs(toolName: string, args: Record<string, unknown>): { args: 
       const e = validateDate(args.end_date);
       const granularity = cleanText(args.granularity);
       if (!s || !e) {
-        return { args: out, error: 'start_date and end_date must both be valid YYYY-MM-DD dates between 2000-01-01 and today.' };
+        const fallback = defaultRange(7);
+        out.p_start_date = fallback.start;
+        out.p_end_date = fallback.end;
+      } else {
+        out.p_start_date = s;
+        out.p_end_date = e;
       }
       if (!granularity || !['day', 'week', 'month'].includes(granularity)) {
-        return { args: out, error: 'granularity must be one of day, week, month.' };
+        out.p_granularity = 'day';
+      } else {
+        out.p_granularity = granularity;
       }
-      out.p_start_date = s;
-      out.p_end_date = e;
-      out.p_granularity = granularity;
       return { args: out };
     }
     case 'ai_compare': {
@@ -243,7 +270,15 @@ function buildRpcArgs(toolName: string, args: Record<string, unknown>): { args: 
       const s2 = validateDate(args.start_date_2);
       const e2 = validateDate(args.end_date_2);
       if (!s1 || !e1 || !s2 || !e2) {
-        return { args: out, error: 'All four dates (start_date_1, end_date_1, start_date_2, end_date_2) must be valid YYYY-MM-DD dates between 2000-01-01 and today.' };
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+        const thisMonth = monthBounds(today);
+        const lastMonth = monthBounds(new Date(today.getUTCFullYear(), today.getUTCMonth() - 1, 1));
+        out.p_start_1 = lastMonth.start;
+        out.p_end_1 = lastMonth.end;
+        out.p_start_2 = thisMonth.start;
+        out.p_end_2 = thisMonth.end;
+        return { args: out };
       }
       out.p_start_1 = s1;
       out.p_end_1 = e1;
@@ -349,6 +384,7 @@ Deno.serve(async (req) => {
     ];
 
     const sources: string[] = [];
+    const errors: string[] = [];
     let finalReply = 'Sorry, no response generated.';
     let rounds = 0;
 
@@ -412,7 +448,13 @@ Deno.serve(async (req) => {
 
         const toolResult = await callTool(adminSupabase, toolName, parsedArgs);
         const label = toolName.replace(/^ai_/, '');
-        sources.push(toolResult.ok ? label : `${label} (error)`);
+        if (toolResult.ok) {
+          sources.push(label);
+        } else {
+          const errMsg = toolResult.error || 'unknown error';
+          sources.push(`${label} (error)`);
+          errors.push(`${toolName}: ${errMsg}`);
+        }
 
         functionResponses.push({
           functionResponse: {
@@ -426,6 +468,10 @@ Deno.serve(async (req) => {
         role: 'user',
         parts: functionResponses,
       });
+    }
+
+    if (finalReply === 'Sorry, no response generated.' && errors.length > 0) {
+      finalReply = `Sorry, no response generated.\nErrors: ${errors.join('; ')}`;
     }
 
     return json({ reply: finalReply, sources });
