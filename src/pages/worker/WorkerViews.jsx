@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { Link2 } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { areas } from '../../data/catalog';
 import {
+  getOrCreateWorkerReviewToken,
   markNotificationRead, replaceWorkerDocuments,
   respondToLead, updateNotificationPreferences, updateWorkerPassword, updateWorkerProfile
 } from '../../lib/api';
@@ -105,15 +107,130 @@ export function WorkerEarnings() {
 
 export function WorkerReviews() {
   const { reviews, worker } = useOutletContext();
+
+  const completedJobs = Number(worker.completed_jobs_count || 0);
+  const reviewCount   = Number(worker.review_count || 0);
+  const slotsLeft     = Math.max(completedJobs - reviewCount, 0);
+  const isApproved    = worker.status === 'approved';
+
+  const [linkState, setLinkState] = useState({ url: null, loading: false, error: '', copied: false });
+
+  const generateLink = async () => {
+    setLinkState({ url: null, loading: true, error: '', copied: false });
+    try {
+      const result = await getOrCreateWorkerReviewToken();
+      setLinkState({ url: result.url, loading: false, error: '', copied: false });
+    } catch (err) {
+      setLinkState({ url: null, loading: false, error: err.message || 'Could not generate review link.', copied: false });
+    }
+  };
+
+  const copyLink = async () => {
+    if (!linkState.url) return;
+    try {
+      await navigator.clipboard.writeText(linkState.url);
+      setLinkState((s) => ({ ...s, copied: true }));
+      setTimeout(() => setLinkState((s) => ({ ...s, copied: false })), 2000);
+    } catch {
+      setLinkState((s) => ({ ...s, error: 'Could not copy — please copy the link manually.' }));
+    }
+  };
+
   return (
-    <WorkerSection title="Reviews" subtitle={`${reviews.length} review${reviews.length === 1 ? '' : 's'} · Average ${Number(worker.rating_avg || 0).toFixed(1)}`}>
+    <WorkerSection
+      title="Reviews"
+      subtitle={`${reviews.length} review${reviews.length === 1 ? '' : 's'} · Average ${Number(worker.rating_avg || 0).toFixed(1)}`}
+    >
+      {/* ── Get Review Link panel ─────────────────────────────────── */}
+      <div className="mb-5 rounded-lg border border-slate-200 bg-white p-5">
+        <div className="flex items-center gap-2">
+          <Link2 size={18} className="shrink-0 text-brand-700" />
+          <h3 className="font-bold text-slate-900">Get Review Link</h3>
+        </div>
+
+        {/* Quota badge */}
+        <p className="mt-2 text-sm text-slate-600">
+          Review slots used:{' '}
+          <span className="font-semibold text-slate-900">
+            {reviewCount} / {completedJobs}
+          </span>
+        </p>
+
+        {/* State-specific messaging */}
+        {!isApproved && (
+          <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm font-semibold text-amber-800">
+            Your profile must be approved before you can generate a review link.
+          </p>
+        )}
+        {isApproved && completedJobs === 0 && (
+          <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
+            You have no completed jobs yet. A review link will be available after your first completed job.
+          </p>
+        )}
+        {isApproved && completedJobs > 0 && slotsLeft === 0 && (
+          <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
+            All review slots are used. Complete more jobs to earn more reviews.
+          </p>
+        )}
+
+        {/* Generate button — only when approved and slots remain */}
+        {isApproved && slotsLeft > 0 && (
+          <div className="mt-4">
+            <p className="mb-3 text-sm text-slate-600">
+              Share this link with a customer so they can leave you a review.{' '}
+              <span className="font-semibold text-brand-700">{slotsLeft} slot{slotsLeft === 1 ? '' : 's'} remaining.</span>
+            </p>
+            <button
+              onClick={generateLink}
+              disabled={linkState.loading}
+              className="min-h-11 rounded-lg bg-brand-700 px-5 font-bold text-white disabled:opacity-60"
+            >
+              {linkState.loading ? 'Generating…' : linkState.url ? 'Regenerate Link' : 'Generate Review Link'}
+            </button>
+
+            {/* Display the generated URL */}
+            {linkState.url && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <input
+                  readOnly
+                  value={linkState.url}
+                  className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                />
+                <button
+                  onClick={copyLink}
+                  className="min-h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  {linkState.copied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+            )}
+
+            {linkState.error && (
+              <p role="alert" className="mt-3 rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-700">
+                {linkState.error}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Existing reviews list ─────────────────────────────────── */}
       <div className="grid gap-3">
-        {reviews.map((review) => <article key={review.id} className="rounded-lg border border-slate-200 bg-white p-4"><p className="font-bold text-amber-600">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</p><p className="mt-2 text-slate-700">{review.review_text}</p><p className="mt-2 text-xs text-slate-400">{new Date(review.created_at).toLocaleDateString()}</p></article>)}
+        {reviews.map((review) => (
+          <article key={review.id} className="rounded-lg border border-slate-200 bg-white p-4">
+            <p className="font-bold text-amber-600">
+              {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+            </p>
+            <p className="mt-2 text-slate-700">{review.review_text}</p>
+            <p className="mt-2 text-xs text-slate-400">{new Date(review.created_at).toLocaleDateString()}</p>
+          </article>
+        ))}
         {!reviews.length && <Empty>No reviews yet.</Empty>}
       </div>
     </WorkerSection>
   );
 }
+
 
 export function WorkerNotifications() {
   const data = useOutletContext();

@@ -331,6 +331,19 @@ export function AdminPanel() {
   };
 
   const setRequestStatus = async (id, status) => {
+    if (status === 'cancelled') {
+      const reason = window.prompt('Cancellation reason (required):', '');
+      if (reason === null) return;
+      if (!reason.trim()) {
+        alert('Cancellation reason is required before cancelling the request.');
+        return;
+      }
+      updateRequestsInState((requests) =>
+        requests.map((r) => r.id === id ? { ...r, status, cancelled_at: new Date().toISOString(), cancellation_reason: reason.trim() } : r)
+      );
+      await runAction(`request-${id}`, () => updateRequestStatus(id, status, reason.trim()), ['requests']);
+      return;
+    }
     updateRequestsInState((requests) =>
       requests.map((r) => r.id === id ? { ...r, status } : r)
     );
@@ -1206,6 +1219,19 @@ export function AdminPanel() {
                       )}
                       <div className="border-t border-slate-100 px-5 py-4">
                         <AssetGallery assets={(request.request_photos || []).map((photo, index) => ({ label: `Problem ${index + 1}`, url: photo.signed_url }))} />
+                        {request.status === 'cancelled' && (request.cancellation_reason || request.cancelled_at) && (
+                          <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                            <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Cancelled</p>
+                            {request.cancellation_reason ? (
+                              <p className="whitespace-pre-wrap break-words text-sm text-slate-700">{request.cancellation_reason}</p>
+                            ) : (
+                              <p className="text-sm text-slate-500">No cancellation reason recorded.</p>
+                            )}
+                            {request.cancelled_at && (
+                              <p className="mt-1 text-xs text-slate-400">Cancelled at {new Date(request.cancelled_at).toLocaleString()}</p>
+                            )}
+                          </div>
+                        )}
                         <Notes items={notesFor('request', request.id)} />
                       </div>
                     </div>

@@ -143,6 +143,29 @@ Notes:
 - The Google API key is server-side only (`GOOGLE_PLACES_API_KEY` secret); it
   is never exposed in the browser bundle.
 
+## Admin AI Assistant
+
+The `/admin` dashboard includes an AI assistant backed by the `chat` Supabase Edge
+Function, which calls Groq and answers data questions through guarded read-only
+RPCs (`ai_*` functions in `supabase/migrations/037_admin_ai.sql`).
+
+Configure its secrets, then deploy:
+
+```bash
+supabase secrets set GROQ_API_KEY=your-groq-api-key
+# Optional: override the model id. Defaults to openai/gpt-oss-120b in code.
+# NOTE: llama-3.3-70b-versatile is no longer accessible to developer-plan keys
+# (Enterprise-only tier), so it must NOT be used unless your key has access.
+# supabase secrets set GROQ_MODEL=openai/gpt-oss-20b
+supabase functions deploy chat
+```
+
+QA harness (requires a signed-in admin JWT in `ADMIN_TOKEN`):
+
+```bash
+node scripts/test-ai-questions.js
+```
+
 ## Admin User
 
 Create a user in Supabase Auth, then mark that profile as admin:

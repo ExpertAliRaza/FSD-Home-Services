@@ -1,11 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Loader2 } from 'lucide-react';
+import { MessageSquare, X, Send, Loader2, Database } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+
+const SUGGESTIONS = [
+  'Total requests this month',
+  'How many approved workers?',
+  'Revenue last 7 days',
+  'Cancelled orders this month',
+  'Top services this month',
+  'Open complaints',
+];
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Salam! Main aapka admin AI assistant hoon. FSD Home Services ke baray mein sawal poochein.' }
+    {
+      role: 'assistant',
+      content: 'Salam! Main aapka admin AI assistant hoon. FSD Home Services ke live data ke baray mein sawal poochein.',
+      sources: []
+    }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,35 +32,40 @@ export function ChatWidget() {
     scrollToBottom();
   }, [messages, isOpen]);
 
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!input.trim() || loading) return;
+  const sendMessage = async (e, preset) => {
+    if (e?.preventDefault) e.preventDefault();
+    const userMsg = (preset || input).trim();
+    if (!userMsg || loading) return;
 
-    const userMsg = input.trim();
     setInput('');
-    
-    // Add user message to UI immediately
-    const newMessages = [...messages, { role: 'user', content: userMsg }];
-    setMessages(newMessages);
+    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setLoading(true);
 
     try {
-      // Use existing user session context, Edge function automatically checks auth
+      // Keep existing history for context, but only user/assistant turns.
+      const history = messages
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .map(m => ({ role: m.role, content: m.content }));
+
       const { data, error } = await supabase.functions.invoke('chat', {
-        body: { 
-          message: userMsg,
-          history: messages.map(m => ({ role: m.role, content: m.content }))
-        }
+        body: { message: userMsg, history }
       });
 
       if (error) {
         throw new Error(error.message);
       }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || 'No response.' }]);
+      const reply = data?.reply || 'No response.';
+      const sources = Array.isArray(data?.sources) ? data.sources : [];
+      // Legacy path: the old function returned error text inside reply.
+      if (typeof reply === 'string' && /^(Groq API Error|Internal Error)/.test(reply)) {
+        setMessages(prev => [...prev, { role: 'assistant', content: reply, sources: [] }]);
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: reply, sources }]);
+      }
     } catch (err) {
       console.error('Chat error:', err);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Oops! Error: ' + err.message }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Oops! Error: ' + err.message, sources: [] }]);
     } finally {
       setLoading(false);
     }
@@ -66,8 +84,8 @@ export function ChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex h-[500px] max-h-[80vh] w-[350px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-      {/* Header */}
+    <div className="fixed bottom-6 right-6 z-50 flex h-[520px] max-h-[80vh] w-[360px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+{/* Header */}
       <div className="flex shrink-0 items-center justify-between bg-brand-700 px-4 py-3 text-white">
         <div className="flex items-center gap-2">
           <MessageSquare size={18} />
@@ -90,25 +108,54 @@ export function ChatWidget() {
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2 ${
+                className={`max-w-[88%] rounded-2xl px-4 py-2 ${
                   msg.role === 'user'
                     ? 'bg-brand-700 text-white rounded-br-sm'
                     : 'bg-slate-100 text-slate-800 rounded-bl-sm'
                 }`}
               >
-                {msg.content}
+                <div className="whitespace-pre-wrap break-words">{msg.content}</div>
+                {msg.role === 'assistant' && Array.isArray(msg.sources) && msg.sources.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {msg.sources.map((src) => (
+                      <span
+                        key={src}
+                        className="inline-flex items-center gap-1 rounded-full border border-brand-200 bg-brand-50 px-2 py-0.5 text-[10px] font-semibold text-brand-700"
+                      >
+                        <Database size={10} />
+                        {src}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
           {loading && (
             <div className="flex justify-start">
-              <div className="flex max-w-[85%] items-center gap-2 rounded-2xl rounded-bl-sm bg-slate-100 px-4 py-2 text-slate-500">
+              <div className="flex max-w-[88%] items-center gap-2 rounded-2xl rounded-bl-sm bg-slate-100 px-4 py-2 text-slate-500">
                 <Loader2 size={14} className="animate-spin" />
                 <span>Thinking...</span>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
+        </div>
+      </div>
+{/* Quick suggestions */}
+      <div className="shrink-0 border-t border-slate-100 bg-white px-3 pt-2">
+        <div className="flex flex-wrap gap-1.5">
+          {SUGGESTIONS.map((text) => (
+            <button
+              key={text}
+              type="button"
+              onClick={() => sendMessage(null, text)}
+              disabled={loading}
+              className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:border-brand-400 hover:text-brand-700 disabled:opacity-50"
+            >
+              {text}
+            </button>
+          ))}
         </div>
       </div>
 

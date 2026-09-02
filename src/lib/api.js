@@ -480,12 +480,19 @@ export async function deleteServiceRequest(requestId) {
   await removeStoragePaths(requestPhotoBucket, data?.request_photo_paths);
 }
 
-export async function updateRequestStatus(requestId, status) {
+export async function updateRequestStatus(requestId, status, cancellationReason = null) {
   if (status === 'completed') {
     throw new Error('Use the completion form to record the actual job value.');
   }
   requireSupabaseConfig();
-  const { error } = await supabase.from('service_requests').update({ status }).eq('id', requestId);
+  const payload = { status };
+  if (status === 'cancelled') {
+    payload.cancelled_at = new Date().toISOString();
+    if (cancellationReason && cancellationReason.trim()) {
+      payload.cancellation_reason = cancellationReason.trim();
+    }
+  }
+  const { error } = await supabase.from('service_requests').update(payload).eq('id', requestId);
   if (error) throw error;
 }
 
@@ -627,6 +634,47 @@ export async function getReviewContext(token) {
 export async function submitWorkerReview(token, rating, reviewText) {
   requireSupabaseConfig();
   const { data, error } = await supabase.rpc('submit_worker_review', {
+    p_token: token,
+    p_rating: Number(rating),
+    p_review_text: reviewText.trim()
+  });
+  if (error) throw error;
+  return data;
+}
+
+// ── Worker self-service review token ────────────────────────────────────────
+
+/**
+ * Called from the worker dashboard.
+ * Returns { token, slots_remaining, url } where url is ready to share.
+ */
+export async function getOrCreateWorkerReviewToken() {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('get_or_create_worker_review_token');
+  if (error) throw error;
+  const url = `${window.location.origin}/review/${data.token}`;
+  return { ...data, url };
+}
+
+/**
+ * Public — used by Review.jsx when the token belongs to a worker_review_tokens row.
+ * Returns null if the token is not found.
+ */
+export async function getReviewContextForWorkerToken(token) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('get_review_context_for_worker_token', {
+    p_token: token
+  });
+  if (error) throw error;
+  return data; // null when not found
+}
+
+/**
+ * Public — submits a review via a worker-generated token.
+ */
+export async function submitWorkerReviewByToken(token, rating, reviewText) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('submit_worker_review_by_token', {
     p_token: token,
     p_rating: Number(rating),
     p_review_text: reviewText.trim()
