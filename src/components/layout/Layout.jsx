@@ -80,6 +80,14 @@ export function Layout() {
             </Link>
             <div className="flex items-center gap-2 lg:hidden">
               <InstallAppButton compact className="min-h-10" />
+              <a
+                href="tel:03099018308"
+                aria-label="Call FSD Home Services at 0309 9018308"
+                className="focus-ring inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-2 text-sm font-semibold text-slate-700"
+              >
+                <Phone size={16} className="shrink-0 text-brand-700" aria-hidden="true" />
+                <span>0309 9018308</span>
+              </a>
               <button
                 className="focus-ring rounded-lg border border-slate-200 p-2"
                 onClick={() => setOpen((value) => !value)}

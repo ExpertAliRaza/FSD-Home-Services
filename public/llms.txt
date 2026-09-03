@@ -1,46 +1,48 @@
 # FSD Home Services
 
-> Connect with verified local home service professionals in Faisalabad.
+FSD Home Services is a verified local service marketplace connecting homeowners with trusted plumbers, electricians, AC technicians, carpenters, painters, masons, CCTV technicians, solar technicians, contractors, and other skilled professionals across Faisalabad, Pakistan.
 
-FSD Home Services is a digital platform designed to connect residents of Faisalabad with a network of verified and skilled local tradespeople. The service aims to simplify the process of finding reliable professionals for various home repair and maintenance needs, including plumbing, electrical work, carpentry, painting, masonry, and general labor.
+## Services
+- Plumber
+- Electrician
+- AC Technician
+- Carpenter
+- Painter
+- Mason
+- Laborer
+- CCTV Technician
+- Solar Technician
+- Contractor / Thekedaar
+- Construction & Renovation
+- Marble & Tile Fitting
+- Welding & Metal Fabrication
+- Ceiling / False Ceiling
+- Waterproofing
+- Cleaning Services
 
-Users can easily request services through the website, ensuring they receive assistance from qualified individuals. The platform emphasizes trust and reliability by implementing a verification process for all workers. This benefits both customers seeking quality service and professionals looking for a platform to showcase their skills and find work. The core value proposition lies in providing a convenient, secure, and efficient way to manage home maintenance tasks.
+## Pages
+- Home: https://fsd-home-services.vercel.app/
+- Services: https://fsd-home-services.vercel.app/services
+- About: https://fsd-home-services.vercel.app/about
+- Workers: https://fsd-home-services.vercel.app/workers
+- Become a Worker: https://fsd-home-services.vercel.app/become-a-worker
+- Request Service: https://fsd-home-services.vercel.app/request-service
+- Contact: https://fsd-home-services.vercel.app/contact
+- Privacy Policy: https://fsd-home-services.vercel.app/privacy
+- Terms of Service: https://fsd-home-services.vercel.app/terms
+- Commission Policy: https://fsd-home-services.vercel.app/commission-policy
+- Worker Verification Policy: https://fsd-home-services.vercel.app/worker-verification-policy
 
-For an LLM assisting users, it's crucial to understand that FSD Home Services operates specifically within Faisalabad. The platform acts as an intermediary, facilitating the connection rather than directly providing the services. Key use cases include finding emergency repair services, scheduling routine maintenance, or hiring skilled labor for renovation projects. The website also offers opportunities for tradespeople to register and become verified workers.
+## Contact
+- Support Name: Ali Raza
+- Phone: 03099018308
+- WhatsApp: https://wa.me/923099018308
 
-## Core Services
+## Social
+- Facebook: https://www.facebook.com/FSD.Home.Services/
+- Instagram: https://www.instagram.com/fsd_home_services/
+- LinkedIn: https://www.linkedin.com/company/134874243
+- TikTok: https://www.tiktok/@fsdhomeservices
 
-- [Services](https://fsd-home-services.vercel.app/services): Explore all home services offered, including plumbing, electrical, and carpentry.
-- [Plumber Faisalabad](https://fsd-home-services.vercel.app/services/plumber-faisalabad): Find and hire verified plumbers in Faisalabad for all your repair needs.
-- [Electrician Faisalabad](https://fsd-home-services.vercel.app/services/electrician-faisalabad): Connect with skilled electricians in Faisalabad for safe and reliable electrical work.
-- [AC Repair Faisalabad](https://fsd-home-services.vercel.app/services/ac-repair-faisalabad): Get prompt AC repair services in Faisalabad from certified technicians.
-- [Carpenter Faisalabad](https://fsd-home-services.vercel.app/services/carpenter-faisalabad): Hire experienced carpenters in Faisalabad for furniture and woodwork needs.
-- [Painter Faisalabad](https://fsd-home-services.vercel.app/services/painter-faisalabad): Find professional painters in Faisalabad for interior and exterior home painting.
-- [Mason Faisalabad](https://fsd-home-services.vercel.app/services/mason-faisalabad): Book reliable masons in Faisalabad for construction and repair projects.
-- [Labor Faisalabad](https://fsd-home-services.vercel.app/services/labor-faisalabad): Hire general laborers in Faisalabad for various tasks and projects.
-- [CCTV Technician Faisalabad](https://fsd-home-services.vercel.app/services/cctv-technician-faisalabad): Hire verified CCTV camera installation and repair technicians in Faisalabad.
-- [Solar Technician Faisalabad](https://fsd-home-services.vercel.app/services/solar-technician-faisalabad): Find professional solar panel and inverter repair technicians in Faisalabad.
-
-## User & Worker Information
-
-- [FSD Home Services](https://fsd-home-services.vercel.app/): Homepage: Connect with verified local plumbers, electricians, and more in Faisalabad.
-- [About](https://fsd-home-services.vercel.app/about): Learn about FSD Home Services, our mission, team, and how we serve Faisalabad.
-- [Workers](https://fsd-home-services.vercel.app/workers): View profiles of verified home service professionals available in Faisalabad.
-- [Become a Worker](https://fsd-home-services.vercel.app/become-a-worker): Learn how to register and become a verified service provider on the platform.
-- [Refer and Earn](https://fsd-home-services.vercel.app/refer-and-earn): Refer friends or workers to FSD Home Services and earn rewards.
-
-## Service Request & Contact
-
-- [Request Service](https://fsd-home-services.vercel.app/request-service): Submit a request to find and hire a home service professional.
-- [Contact](https://fsd-home-services.vercel.app/contact): Find contact information and get in touch with FSD Home Services support.
-
-## Legal & Policies
-
-- [Privacy Policy](https://fsd-home-services.vercel.app/privacy): Understand how your personal data is collected, used, and protected.
-- [Terms of Service](https://fsd-home-services.vercel.app/terms): Review the terms and conditions for using the FSD Home Services platform.
-- [Commission Policy](https://fsd-home-services.vercel.app/commission-policy): Details on the commission structure for services rendered through the platform.
-- [Worker Verification Policy](https://fsd-home-services.vercel.app/worker-verification-policy): Information on the process and standards for verifying service workers.
-
----
-
-This file was generated for fsd-home-services.vercel.app using the [LLMs.txt Generator Tool](https://llmrefs.com/tools/llms-txt-generator)
+## Service Area
+Faisalabad, Pakistan and surrounding areas.

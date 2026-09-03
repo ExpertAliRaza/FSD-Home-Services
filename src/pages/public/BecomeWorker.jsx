@@ -30,7 +30,14 @@ const whoCanApplyIcons = {
   Mason: HardDrive,
   Laborer: ClipboardList,
   'CCTV Technician': Search,
-  'Solar Technician': ShieldCheck
+  'Solar Technician': ShieldCheck,
+  'Contractor / Thekedaar': ClipboardList,
+  'Construction & Renovation': HardDrive,
+  'Marble & Tile Fitting': Wrench,
+  'Welding & Metal Fabrication': Wrench,
+  'Ceiling / False Ceiling': HardDrive,
+  'Waterproofing': Search,
+  'Cleaning Services': ClipboardList
 };
 
 const whoCanApplyDesc = {
@@ -42,7 +49,14 @@ const whoCanApplyDesc = {
   Mason: 'Perform brick wall construction, plastering, concrete repair, floor leveling and general renovation work.',
   Laborer: 'Assist with house shifting, loading and unloading, construction site help, cleaning and general daily labor.',
   'CCTV Technician': 'Install and repair CCTV cameras, set up DVR/NVR systems, configure remote viewing and troubleshoot security systems.',
-  'Solar Technician': 'Install solar panels, inverters and batteries, perform system repair, cleaning, maintenance and full inspections.'
+  'Solar Technician': 'Install solar panels, inverters and batteries, perform system repair, cleaning, maintenance and full inspections.',
+  'Contractor / Thekedaar': 'Manage residential and commercial construction projects, renovations, remodeling, site supervision and complete project contracting.',
+  'Construction & Renovation': 'Handle house construction, renovation, extensions, remodeling, property improvement and general construction work.',
+  'Marble & Tile Fitting': 'Install marble and tiles, perform floor fitting, wall tiling, grouting, replacement, repair and finishing work.',
+  'Welding & Metal Fabrication': 'Perform welding, ironwork, metal fabrication, gate and grill making, railing installation, frame repair and custom metalwork.',
+  'Ceiling / False Ceiling': 'Install false ceilings, ceiling design, repair, replacement and finishing for homes, offices, shops and commercial spaces.',
+  'Waterproofing': 'Provide roof waterproofing, leakage repair, terrace waterproofing, wall seepage treatment, bathroom waterproofing and dampness solutions.',
+  'Cleaning Services': 'Provide home cleaning, deep cleaning, bathroom and kitchen cleaning, sofa and carpet cleaning, office cleaning, shop cleaning and post-construction cleanup.'
 };
 
 const benefitsItems = [

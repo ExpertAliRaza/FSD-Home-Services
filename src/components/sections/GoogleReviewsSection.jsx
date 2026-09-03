@@ -289,7 +289,7 @@ export function GoogleReviewsSection() {
                 <StarRating value={rating} />
                 <p className="mt-1.5 flex items-center gap-1.5 text-sm text-slate-600">
                   <GoogleG className="h-4 w-4 shrink-0" />
-                  Based on {reviewCount} Google reviews
+                  Based on Google reviews
                 </p>
               </div>
             </div>
