@@ -101,7 +101,7 @@ export function Services() {
       <section className="-mt-4 border-b border-slate-200 bg-white pb-6">
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-slate-700">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={16} className="text-brand-700" /> 10 Verified Home Services</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={16} className="text-brand-700" /> {services?.length ? `${services.length} Verified Home Services` : '16 Verified Home Services'}</span>
             <span className="inline-flex items-center gap-1.5"><MapPin size={16} className="text-brand-700" /> 130+ Areas Covered</span>
             <span className="inline-flex items-center gap-1.5"><ShieldCheck size={16} className="text-brand-700" /> Admin Assigned Workers</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={16} className="text-brand-700" /> No Customer Signup Required</span>
