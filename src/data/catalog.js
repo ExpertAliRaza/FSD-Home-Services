@@ -185,14 +185,14 @@ export const services = [
   {
     name: 'CCTV Technician',
     slug: 'cctv-technician-faisalabad',
-    image: '/images/services/cctv-technician.jpg',
+    image: '/images/services/cctv-technician.jfif',
     description: 'CCTV camera installation, repair, maintenance, and security system setup in Faisalabad.',
     keywords: 'CCTV technician in Faisalabad, camera installation Faisalabad, security system repair'
   },
   {
     name: 'Solar Technician',
     slug: 'solar-technician-faisalabad',
-    image: '/images/services/solar-technician.jpg',
+    image: '/images/services/solar-technician.jfif',
     description: 'Solar panel installation, inverter repair, battery maintenance, and solar system servicing in Faisalabad.',
     keywords: 'solar technician in Faisalabad, solar panel installation, inverter repair Faisalabad'
   },

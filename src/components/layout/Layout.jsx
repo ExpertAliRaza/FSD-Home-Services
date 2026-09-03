@@ -147,7 +147,7 @@ function SiteFooter({ services }) {
             <span className="text-xl font-bold text-white">FSD Home Services</span>
           </Link>
           <p className="mt-4 max-w-md text-sm leading-6 text-slate-400">
-            Connecting homeowners with verified plumbers, electricians, AC technicians, carpenters, painters, masons and other trusted local workers across Faisalabad.
+            Connecting homeowners and businesses with trusted local professionals across Faisalabad for plumbing, electrical, AC, carpentry, painting, masonry, construction, renovation, CCTV, solar, welding, ceiling, waterproofing, cleaning and other local service needs.
           </p>
           <ul className="mt-5 grid gap-2 text-sm font-semibold text-slate-200">
             {trustItems.map((item) => (

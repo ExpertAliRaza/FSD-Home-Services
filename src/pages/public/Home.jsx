@@ -23,6 +23,7 @@ import { areas } from '../../data/catalog';
 import { useCatalog } from '../../contexts/CatalogContext';
 import { WHATSAPP_URL } from '../../components/support/WhatsAppButton';
 import { GoogleReviewsSection } from '../../components/sections/GoogleReviewsSection';
+import { StatsBar } from '../../components/sections/StatsBar';
 
 const POPULAR_AREAS_COUNT = 22;
 
@@ -76,25 +77,7 @@ export function Home() {
       {/* ══════════════════════════════════════════════════════
           Trust Stats Strip — compact proof bar
          ══════════════════════════════════════════════════════ */}
-      <section className="border-b border-slate-200 bg-white" aria-label="FSD Home Services statistics">
-        <div className="mx-auto max-w-7xl px-4 py-7 lg:py-9">
-          <div className="grid grid-cols-2 gap-y-8 lg:grid-cols-4 lg:divide-x lg:divide-slate-200">
-            <StatItem icon={<UserCheck size={20} />} value="32+" label="Verified Workers" />
-            <StatItem icon={<BadgeCheck size={20} />} value="132" label="Completed Jobs" />
-            <StatItem icon={<ClipboardList size={20} />} value="148+" label="Service Requested" />
-            <StatItem
-              icon={<Star size={20} className="fill-current" />}
-              value={
-                <span className="inline-flex items-baseline gap-1.5">
-                  4.8
-                  <Star aria-hidden="true" className="h-[0.85em] w-[0.85em] fill-current text-brand-500" />
-                </span>
-              }
-              label="Google Rating"
-            />
-          </div>
-        </div>
-      </section>
+      <StatsBar />
 
       {/* ── Popular Services — UNCHANGED ── */}
       <section className="mx-auto max-w-7xl px-4 py-10">
@@ -341,19 +324,6 @@ function Trust({ icon, title, text }) {
         <h3 className="font-bold">{title}</h3>
         <p className="text-sm text-slate-600">{text}</p>
       </div>
-    </div>
-  );
-}
-
-/* ── Trust Stat — polished strip item ── */
-function StatItem({ icon, value, label }) {
-  return (
-    <div className="group flex flex-col items-center justify-center px-4 py-1 text-center">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-700 transition-colors duration-200 group-hover:bg-brand-100">
-        {icon}
-      </div>
-      <div className="text-3xl font-bold tracking-tight text-slate-950 lg:text-4xl">{value}</div>
-      <p className="mt-1.5 text-sm font-medium text-slate-500">{label}</p>
     </div>
   );
 }
