@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Gift, Share2, Users, ArrowRight } from 'lucide-react';
+import { Gift, Share2, Users } from 'lucide-react';
 
 export function ReferAndEarn() {
   return (
@@ -59,7 +59,7 @@ export function ReferAndEarn() {
         <div className="mx-auto max-w-2xl">
           <h2 className="mb-6 text-3xl font-bold text-brand-900">Start Earning Today</h2>
           <p className="mb-8 text-lg text-slate-700">
-            There's no limit to how many friends you can refer. The more you share, the more you earn.
+            There&apos;s no limit to how many friends you can refer. The more you share, the more you earn.
           </p>
           <div className="inline-flex items-center gap-3 rounded-xl border border-brand-200 bg-white p-6 shadow-sm">
             <div className="text-left">

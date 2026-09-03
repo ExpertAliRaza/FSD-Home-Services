@@ -22,6 +22,13 @@ const routes = [
   '/services/labor-faisalabad',
   '/services/cctv-technician-faisalabad',
   '/services/solar-technician-faisalabad',
+  '/services/contractor-faisalabad',
+  '/services/construction-renovation-faisalabad',
+  '/services/marble-tile-fitting-faisalabad',
+  '/services/welding-metal-fabrication-faisalabad',
+  '/services/ceiling-faisalabad',
+  '/services/waterproofing-faisalabad',
+  '/services/cleaning-services-faisalabad',
   '/workers',
   '/become-a-worker',
   '/request-service',
@@ -123,13 +130,13 @@ async function runPrerender() {
       const url = `http://localhost:${port}${route}`;
       process.stdout.write(`⏳ Pre-rendering ${route.padEnd(40)} `);
 
-      await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 }).catch(() => {
-        // Fallback if networkidle0 times out
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 }).catch(() => {
+        // Fallback if domcontentloaded times out
       });
 
       // Wait for React to mount and RouteMeta to apply
-      await page.waitForSelector('#root > *', { timeout: 5000 }).catch(() => {});
-      await new Promise((r) => setTimeout(r, 600));
+      await page.waitForSelector('#root > *', { timeout: 3000 }).catch(() => {});
+      await new Promise((r) => setTimeout(r, 250));
 
       const html = await page.content();
 

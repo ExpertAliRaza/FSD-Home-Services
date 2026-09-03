@@ -1,4 +1,4 @@
-import { areas, services } from '../data/catalog';
+import { areas } from '../data/catalog';
 
 export const reportRanges = [
   ['today', 'Today'],
@@ -7,6 +7,15 @@ export const reportRanges = [
   ['month', 'This Month'],
   ['year', 'This Year'],
   ['custom', 'Custom']
+];
+
+export const comparisonPeriods = [
+  ['period', 'This Month vs Previous Month'],
+  ['month', 'This Month vs Previous Period'],
+  ['week', 'This Week vs Previous Week'],
+  ['30d', 'Last 30 Days vs Previous 30 Days'],
+  ['90d', 'Last 3 Months vs Previous 3 Months'],
+  ['custom', 'Custom Range vs Previous Equivalent Period']
 ];
 
 const monthFormatter = new Intl.DateTimeFormat('en-PK', { month: 'short', year: 'numeric' });
@@ -46,6 +55,8 @@ export function buildBusinessIntelligence(data, filters) {
     range,
     filters,
     scoped,
+    previousRange,
+    previous,
     summary: {
       totalWorkers: source.workers.length,
       approvedWorkers: source.workers.filter((worker) => worker.status === 'approved').length,
@@ -75,6 +86,80 @@ export function buildBusinessIntelligence(data, filters) {
       monthly
     }
   };
+}
+
+function resolveCompareRange(range, compareType) {
+  if (!compareType) return previousDateRange(range);
+  const duration = range.end.getTime() - range.start.getTime();
+  if (compareType === 'month') {
+    const prevMonthStart = new Date(range.start.getFullYear(), range.start.getMonth() - 1, 1);
+    const prevMonthEnd = new Date(range.start.getFullYear(), range.start.getMonth(), 0, 23, 59, 59, 999);
+    return { start: prevMonthStart, end: prevMonthEnd };
+  }
+  if (compareType === 'week') {
+    const prevStart = new Date(range.start.getTime() - 7 * 86400000);
+    const prevEnd = new Date(range.end.getTime() - 7 * 86400000);
+    return { start: prevStart, end: prevEnd };
+  }
+  if (compareType === '30d') {
+    const start = new Date(range.start.getTime() - duration);
+    const end = new Date(range.end.getTime() - duration);
+    return { start, end };
+  }
+  if (compareType === '90d') {
+    const start = new Date(range.start.getTime() - duration * 3);
+    const end = new Date(range.end.getTime() - duration * 3);
+    return { start, end };
+  }
+  return {
+    start: new Date(range.start.getTime() - duration - 1),
+    end: new Date(range.start.getTime() - 1)
+  };
+}
+
+function previousDateRange(range) {
+  const duration = range.end.getTime() - range.start.getTime();
+  return {
+    start: new Date(range.start.getTime() - duration - 1),
+    end: new Date(range.start.getTime() - 1)
+  };
+}
+
+function scopeData(data, range) {
+  return {
+    workers: byDate(data.workers, range),
+    requests: byDate(data.requests, range),
+    commissions: byDate(data.commissions, range),
+    complaints: byDate(data.complaints, range),
+    notifications: byDate(data.notifications, range)
+  };
+}
+
+function byDate(rows, range) {
+  return (rows || []).filter((row) => withinRange(row.created_at, range));
+}
+
+function withinRange(value, range) {
+  if (!value) return false;
+  const time = new Date(value).getTime();
+  if (Number.isNaN(time)) return false;
+  return time >= range.start.getTime() && time <= range.end.getTime();
+}
+
+function resolveDateRange(filters) {
+  const now = new Date();
+  const end = endOfDay(now);
+  if (filters.range === 'custom' && filters.startDate && filters.endDate) {
+    return {
+      start: startOfDay(new Date(filters.startDate)),
+      end: endOfDay(new Date(filters.endDate))
+    };
+  }
+  if (filters.range === 'today') return { start: startOfDay(now), end };
+  if (filters.range === '7d') return { start: startOfDay(addDays(now, -6)), end };
+  if (filters.range === '30d') return { start: startOfDay(addDays(now, -29)), end };
+  if (filters.range === 'year') return { start: new Date(now.getFullYear(), 0, 1), end };
+  return { start: new Date(now.getFullYear(), now.getMonth(), 1), end };
 }
 
 export function investorReportRows(bi) {
@@ -152,51 +237,6 @@ export function normalizeAdminData(data = {}) {
     commissions: data.commissions || [],
     complaints: data.complaints || [],
     serviceCategories: data.serviceCategories || []
-  };
-}
-
-function scopeData(data, range) {
-  return {
-    workers: byDate(data.workers, range),
-    requests: byDate(data.requests, range),
-    commissions: byDate(data.commissions, range),
-    complaints: byDate(data.complaints, range),
-    notifications: byDate(data.notifications, range)
-  };
-}
-
-function byDate(rows, range) {
-  return (rows || []).filter((row) => withinRange(row.created_at, range));
-}
-
-function withinRange(value, range) {
-  if (!value) return false;
-  const time = new Date(value).getTime();
-  if (Number.isNaN(time)) return false;
-  return time >= range.start.getTime() && time <= range.end.getTime();
-}
-
-function resolveDateRange(filters) {
-  const now = new Date();
-  const end = endOfDay(now);
-  if (filters.range === 'custom' && filters.startDate && filters.endDate) {
-    return {
-      start: startOfDay(new Date(filters.startDate)),
-      end: endOfDay(new Date(filters.endDate))
-    };
-  }
-  if (filters.range === 'today') return { start: startOfDay(now), end };
-  if (filters.range === '7d') return { start: startOfDay(addDays(now, -6)), end };
-  if (filters.range === '30d') return { start: startOfDay(addDays(now, -29)), end };
-  if (filters.range === 'year') return { start: new Date(now.getFullYear(), 0, 1), end };
-  return { start: new Date(now.getFullYear(), now.getMonth(), 1), end };
-}
-
-function previousDateRange(range) {
-  const duration = range.end.getTime() - range.start.getTime();
-  return {
-    start: new Date(range.start.getTime() - duration - 1),
-    end: new Date(range.start.getTime() - 1)
   };
 }
 

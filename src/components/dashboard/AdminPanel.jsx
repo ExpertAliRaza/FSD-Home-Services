@@ -2,8 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell, CheckCheck, Clipboard, Edit3, LogOut, Trash2, X,
-  ChevronDown, ChevronUp, Search, UserCheck, Clock, AlertTriangle, ShieldCheck,
-  Users, FileText, MessageSquareWarning, Filter as FilterIcon, RotateCcw, Megaphone, BarChart3, Settings
+  Search,
+  AlertTriangle,
+  Users, FileText, MessageSquareWarning, RotateCcw, Megaphone, BarChart3
 } from 'lucide-react';
 import { BusinessIntelligenceCenter } from './BusinessIntelligenceCenter';
 import { BannerGenerator } from './BannerGenerator';
@@ -116,14 +117,6 @@ export function AdminPanel() {
 
   const updateRequestsInState = useCallback((updater) => {
     setData((current) => ({ ...current, requests: updater(current.requests) }));
-  }, []);
-
-  const updateCommissionsInState = useCallback((updater) => {
-    setData((current) => ({ ...current, commissions: updater(current.commissions) }));
-  }, []);
-
-  const updateComplaintsInState = useCallback((updater) => {
-    setData((current) => ({ ...current, complaints: updater(current.complaints) }));
   }, []);
 
   const updateNotificationsInState = useCallback((updater) => {

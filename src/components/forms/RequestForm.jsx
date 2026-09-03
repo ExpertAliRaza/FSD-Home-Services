@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, X, ChevronDown } from 'lucide-react';
+import { Search, ChevronDown } from 'lucide-react';
 import { areas } from '../../data/catalog';
 import { useCatalog } from '../../contexts/CatalogContext';
 import { submitServiceRequest, verifyTurnstileToken } from '../../lib/api';
@@ -41,8 +41,6 @@ export function RequestForm({ preferredWorkerId, initialService }) {
   const [areaSearch, setAreaSearch] = useState('');
   const [selectedArea, setSelectedArea] = useState('');
   const [customArea, setCustomArea] = useState('');
-
-  const serviceOptions = useMemo(() => services.map((service) => service.name), []);
 
   const filteredAreas = useMemo(() => {
     if (!areaSearch.trim()) return areas;

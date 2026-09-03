@@ -11,6 +11,18 @@ import {
   carpenterFaqs,
   carpenterPricing,
   carpenterServices,
+  ceilingAdvantages,
+  ceilingFaqs,
+  ceilingPricing,
+  ceilingServices,
+  constructionRenovationAdvantages,
+  constructionRenovationFaqs,
+  constructionRenovationPricing,
+  constructionRenovationServices,
+  contractorAdvantages,
+  contractorFaqs,
+  contractorPricing,
+  contractorServices,
   cctvAdvantages,
   cctvFaqs,
   cctvPricing,
@@ -23,6 +35,10 @@ import {
   laborFaqs,
   laborPricing,
   laborServices,
+  marbleTileFittingAdvantages,
+  marbleTileFittingFaqs,
+  marbleTileFittingPricing,
+  marbleTileFittingServices,
   masonAdvantages,
   masonFaqs,
   masonPricing,
@@ -34,21 +50,40 @@ import {
   plumbingServices,
   plumberAdvantages,
   pricingItems,
+  relatedServices,
+  relatedServicesAc,
+  relatedServicesCarpenter,
+  relatedServicesCeiling,
+  relatedServicesConstructionRenovation,
+  relatedServicesContractor,
+  relatedServicesCctv,
+  relatedServicesElectrician,
+  relatedServicesLabor,
+  relatedServicesMarbleTileFitting,
+  relatedServicesMason,
+  relatedServicesPainter,
+  relatedServicesSolar,
+  relatedServicesWeldingMetalFabrication,
   solarAdvantages,
   solarFaqs,
   solarPricing,
   solarServices,
   trustStats,
   serviceFaqs,
-  relatedServices,
-  relatedServicesAc,
-  relatedServicesCarpenter,
-  relatedServicesCctv,
-  relatedServicesElectrician,
-  relatedServicesLabor,
-  relatedServicesMason,
-  relatedServicesPainter,
-  relatedServicesSolar
+  weldingMetalFabricationAdvantages,
+  weldingMetalFabricationFaqs,
+  weldingMetalFabricationPricing,
+  weldingMetalFabricationServices,
+  waterproofingAdvantages,
+  waterproofingFaqs,
+  waterproofingPricing,
+  waterproofingServices,
+  relatedServicesWaterproofing,
+  cleaningAdvantages,
+  cleaningFaqs,
+  cleaningPricing,
+  cleaningServices,
+  relatedServicesCleaningServices
 } from '../../data/serviceContent';
 import {
   AdvantagesSection,
@@ -62,6 +97,7 @@ import {
   TrustBar,
   TrustSection
 } from '../../components/sections/ServiceSections';
+import { ServiceReviewsSection } from '../../components/sections/ServiceReviewsSection';
 import { NotFound } from './NotFound';
 
 const serviceSteps = [
@@ -78,8 +114,6 @@ const trustBarItems = [
   { icon: 'MapPin', title: 'Local Faisalabad Coverage' }
 ];
 
-const serviceMap = services;
-
 export function ServiceDetail() {
   const { slug } = useParams();
   const service = services.find((item) => item.slug === slug);
@@ -94,7 +128,14 @@ export function ServiceDetail() {
   const isPainter = service.slug === 'painter-faisalabad';
   const isMason = service.slug === 'mason-faisalabad';
   const isLabor = service.slug === 'labor-faisalabad';
-  const hasPremiumLayout = isPlumber || isElectrician || isCctv || isSolar || isAc || isCarpenter || isPainter || isMason || isLabor;
+  const isContractor = service.slug === 'contractor-faisalabad';
+  const isConstructionRenovation = service.slug === 'construction-renovation-faisalabad';
+  const isMarbleTileFitting = service.slug === 'marble-tile-fitting-faisalabad';
+  const isWeldingMetalFabrication = service.slug === 'welding-metal-fabrication-faisalabad';
+  const isCeiling = service.slug === 'ceiling-faisalabad';
+  const isWaterproofing = service.slug === 'waterproofing-faisalabad';
+  const isCleaningServices = service.slug === 'cleaning-services-faisalabad';
+  const hasPremiumLayout = isPlumber || isElectrician || isCctv || isSolar || isAc || isCarpenter || isPainter || isMason || isLabor || isContractor || isConstructionRenovation || isMarbleTileFitting || isWeldingMetalFabrication || isCeiling || isWaterproofing || isCleaningServices;
 
   if (!hasPremiumLayout) {
     return (
@@ -229,6 +270,90 @@ export function ServiceDetail() {
         requestTitle: 'Request a Mason in Faisalabad',
         requestDesc: 'Fill in the form below and our admin team will connect you with a verified local mason for brick work, plastering, concrete repair, boundary walls and renovation services.'
       }
+    : isContractor
+    ? {
+        serviceName: 'Contractor',
+        services: contractorServices,
+        advantages: contractorAdvantages,
+        pricing: contractorPricing,
+        faqs: contractorFaqs,
+        related: relatedServicesContractor,
+        serviceIntro: 'Our verified contractors handle residential and commercial construction and renovation projects across Faisalabad. Whether you are building from the ground up, renovating an existing space, or managing a complete project, we can connect you with a suitable contractor.',
+        requestTitle: 'Request a Contractor in Faisalabad',
+        requestDesc: 'Fill in the form below and our admin team will connect you with a verified local contractor based on your project requirements.'
+      }
+    : isConstructionRenovation
+    ? {
+        serviceName: 'Construction & Renovation',
+        services: constructionRenovationServices,
+        advantages: constructionRenovationAdvantages,
+        pricing: constructionRenovationPricing,
+        faqs: constructionRenovationFaqs,
+        related: relatedServicesConstructionRenovation,
+        serviceIntro: 'Whether you are building a new space, renovating an existing property, or making specific improvements, FSD Home Services can connect you with verified local professionals across Faisalabad.',
+        requestTitle: 'Request Construction & Renovation Services in Faisalabad',
+        requestDesc: 'Fill in the form below and our admin team will connect you with a suitable verified professional based on your project requirements and location.'
+      }
+    : isMarbleTileFitting
+    ? {
+        serviceName: 'Marble & Tile Fitting',
+        services: marbleTileFittingServices,
+        advantages: marbleTileFittingAdvantages,
+        pricing: marbleTileFittingPricing,
+        faqs: marbleTileFittingFaqs,
+        related: relatedServicesMarbleTileFitting,
+        serviceIntro: 'From complete floor installation to small tile repairs, our verified professionals can handle a wide range of marble and tile fitting work across Faisalabad.',
+        requestTitle: 'Request Marble & Tile Fitting in Faisalabad',
+        requestDesc: 'Fill in the form below and our admin team will connect you with a verified local professional based on your fitting or installation requirements.'
+      }
+    : isWeldingMetalFabrication
+    ? {
+        serviceName: 'Welding & Metal Fabrication',
+        services: weldingMetalFabricationServices,
+        advantages: weldingMetalFabricationAdvantages,
+        pricing: weldingMetalFabricationPricing,
+        faqs: weldingMetalFabricationFaqs,
+        related: relatedServicesWeldingMetalFabrication,
+        serviceIntro: 'From everyday welding repairs to custom gates, grills, railings, frames, and larger fabrication projects, our verified professionals can handle a wide range of metalwork across Faisalabad.',
+        requestTitle: 'Request Welding & Metal Fabrication in Faisalabad',
+        requestDesc: 'Fill in the form below and our admin team will connect you with a verified local welder or fabricator based on your project requirements.'
+      }
+    : isCeiling
+    ? {
+        serviceName: 'Ceiling / False Ceiling',
+        services: ceilingServices,
+        advantages: ceilingAdvantages,
+        pricing: ceilingPricing,
+        faqs: ceilingFaqs,
+        related: relatedServicesCeiling,
+        serviceIntro: 'From simple false ceiling installations to decorative designs and ceiling repairs, our verified professionals can handle ceiling projects for homes, offices, shops, and commercial spaces across Faisalabad.',
+        requestTitle: 'Request Ceiling Services in Faisalabad',
+        requestDesc: 'Fill in the form below and our admin team will connect you with a verified local ceiling professional based on your project requirements.'
+      }
+    : isWaterproofing
+    ? {
+        serviceName: 'Waterproofing',
+        services: waterproofingServices,
+        advantages: waterproofingAdvantages,
+        pricing: waterproofingPricing,
+        faqs: waterproofingFaqs,
+        related: relatedServicesWaterproofing,
+        serviceIntro: 'Protect your property from roof leaks, wall seepage, dampness, and water damage with professional waterproofing services across Faisalabad.',
+        requestTitle: 'Request Waterproofing Services in Faisalabad',
+        requestDesc: 'Fill in the form below and our admin team will connect you with a verified local professional based on your waterproofing problem and location.'
+      }
+    : isCleaningServices
+    ? {
+        serviceName: 'Cleaning Services',
+        services: cleaningServices,
+        advantages: cleaningAdvantages,
+        pricing: cleaningPricing,
+        faqs: cleaningFaqs,
+        related: relatedServicesCleaningServices,
+        serviceIntro: 'Reliable home, office, shop, deep cleaning, and property cleaning services across Faisalabad. Whether you need regular cleaning or a one-time deep clean, we can help.',
+        requestTitle: 'Request Cleaning Services in Faisalabad',
+        requestDesc: 'Fill in the form below and our admin team will connect you with a verified local cleaning professional based on your cleaning requirements and location.'
+      }
     : {
         serviceName: 'Labor',
         services: laborServices,
@@ -290,13 +415,16 @@ export function ServiceDetail() {
       {/* Section 8: Why Homeowners Trust Our Platform */}
       <TrustSection items={trustStats} />
 
-      {/* Section 9: FAQ */}
+      {/* Section 9: Customer Reviews */}
+      <ServiceReviewsSection serviceName={content.serviceName} />
+
+      {/* Section 10: FAQ */}
       <FaqSection items={content.faqs} />
 
-      {/* Section 10: Related Services */}
+      {/* Section 11: Related Services */}
       <RelatedServices items={content.related} serviceMap={services} />
 
-      {/* Section 11: Final CTA */}
+      {/* Section 12: Final CTA */}
       <FinalCta serviceName={content.serviceName} />
     </>
   );

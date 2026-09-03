@@ -3,14 +3,18 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
   ResponsiveContainer, Legend 
 } from 'recharts';
-import { Calendar, ChevronDown, TrendingUp, TrendingDown, Activity, Loader2 } from 'lucide-react';
+import { Calendar, TrendingUp, TrendingDown, Activity, Loader2 } from 'lucide-react';
 import { getAnalyticsTimeseries, getAnalyticsBreakdown } from '../../lib/api';
 
 const PRESETS = [
   { label: 'Today', days: 1, granularity: 'day' },
   { label: 'Yesterday', days: 1, offset: 1, granularity: 'day' },
+  { label: 'This Week', days: 7, weekAlign: true, granularity: 'day' },
   { label: 'Last 7 days', days: 7, granularity: 'day' },
+  { label: 'Last 14 days', days: 14, granularity: 'day' },
   { label: 'Last 28 days', days: 28, granularity: 'day' },
+  { label: 'This Month', monthAlign: true, granularity: 'day' },
+  { label: 'Last 30 days', days: 30, granularity: 'day' },
   { label: 'Last 3 months', days: 90, granularity: 'week' },
   { label: 'Last 6 months', days: 180, granularity: 'week' },
   { label: 'Last 12 months', days: 365, granularity: 'month' },
@@ -26,51 +30,91 @@ const METRICS = [
 ];
 
 export function AnalyticsDashboard() {
-  const [activePreset, setActivePreset] = useState(PRESETS[3]); // Last 28 days default
+  const [activePreset, setActivePreset] = useState(PRESETS[5]); // Last 28 days default
   const [customRange, setCustomRange] = useState({ start: '', end: '' });
   const [isCustom, setIsCustom] = useState(false);
+  const [compareEnabled, setCompareEnabled] = useState(true);
   const [activeMetrics, setActiveMetrics] = useState(['total_requests', 'completed_requests', 'new_customers', 'new_workers', 'revenue']);
   
   const [loading, setLoading] = useState(false);
   const [currentData, setCurrentData] = useState([]);
   const [previousData, setPreviousData] = useState([]);
-  const [breakdown, setBreakdown] = useState({ top_services: [], top_areas: [] });
+  const [, setBreakdown] = useState({ top_services: [], top_areas: [] });
   const [error, setError] = useState(null);
 
   // Compute actual dates
   const dateRange = useMemo(() => {
-    const end = new Date();
+    let end = new Date();
     const start = new Date();
-    
+
     if (isCustom && customRange.start && customRange.end) {
       start.setTime(new Date(customRange.start).getTime());
       end.setTime(new Date(customRange.end).getTime());
-      
+
       const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
       const granularity = diffDays <= 60 ? 'day' : diffDays <= 180 ? 'week' : 'month';
-      
+
       const prevEnd = new Date(start.getTime() - 24 * 60 * 60 * 1000);
       const prevStart = new Date(prevEnd.getTime() - (end - start));
-      
-      return { 
-        start: start.toISOString().split('T')[0], 
+
+      return {
+        start: start.toISOString().split('T')[0],
         end: end.toISOString().split('T')[0],
         prevStart: prevStart.toISOString().split('T')[0],
         prevEnd: prevEnd.toISOString().split('T')[0],
-        granularity 
+        granularity
       };
     } else {
       const preset = activePreset;
-      if (preset.offset) {
+
+      if (preset.weekAlign) {
+        const dayOfWeek = end.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        start.setDate(start.getDate() + mondayOffset);
+      } else if (preset.monthAlign) {
+        start.setDate(1);
+        end = new Date(end.getFullYear(), end.getMonth() + 1, 0, 23, 59, 59, 999);
+      } else if (preset.offset) {
         end.setDate(end.getDate() - preset.offset);
         start.setDate(start.getDate() - preset.offset);
       }
-      start.setDate(start.getDate() - preset.days + 1); // inclusive
+
+      if (!preset.weekAlign && !preset.monthAlign) {
+        start.setDate(start.getDate() - (preset.days || 0) + 1);
+      }
 
       const prevEnd = new Date(start);
       prevEnd.setDate(prevEnd.getDate() - 1);
       const prevStart = new Date(prevEnd);
-      prevStart.setDate(prevStart.getDate() - preset.days + 1);
+
+      if (preset.monthAlign) {
+        prevStart.setMonth(prevStart.getMonth() - 1);
+        prevStart.setDate(1);
+        const prevEnd2 = new Date(end);
+        prevEnd2.setMonth(prevEnd2.getMonth() - 1);
+        prevEnd2.setDate(0);
+        prevEnd2.setHours(23, 59, 59, 999);
+        return {
+          start: start.toISOString().split('T')[0],
+          end: end.toISOString().split('T')[0],
+          prevStart: prevStart.toISOString().split('T')[0],
+          prevEnd: prevEnd2.toISOString().split('T')[0],
+          granularity: preset.granularity
+        };
+      }
+
+      if (preset.weekAlign) {
+        prevStart.setDate(prevStart.getDate() - 6);
+        return {
+          start: start.toISOString().split('T')[0],
+          end: end.toISOString().split('T')[0],
+          prevStart: prevStart.toISOString().split('T')[0],
+          prevEnd: new Date(start.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          granularity: preset.granularity
+        };
+      }
+
+      prevStart.setDate(prevStart.getDate() - (preset.days || 0) + 1);
 
       return {
         start: start.toISOString().split('T')[0],
@@ -89,7 +133,9 @@ export function AnalyticsDashboard() {
       try {
         const [currSeries, prevSeries, breakdownData] = await Promise.all([
           getAnalyticsTimeseries(dateRange.start, dateRange.end, dateRange.granularity),
-          getAnalyticsTimeseries(dateRange.prevStart, dateRange.prevEnd, dateRange.granularity),
+          compareEnabled
+            ? getAnalyticsTimeseries(dateRange.prevStart, dateRange.prevEnd, dateRange.granularity)
+            : Promise.resolve([]),
           getAnalyticsBreakdown(dateRange.start, dateRange.end)
         ]);
 
@@ -112,10 +158,10 @@ export function AnalyticsDashboard() {
       }
     }
     
-    if (dateRange.start && dateRange.end) {
+       if (dateRange.start && dateRange.end) {
       fetchData();
     }
-  }, [dateRange]);
+  }, [dateRange, compareEnabled]);
 
   const toggleMetric = (id) => {
     setActiveMetrics(prev => 
@@ -201,13 +247,26 @@ export function AnalyticsDashboard() {
             </select>
           </div>
           
-          {isCustom && (
+           {isCustom && (
             <div className="flex items-center gap-2">
               <input type="date" className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" value={customRange.start} onChange={e => setCustomRange(p => ({...p, start: e.target.value}))} />
               <span className="text-slate-500">to</span>
               <input type="date" className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm" value={customRange.end} onChange={e => setCustomRange(p => ({...p, end: e.target.value}))} />
             </div>
           )}
+
+          <button
+            type="button"
+            onClick={() => setCompareEnabled((v) => !v)}
+            className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-medium transition-colors ${
+              compareEnabled
+                ? 'border-brand-300 bg-brand-50 text-brand-800'
+                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            <TrendingUp size={14} className={compareEnabled ? 'text-brand-700' : 'text-slate-400'} />
+            Compare
+          </button>
         </div>
       </div>
 
@@ -260,7 +319,14 @@ export function AnalyticsDashboard() {
 
       {/* Chart */}
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h3 className="mb-6 font-bold text-slate-800">Performance Over Time</h3>
+        <h3 className="mb-6 font-bold text-slate-800">
+          Performance Over Time
+          {compareEnabled && previousData.length > 0 && (
+            <span className="ml-3 text-sm font-medium text-slate-500">
+              (comparing to {dateRange.prevStart} - {dateRange.prevEnd})
+            </span>
+          )}
+        </h3>
         
         {loading ? (
           <div className="flex h-[400px] items-center justify-center">
@@ -269,35 +335,44 @@ export function AnalyticsDashboard() {
         ) : currentData.length > 0 ? (
           <div className="h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={currentData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <LineChart data={
+                compareEnabled && previousData.length > 0
+                  ? currentData.map((curr, i) => {
+                      const prev = previousData[i] || {};
+                      const merged = { ...curr };
+                      METRICS.forEach(m => { merged[`${m.id}_prev`] = prev[m.id] ?? null; });
+                      return merged;
+                    })
+                  : currentData
+              } margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis 
-                  dataKey="period" 
-                  tickFormatter={formatXAxis} 
+                <XAxis
+                  dataKey="period"
+                  tickFormatter={formatXAxis}
                   tick={{ fill: '#64748b', fontSize: 12 }}
                   tickMargin={10}
                   axisLine={false}
                   tickLine={false}
                 />
-                <YAxis 
+                <YAxis
                   yAxisId="left"
                   tick={{ fill: '#64748b', fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
                 />
-                <YAxis 
+                <YAxis
                   yAxisId="right"
                   orientation="right"
                   tick={{ fill: '#64748b', fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
                 />
-                <RechartsTooltip 
+                <RechartsTooltip
                   labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' })}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                
+
                 {METRICS.map(metric => {
                   if (!activeMetrics.includes(metric.id)) return null;
                   const isRightAxis = metric.id === 'revenue' || metric.id === 'completion_rate';
@@ -312,6 +387,24 @@ export function AnalyticsDashboard() {
                       strokeWidth={3}
                       dot={false}
                       activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                  );
+                })}
+                {compareEnabled && previousData.length > 0 && METRICS.map(metric => {
+                  if (!activeMetrics.includes(metric.id)) return null;
+                  const isRightAxis = metric.id === 'revenue' || metric.id === 'completion_rate';
+                  return (
+                    <Line
+                      key={`${metric.id}_prev`}
+                      yAxisId={isRightAxis ? "right" : "left"}
+                      type="monotone"
+                      name={`${metric.label} (Previous)`}
+                      strokeDasharray="5 5"
+                      opacity={0.5}
+                      dataKey={`${metric.id}_prev`}
+                      stroke={metric.color}
+                      strokeWidth={2}
+                      dot={false}
                     />
                   );
                 })}

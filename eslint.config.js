@@ -8,7 +8,7 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['**/*.{js,jsx,cjs,mjs}'],
     plugins: { react, 'react-hooks': reactHooks },
     languageOptions: {
       ecmaVersion: 'latest',
@@ -26,7 +26,18 @@ export default [
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         Image: 'readonly',
-        URL: 'readonly'
+        URL: 'readonly',
+        alert: 'readonly',
+        confirm: 'readonly',
+        Path2D: 'readonly',
+        Event: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        globalThis: 'readonly'
       },
       parserOptions: { ecmaFeatures: { jsx: true } }
     },

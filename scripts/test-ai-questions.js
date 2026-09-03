@@ -67,7 +67,7 @@ async function main() {
     global: { headers: { Authorization: `Bearer ${adminToken}` } }
   });
 
-  const { data: profileData, error: profileError } = await client
+    const { error: profileError } = await client
     .from('profiles')
     .select('role')
     .limit(1);

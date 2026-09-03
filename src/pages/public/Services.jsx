@@ -21,7 +21,8 @@ const categories = [
   'Construction',
   'Security',
   'Solar',
-  'Moving'
+  'Moving',
+  'Cleaning'
 ];
 
 const serviceCategoryMap = {
@@ -32,6 +33,13 @@ const serviceCategoryMap = {
   'Painter': 'Construction',
   'Mason': 'Construction',
   'Labor': 'Moving',
+  'Contractor / Thekedaar': 'Construction',
+  'Construction & Renovation': 'Construction',
+  'Marble & Tile Fitting': 'Construction',
+  'Welding & Metal Fabrication': 'Construction',
+  'Ceiling / False Ceiling': 'Construction',
+  'Waterproofing': 'Construction',
+  'Cleaning Services': 'Cleaning',
   'CCTV Technician': 'Security',
   'Solar Technician': 'Solar'
 };
@@ -93,7 +101,7 @@ export function Services() {
       <section className="-mt-4 border-b border-slate-200 bg-white pb-6">
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-slate-700">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={16} className="text-brand-700" /> 9 Verified Home Services</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={16} className="text-brand-700" /> 10 Verified Home Services</span>
             <span className="inline-flex items-center gap-1.5"><MapPin size={16} className="text-brand-700" /> 130+ Areas Covered</span>
             <span className="inline-flex items-center gap-1.5"><ShieldCheck size={16} className="text-brand-700" /> Admin Assigned Workers</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={16} className="text-brand-700" /> No Customer Signup Required</span>
@@ -288,9 +296,9 @@ export function Services() {
       {/* ── Final CTA ── */}
       <section className="bg-brand-700 py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 text-center">
-          <h2 className="text-2xl font-bold text-white lg:text-3xl">Can't Decide Which Service You Need?</h2>
+          <h2 className="text-2xl font-bold text-white lg:text-3xl">Can&apos;t Decide Which Service You Need?</h2>
           <p className="mx-auto mt-3 max-w-lg text-brand-100">
-            Tell us about your problem and we'll help you find the right verified worker anywhere in Faisalabad.
+            Tell us about your problem and we&apos;ll help you find the right verified worker anywhere in Faisalabad.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link

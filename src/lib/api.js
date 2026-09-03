@@ -204,7 +204,9 @@ export async function signUpWorker(payload, turnstileVerificationId) {
     try {
       const body = await accountError.context?.json();
       message = body?.error || message;
-    } catch {}
+    } catch {
+      message = accountError.message;
+    }
     throw new Error(message || 'Could not create worker account.');
   }
 
@@ -930,7 +932,7 @@ export async function uploadServiceImage(file) {
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
   
-  const { error: uploadError, data } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from('service-images')
     .upload(fileName, file, { upsert: false });
 

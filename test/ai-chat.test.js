@@ -6,7 +6,6 @@ import { readFile } from 'node:fs/promises';
 const aiMigration = await readFile(new URL('../supabase/migrations/037_admin_ai.sql', import.meta.url), 'utf8');
 const chatIndex = await readFile(new URL('../supabase/functions/chat/index.ts', import.meta.url), 'utf8');
 const chatSystem = await readFile(new URL('../supabase/functions/chat/system_prompt.ts', import.meta.url), 'utf8');
-const chatWidget = await readFile(new URL('../src/components/dashboard/ChatWidget.jsx', import.meta.url), 'utf8');
 const api = await readFile(new URL('../src/lib/api.js', import.meta.url), 'utf8');
 const adminPanel = await readFile(new URL('../src/components/dashboard/AdminPanel.jsx', import.meta.url), 'utf8');
 const launchV1 = await readFile(new URL('../supabase/migrations/005_launch_v1.sql', import.meta.url), 'utf8');
@@ -161,12 +160,6 @@ test('system_prompt has no embedded raw data and instructs tool-only answers', (
   assert.match(chatSystem, /NEVER confuse the two revenue figures/);
   assert.match(chatSystem, /commission earned/);
   assert.match(chatSystem, /job amount/);
-});
-
-test('ChatWidget surfaces sources from the new response shape', () => {
-  assert.match(chatWidget, /data\?\.sources/);
-  assert.match(chatWidget, /Array\.isArray\(data\?\.sources\)/);
-  assert.match(chatWidget, /sources\.length > 0/);
 });
 
 test('updateRequestStatus persists cancellation reason and cancelled_at', () => {

@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getServiceCategories } from '../lib/api';
+import React, { createContext, useContext, useState } from 'react';
 import { areas as fallbackAreas, services as fallbackServices } from '../data/catalog';
 
 const CatalogContext = createContext({

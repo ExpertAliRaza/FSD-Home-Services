@@ -12,7 +12,6 @@ import {
   Search,
   ShieldCheck,
   UserCheck,
-  Zap,
   Filter,
   X
 } from 'lucide-react';

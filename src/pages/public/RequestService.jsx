@@ -4,12 +4,11 @@ import {
   ArrowRight,
   CheckCircle2,
   ChevronDown,
+  ChevronUp,
   ClipboardList,
-  Clock,
   Lock,
   MapPin,
   MessageCircle,
-  Search,
   ShieldCheck,
   UserCheck,
   Zap

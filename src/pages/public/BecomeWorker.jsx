@@ -21,18 +21,6 @@ import { PageHeader } from '../../components/layout/PageHeader';
 import { WhatsAppButton, WHATSAPP_URL } from '../../components/support/WhatsAppButton';
 import { useCatalog } from '../../contexts/CatalogContext';
 
-const iconMap = {
-  Plumber: 'Wrench',
-  Electrician: 'Zap',
-  'AC Technician': 'HardDrive',
-  Carpenter: 'Wrench',
-  Painter: 'ShieldCheck',
-  Mason: 'HardDrive',
-  Laborer: 'ClipboardList',
-  'CCTV Technician': 'Search',
-  'Solar Technician': 'ShieldCheck'
-};
-
 const whoCanApplyIcons = {
   Plumber: Wrench,
   Electrician: Zap,
@@ -129,7 +117,7 @@ export function BecomeWorker() {
     <>
       {/* ── Hero ── */}
       <PageHeader eyebrow="Worker verification" title="Become an approved FSD Home Services worker">
-        Join Faisalabad's growing network of verified plumbers, electricians, AC technicians, painters, carpenters, masons, CCTV technicians, solar technicians and skilled workers. Submit your profile once, get verified by our admin team and receive genuine customer requests from your service areas.
+        Join Faisalabad&apos;s growing network of verified plumbers, electricians, AC technicians, painters, carpenters, masons, CCTV technicians, solar technicians and skilled workers. Submit your profile once, get verified by our admin team and receive genuine customer requests from your service areas.
       </PageHeader>
 
       {/* ── WhatsApp Banner + Registration Form ── */}
@@ -258,7 +246,7 @@ export function BecomeWorker() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="mx-auto max-w-2xl">
             <p className="text-sm font-bold text-brand-700">Requirements</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">What You'll Need</h2>
+            <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">What You&apos;ll Need</h2>
             <ul className="mt-8 grid gap-3">
               {documentsList.map((doc) => (
                 <li key={doc} className="flex items-center gap-3 rounded-lg border border-slate-100 bg-white p-4">

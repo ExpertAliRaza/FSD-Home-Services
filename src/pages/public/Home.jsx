@@ -25,7 +25,6 @@ import { WHATSAPP_URL } from '../../components/support/WhatsAppButton';
 import { GoogleReviewsSection } from '../../components/sections/GoogleReviewsSection';
 
 const POPULAR_AREAS_COUNT = 22;
-const DEFAULT_AREAS_COVERED = areas.length;
 
 export function Home() {
   const { services } = useCatalog();
@@ -129,7 +128,7 @@ export function Home() {
           <p className="text-sm font-bold text-brand-700">Why choose us</p>
           <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">Why Homeowners Choose FSD Home Services</h2>
           <p className="mt-3 max-w-2xl text-slate-600">
-            Finding a reliable worker shouldn't be stressful. We help homeowners across Faisalabad connect with verified local professionals through a simple, trusted process.
+            Finding a reliable worker shouldn&apos;t be stressful. We help homeowners across Faisalabad connect with verified local professionals through a simple, trusted process.
           </p>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <ChooseCard

@@ -195,5 +195,54 @@ export const services = [
     image: '/images/services/solar-technician.jpg',
     description: 'Solar panel installation, inverter repair, battery maintenance, and solar system servicing in Faisalabad.',
     keywords: 'solar technician in Faisalabad, solar panel installation, inverter repair Faisalabad'
+  },
+  {
+    name: 'Contractor / Thekedaar',
+    slug: 'contractor-faisalabad',
+    image: '/images/services/contractor(thekedaar).jfif',
+    description: 'Residential and commercial construction, renovation, remodeling, and complete project contracting services in Faisalabad.',
+    keywords: 'contractor in Faisalabad, thekedaar Faisalabad, construction contractor, house construction Faisalabad'
+  },
+  {
+    name: 'Construction & Renovation',
+    slug: 'construction-renovation-faisalabad',
+    image: '/images/services/construction & renovation.jfif',
+    description: 'Residential and commercial construction, renovation, remodeling, extensions, and property improvement services in Faisalabad.',
+    keywords: 'construction and renovation in Faisalabad, house renovation Faisalabad, construction services Faisalabad, renovation contractor Faisalabad'
+  },
+  {
+    name: 'Marble & Tile Fitting',
+    slug: 'marble-tile-fitting-faisalabad',
+    image: '/images/services/marble & tiles.jfif',
+    description: 'Professional marble and tile fitting, installation, repair, replacement, grouting, and finishing services in Faisalabad.',
+    keywords: 'marble and tile fitting in Faisalabad, tile fixing Faisalabad, marble installation Faisalabad, tile fitting services Faisalabad'
+  },
+  {
+    name: 'Welding & Metal Fabrication',
+    slug: 'welding-metal-fabrication-faisalabad',
+    image: '/images/services/welding & metal-fabrication.jfif',
+    description: 'Professional welding, ironwork, metal fabrication, gates, grills, railings, frames, repairs, and custom metalwork services in Faisalabad.',
+    keywords: 'welding services Faisalabad, metal fabrication Faisalabad, welder Faisalabad, iron work Faisalabad'
+  },
+  {
+    name: 'Ceiling / False Ceiling',
+    slug: 'ceiling-faisalabad',
+    image: '/images/services/ceiling-work.jfif',
+    description: 'False ceiling installation, ceiling design, repair, replacement, and finishing services for homes, offices, shops, and commercial spaces in Faisalabad.',
+    keywords: 'false ceiling Faisalabad, ceiling services Faisalabad, gypsum ceiling Faisalabad, PVC ceiling Faisalabad'
+  },
+  {
+    name: 'Waterproofing',
+    slug: 'waterproofing-faisalabad',
+    image: '/images/services/waterproofing.jfif',
+    description: 'Roof, terrace, wall, bathroom, basement, water tank, leakage repair, seepage treatment, and related waterproofing services in Faisalabad.',
+    keywords: 'waterproofing Faisalabad, roof waterproofing Faisalabad, roof leakage repair Faisalabad, wall seepage treatment Faisalabad, terrace waterproofing Faisalabad, bathroom waterproofing Faisalabad, dampness treatment Faisalabad'
+  },
+  {
+    name: 'Cleaning Services',
+    slug: 'cleaning-services-faisalabad',
+    image: '/images/services/cleaning-services.jfif',
+    description: 'Home, deep, bathroom, kitchen, sofa, carpet, office, shop, move-in, move-out, regular, and post-construction cleaning services in Faisalabad.',
+    keywords: 'cleaning services Faisalabad, home cleaning Faisalabad, deep cleaning Faisalabad, office cleaning Faisalabad, bathroom cleaning Faisalabad, kitchen cleaning Faisalabad, sofa cleaning Faisalabad, carpet cleaning Faisalabad, post construction cleaning Faisalabad'
   }
 ];

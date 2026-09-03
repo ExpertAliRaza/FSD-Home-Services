@@ -6,28 +6,19 @@ export function TurnstileWidget({ onToken, resetKey }) {
   const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
   const skipTurnstile = import.meta.env.VITE_SKIP_TURNSTILE === 'true';
 
-  // Dev bypass: set the bypass token once, then render nothing
-  useEffect(() => {
-    if (skipTurnstile) {
-      onToken('00000000-0000-0000-0000-000000000001');
-    }
-  }, [skipTurnstile, onToken]);
-
-  if (skipTurnstile) {
-    return (
-      <p className="rounded-lg bg-brand-50 p-3 text-sm font-semibold text-brand-800">
-        Development mode: Turnstile skipped
-      </p>
-    );
-  }
-
   const reactId = useId();
   const containerId = `turnstile-${reactId.replace(/:/g, '')}`;
   const widgetId = useRef(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!siteKey) return undefined;
+    if (skipTurnstile) {
+      onToken('00000000-0000-0000-0000-000000000001');
+    }
+  }, [skipTurnstile, onToken]);
+
+  useEffect(() => {
+    if (skipTurnstile || !siteKey) return undefined;
 
     let cancelled = false;
     const renderWidget = () => {
@@ -66,7 +57,7 @@ export function TurnstileWidget({ onToken, resetKey }) {
         widgetId.current = null;
       }
     };
-  }, [containerId, onToken, siteKey]);
+  }, [containerId, onToken, siteKey, skipTurnstile]);
 
   useEffect(() => {
     if (widgetId.current !== null && window.turnstile) {
@@ -74,6 +65,14 @@ export function TurnstileWidget({ onToken, resetKey }) {
       onToken('');
     }
   }, [onToken, resetKey]);
+
+  if (skipTurnstile) {
+    return (
+      <p className="rounded-lg bg-brand-50 p-3 text-sm font-semibold text-brand-800">
+        Development mode: Turnstile skipped
+      </p>
+    );
+  }
 
   if (!siteKey) {
     return (

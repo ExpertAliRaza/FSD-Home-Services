@@ -871,7 +871,786 @@ export const laborFaqs = [
   }
 ];
 
+export const contractorServices = [
+  {
+    icon: 'HardDrive',
+    title: 'House Construction',
+    description: 'Complete construction support for new homes, including planning, labor coordination, masonry, finishing, electrical, plumbing, and other project requirements.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'House Renovation',
+    description: 'Renovation work for existing homes, including room upgrades, structural improvements, remodeling, and general repair work.'
+  },
+  {
+    icon: 'Monitor',
+    title: 'Office & Commercial Construction',
+    description: 'Construction and renovation support for offices, shops, commercial spaces, and other buildings.'
+  },
+  {
+    icon: 'Bath',
+    title: 'Kitchen & Bathroom Renovation',
+    description: 'Complete renovation work for kitchens and bathrooms, including construction, tiling, plumbing, finishing, and related work.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Room Construction',
+    description: 'Build new rooms or extend existing residential spaces according to your project requirements.'
+  },
+  {
+    icon: 'ShieldCheck',
+    title: 'Boundary Walls',
+    description: 'Construction and repair of boundary walls for homes, properties, shops, and commercial sites.'
+  },
+  {
+    icon: 'ClipboardList',
+    title: 'Complete Project Contracting',
+    description: 'Coordinate multiple trades and workers through one contractor for larger construction or renovation projects.'
+  },
+  {
+    icon: 'Search',
+    title: 'Labor & Material Contract',
+    description: 'Contractor arrangements for projects where labor, materials, or both need to be managed.'
+  }
+];
+
+export const contractorAdvantages = [
+  { icon: 'ShieldCheck', title: 'Verified Contractors', description: 'Our team reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'EyeOff', title: 'No Random Public Phone Numbers', description: 'Customer details stay private and requests are handled through the platform.' },
+  { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Connect with contractors serving residential and commercial areas across Faisalabad.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our admin team reviews the project requirements and assigns a suitable verified professional.' },
+  { icon: 'Search', title: 'Simple Request Process', description: 'Submit your project details once and let our team handle the connection.' },
+  { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned contractor contacts you directly once the project request is assigned.' },
+  { icon: 'Lock', title: 'Customer Privacy Protected', description: 'Your phone number and address are never publicly listed on the platform.' },
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed by the admin team before a contractor is assigned.' }
+];
+
+export const contractorPricing = [
+  { title: 'Site Visit / Assessment', price: 'Project dependent', note: 'Assessment or site visit may be required before preparing a quotation.' },
+  { title: 'Renovation Projects', price: 'Quote after inspection', note: 'Pricing depends on the scope of renovation and selected materials.' },
+  { title: 'Construction Projects', price: 'Project quotation', note: 'Complete construction pricing depends on area, design, materials, labor, and finishing requirements.' },
+  { title: 'Commercial Projects', price: 'Quote after assessment', note: 'Commercial construction and renovation projects are priced according to project scope and site requirements.' }
+];
+
+export const contractorFaqs = [
+  {
+    q: 'How much does a contractor charge in Faisalabad?',
+    a: 'Contractor pricing depends on the project type, size, materials, labor requirements, site conditions, and finishing work. A quotation may be provided after understanding the project and inspecting the site where required.'
+  },
+  {
+    q: 'Can I hire a contractor for complete house construction?',
+    a: 'Yes. You can submit a request for complete house construction and provide your project details so our team can connect you with a suitable contractor.'
+  },
+  {
+    q: 'Can I request a contractor for house renovation?',
+    a: 'Yes. Contractors can handle different renovation and remodeling projects depending on the required work.'
+  },
+  {
+    q: 'Do contractors provide labor and materials?',
+    a: 'This depends on the contractor and project arrangement. You can specify whether you need labor only, materials and labor, or complete project management.'
+  },
+  {
+    q: 'Can I request a contractor for an office or shop?',
+    a: 'Yes. Submit the project details and select the relevant commercial project type.'
+  },
+  {
+    q: 'Do I need to visit the office to request a contractor?',
+    a: 'No. You can submit the request directly through the website.'
+  },
+  {
+    q: 'How quickly will a contractor contact me?',
+    a: 'Our admin team reviews the request and assigns a suitable verified worker. Response time can vary depending on project requirements and worker availability.'
+  },
+  {
+    q: 'How are contractors verified?',
+    a: 'Workers are reviewed by the FSD Home Services admin team before approval on the platform.'
+  },
+  {
+    q: 'Will I get a fixed price immediately?',
+    a: 'Construction and renovation projects usually require understanding the scope and, in many cases, a site visit before an accurate quotation can be prepared.'
+  }
+];
+
+export const constructionRenovationServices = [
+  {
+    icon: 'HardDrive',
+    title: 'New House Construction',
+    description: 'Construction support for new homes, including masonry, structural work, electrical, plumbing, finishing, and coordination of required trades.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Room Construction & Extension',
+    description: 'Build a new room, add an extension, or expand an existing residential space according to your requirements.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'House Renovation',
+    description: 'Renovate and improve existing homes with support for structural changes, room upgrades, flooring, walls, ceilings, and other required work.'
+  },
+  {
+    icon: 'Monitor',
+    title: 'Office Renovation',
+    description: 'Upgrade offices and workspaces with renovation, partitioning, finishing, electrical, flooring, ceiling, painting, and related work.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'Shop & Commercial Renovation',
+    description: 'Renovation and improvement work for shops, commercial units, and other business spaces.'
+  },
+  {
+    icon: 'Bath',
+    title: 'Bathroom Renovation',
+    description: 'Complete bathroom renovation work including demolition, plumbing, waterproofing, tiles, sanitary fittings, walls, flooring, and finishing.'
+  },
+  {
+    icon: 'UtensilsCrossed',
+    title: 'Kitchen Renovation',
+    description: 'Kitchen remodeling including flooring, tiles, plumbing, electrical work, cabinets coordination, walls, and finishing.'
+  },
+  {
+    icon: 'ShieldCheck',
+    title: 'Boundary Wall Construction',
+    description: 'Construction, extension, repair, and finishing of property boundary walls.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Remodeling & General Improvements',
+    description: 'Property improvements, layout changes, repairs, upgrades, and other construction-related work.'
+  }
+];
+
+export const constructionRenovationAdvantages = [
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'We review project requirements and connect customers with a suitable verified professional.' },
+  { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get construction and renovation support across major residential and commercial areas of Faisalabad.' },
+  { icon: 'Search', title: 'Simple Request Process', description: 'Submit your project details once and our team handles the connection.' },
+  { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker or contractor is assigned.' },
+  { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned professional contacts you after the request is assigned.' },
+  { icon: 'Zap', title: 'Fast Response', description: 'Our team works to connect customers with suitable professionals as quickly as possible.' }
+];
+
+export const constructionRenovationPricing = [
+  { title: 'Small Repair / Improvement', price: 'Project dependent', note: 'Pricing depends on the specific repair or improvement work required.' },
+  { title: 'Room Construction / Extension', price: 'Quote after assessment', note: 'Pricing depends on area, structure, materials, labor, and finishing requirements.' },
+  { title: 'Home Renovation', price: 'Quote after inspection', note: 'Renovation pricing varies according to the scope of work and selected materials.' },
+  { title: 'Commercial / Office Projects', price: 'Quote after assessment', note: 'Commercial projects are priced according to project size, scope, materials, labor, and site requirements.' }
+];
+
+export const constructionRenovationFaqs = [
+  {
+    q: 'How much does construction cost in Faisalabad?',
+    a: 'Construction costs depend on the project\'s size, design, materials, labor, site conditions, and finishing requirements. Final pricing depends on the actual project scope.'
+  },
+  {
+    q: 'How much does house renovation cost?',
+    a: 'Renovation pricing varies based on the areas being renovated, the type of work required, materials, labor, and finishing.'
+  },
+  {
+    q: 'Can I request construction for a new house?',
+    a: 'Yes. You can submit a project request and provide your construction requirements so our team can connect you with a suitable professional.'
+  },
+  {
+    q: 'Can I request a room extension?',
+    a: 'Yes. Room construction and extension projects can be requested through the platform.'
+  },
+  {
+    q: 'Can I renovate my bathroom or kitchen?',
+    a: 'Yes. Bathroom and kitchen renovation are supported services.'
+  },
+  {
+    q: 'Do I need to provide project photos?',
+    a: 'Photos are optional, but they can help the assigned professional understand the project\'s condition and requirements before visiting.'
+  },
+  {
+    q: 'Can I request office or shop renovation?',
+    a: 'Yes. The service supports residential as well as office and commercial renovation projects.'
+  },
+  {
+    q: 'Do I get a fixed quotation immediately?',
+    a: 'Not necessarily. Construction and renovation projects often require project assessment or a site visit before an accurate quotation can be prepared.'
+  },
+  {
+    q: 'Can I request labor and material management?',
+    a: 'Depending on the assigned contractor or professional, labor-only, labor-plus-material, or broader project arrangements may be available. Customers should mention their preferred arrangement in the project details.'
+  },
+  {
+    q: 'How are workers verified?',
+    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+  }
+];
+
+export const relatedServicesConstructionRenovation = ['Contractor / Thekedaar', 'Mason', 'Carpenter', 'Painter', 'Plumber'];
+
+export const marbleTileFittingServices = [
+  {
+    icon: 'HardDrive',
+    title: 'Floor Tile Installation',
+    description: 'Professional installation of tiles for bedrooms, lounges, corridors, kitchens, bathrooms, shops, and other floors.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'Wall Tile Installation',
+    description: 'Install and replace wall tiles for homes, bathrooms, kitchens, shops, and commercial spaces.'
+  },
+  {
+    icon: 'Bath',
+    title: 'Bathroom Tile Fitting',
+    description: 'Complete bathroom tile installation for floors and walls with proper alignment, cutting, grouting, and finishing.'
+  },
+  {
+    icon: 'UtensilsCrossed',
+    title: 'Kitchen Tile Fitting',
+    description: 'Kitchen floor and wall tile installation with accurate fitting around counters, sinks, and other fixtures.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'Marble Flooring',
+    description: 'Professional marble installation for residential and commercial floors with proper leveling, cutting, jointing, and finishing.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Marble Stairs',
+    description: 'Marble installation for staircases, including accurate cutting, fitting, leveling, and finishing.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Tile Replacement & Repair',
+    description: 'Replace cracked, broken, loose, or damaged tiles without unnecessarily disturbing surrounding areas.'
+  },
+  {
+    icon: 'Search',
+    title: 'Grouting & Finishing',
+    description: 'Professional grouting, joint finishing, alignment correction, and final finishing for tile and marble installations.'
+  },
+  {
+    icon: 'Paintbrush',
+    title: 'Tile & Marble Polishing',
+    description: 'Polishing and finishing services to improve the appearance of existing marble and suitable stone surfaces.'
+  }
+];
+
+export const marbleTileFittingAdvantages = [
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ClipboardList', title: 'Proper Fitting & Finishing', description: 'We connect customers with suitable professionals for accurate fitting, alignment, cutting, and finishing work.' },
+  { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get marble and tile fitting support across major residential and commercial areas of Faisalabad.' },
+  { icon: 'Search', title: 'Suitable Worker Assignment', description: 'Our admin team reviews the request and connects it with a suitable verified professional.' },
+  { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
+  { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned worker contacts you directly once the request is assigned.' },
+  { icon: 'Zap', title: 'Fast Response', description: 'Our team works to connect customers with suitable professionals as quickly as possible.' }
+];
+
+export const marbleTileFittingPricing = [
+  { title: 'Tile Fitting', price: 'Depends on project', note: 'Pricing varies according to tile type, area, surface condition, and fitting requirements.' },
+  { title: 'Marble Flooring', price: 'Quote after assessment', note: 'Pricing depends on marble type, area, cutting, fitting, leveling, and finishing.' },
+  { title: 'Bathroom / Kitchen Fitting', price: 'Project dependent', note: 'Pricing depends on the room size, material, existing surface, cutting, fixtures, and finishing.' },
+  { title: 'Repair / Replacement', price: 'Depends on work', note: 'Small repair or replacement costs depend on the number of damaged tiles and the complexity of the work.' }
+];
+
+export const marbleTileFittingFaqs = [
+  {
+    q: 'How much does tile fitting cost in Faisalabad?',
+    a: 'The cost depends on the tile type, total area, surface condition, cutting requirements, layout, and finishing work. Final pricing depends on the actual project.'
+  },
+  {
+    q: 'How much does marble fitting cost?',
+    a: 'Marble fitting costs depend on the marble type, area, thickness, cutting requirements, leveling, jointing, and finishing.'
+  },
+  {
+    q: 'Can you install bathroom tiles?',
+    a: 'Yes. Bathroom floor and wall tile fitting can be requested through the platform.'
+  },
+  {
+    q: 'Can you install kitchen tiles?',
+    a: 'Yes. You can request kitchen wall or floor tile installation.'
+  },
+  {
+    q: 'Do I need to buy the tiles or marble myself?',
+    a: 'You can mention in your request whether you already have the material or need guidance about sourcing it.'
+  },
+  {
+    q: 'Can damaged tiles be replaced?',
+    a: 'Yes. Cracked, broken, or loose tiles can often be replaced depending on the condition of the surrounding area.'
+  },
+  {
+    q: 'Can you fit marble on stairs?',
+    a: 'Yes. Marble stair installation and related fitting work can be requested.'
+  },
+  {
+    q: 'Do you provide grouting and finishing?',
+    a: 'Yes. Grouting and finishing work can be included in suitable tile and marble projects.'
+  },
+  {
+    q: 'Should I upload photos?',
+    a: 'Photos are optional but can help the professional understand the existing surface and work requirements before visiting.'
+  },
+  {
+    q: 'How are workers verified?',
+    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+  }
+];
+
+export const relatedServicesMarbleTileFitting = ['Construction & Renovation', 'Contractor / Thekedaar', 'Mason', 'Plumber', 'Carpenter', 'Painter'];
+
+export const weldingMetalFabricationServices = [
+  {
+    icon: 'Wrench',
+    title: 'Gate Fabrication',
+    description: 'Custom iron and steel gates for homes, shops, offices, and commercial properties, including new fabrication and repair work.'
+  },
+  {
+    icon: 'ShieldCheck',
+    title: 'Iron Grills',
+    description: 'Fabrication and installation of window, door, balcony, and security grills according to required measurements and designs.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Railings & Stair Railings',
+    description: 'Metal railings for stairs, balconies, terraces, ramps, and other residential or commercial spaces.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'Metal Frames',
+    description: 'Custom metal frames for doors, windows, structures, equipment, partitions, and other applications.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'Door & Window Frames',
+    description: 'Fabrication, repair, and installation of metal door and window frames.'
+  },
+  {
+    icon: 'ClipboardList',
+    title: 'Sheds & Shades',
+    description: 'Metal fabrication for small sheds, shades, covers, supports, and similar structures.'
+  },
+  {
+    icon: 'Search',
+    title: 'Welding Repairs',
+    description: 'Repair broken, cracked, damaged, or loose metal components and structures where welding is suitable.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Custom Metal Fabrication',
+    description: 'Custom-built metalwork according to customer dimensions, drawings, reference images, or site requirements.'
+  },
+  {
+    icon: 'ClipboardList',
+    title: 'Modification & Installation',
+    description: 'Modify existing metal structures or install newly fabricated gates, grills, frames, railings, and other items.'
+  }
+];
+
+export const weldingMetalFabricationAdvantages = [
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'Wrench', title: 'Custom Work Support', description: 'We connect customers with professionals who can handle both standard and custom metalwork.' },
+  { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get welding and fabrication support across major residential and commercial areas of Faisalabad.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our admin team reviews the project requirements before assigning a suitable professional.' },
+  { icon: 'Search', title: 'Simple Request Process', description: 'Submit your requirements once and our team handles the connection.' },
+  { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
+  { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned worker contacts you directly after the request is assigned.' }
+];
+
+export const weldingMetalFabricationPricing = [
+  { title: 'Welding Repair', price: 'Depends on work', note: 'Pricing depends on the damage, material, size, and repair complexity.' },
+  { title: 'Grills & Railings', price: 'Quote after measurement', note: 'Pricing depends on dimensions, material, design, and quantity.' },
+  { title: 'Gates', price: 'Project dependent', note: 'Gate pricing depends on size, material, design, thickness, finishing, and installation.' },
+  { title: 'Custom Fabrication', price: 'Quote after assessment', note: 'Custom projects are priced according to dimensions, material, design, fabrication, and installation requirements.' }
+];
+
+export const weldingMetalFabricationFaqs = [
+  {
+    q: 'How much does welding cost in Faisalabad?',
+    a: 'Welding costs depend on the type of work, material, size, damage, labor requirements, and project complexity. Final pricing depends on the actual job.'
+  },
+  {
+    q: 'How much does a metal gate cost?',
+    a: 'Gate pricing depends on its dimensions, design, material, thickness, finishing, and installation requirements.'
+  },
+  {
+    q: 'Can you make custom iron grills?',
+    a: 'Yes. Custom grills can be fabricated according to measurements, requirements, designs, or reference images.'
+  },
+  {
+    q: 'Can you make stair railings?',
+    a: 'Yes. Metal stair railings and other safety or decorative railings can be requested.'
+  },
+  {
+    q: 'Do you repair broken gates and grills?',
+    a: 'Yes. Welding and metal repair work can be requested depending on the condition and material.'
+  },
+  {
+    q: 'Can you fabricate a custom metal frame?',
+    a: 'Yes. Custom metal frames can be fabricated according to dimensions and project requirements.'
+  },
+  {
+    q: 'Do you install the fabricated item?',
+    a: 'Installation can be requested where required. The assigned professional can confirm installation requirements after assessing the project.'
+  },
+  {
+    q: 'Can I provide my own material?',
+    a: 'Mention your material requirements in the request. The professional can discuss material suitability and the project arrangement with you.'
+  },
+  {
+    q: 'Should I upload a design or photo?',
+    a: 'Photos, sketches, dimensions, or reference designs are optional but can help the professional understand your requirements before visiting.'
+  },
+  {
+    q: 'How are welders verified?',
+    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+  }
+];
+
+export const relatedServicesWeldingMetalFabrication = ['Contractor / Thekedaar', 'Construction & Renovation', 'Mason', 'Carpenter', 'Electrician', 'Painter'];
+
+export const ceilingServices = [
+  {
+    icon: 'HardDrive',
+    title: 'Gypsum False Ceiling',
+    description: 'Professional gypsum false ceiling installation for bedrooms, living rooms, offices, shops, and other indoor spaces.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'PVC Ceiling',
+    description: 'PVC ceiling installation for suitable residential and commercial spaces with practical and clean finishing.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Decorative Ceiling',
+    description: 'Decorative and customized ceiling designs for homes, offices, shops, and other spaces.'
+  },
+  {
+    icon: 'Search',
+    title: 'Simple / Plain Ceiling',
+    description: 'Clean and simple false ceiling solutions for customers looking for a minimal finished appearance.'
+  },
+  {
+    icon: 'Monitor',
+    title: 'Office & Commercial Ceiling',
+    description: 'Ceiling installation and renovation for offices, shops, halls, and commercial properties.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Ceiling Repair',
+    description: 'Repair damaged, sagging, cracked, or otherwise problematic ceiling sections where appropriate.'
+  },
+  {
+    icon: 'ClipboardList',
+    title: 'Ceiling Replacement',
+    description: 'Remove and replace old or damaged false ceiling sections with a new suitable ceiling solution.'
+  },
+  {
+    icon: 'Search',
+    title: 'Ceiling Design & Installation',
+    description: 'Discuss your preferred design or reference and get professional installation based on site conditions and measurements.'
+  }
+];
+
+export const ceilingAdvantages = [
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'Wrench', title: 'Installation & Repair Support', description: 'We connect customers with professionals who can handle new ceiling installations as well as suitable repair work.' },
+  { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get ceiling services across major residential and commercial areas of Faisalabad.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our admin team reviews your requirements before assigning a suitable professional.' },
+  { icon: 'Search', title: 'Simple Request Process', description: 'Submit your requirements once and our team handles the connection.' },
+  { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
+  { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned worker contacts you directly once the request is assigned.' }
+];
+
+export const ceilingPricing = [
+  { title: 'Gypsum Ceiling', price: 'Quote after measurement', note: 'Pricing depends on total area, design, structure, materials, and finishing requirements.' },
+  { title: 'PVC Ceiling', price: 'Project dependent', note: 'Pricing depends on area, material, design, and installation requirements.' },
+  { title: 'Decorative Ceiling', price: 'Quote after assessment', note: 'Custom designs vary according to complexity, materials, measurements, and finishing.' },
+  { title: 'Ceiling Repair', price: 'Depends on work', note: 'Repair cost depends on the damaged area, material, ceiling condition, and required repair work.' }
+];
+
+export const ceilingFaqs = [
+  {
+    q: 'How much does false ceiling cost in Faisalabad?',
+    a: 'The cost depends on the ceiling type, total area, design, materials, existing ceiling condition, and installation requirements. Final pricing depends on the project.'
+  },
+  {
+    q: 'Which false ceiling is better: gypsum or PVC?',
+    a: 'The appropriate option depends on the room, design preference, budget, moisture conditions, and project requirements. A professional can help assess the suitable option.'
+  },
+  {
+    q: 'Can I get a false ceiling installed in one room?',
+    a: 'Yes. You can request false ceiling installation for a single room or multiple rooms.'
+  },
+  {
+    q: 'Can you install a ceiling in an office or shop?',
+    a: 'Yes. Ceiling services can be requested for offices, shops, halls, and other commercial spaces.'
+  },
+  {
+    q: 'Can you repair a damaged false ceiling?',
+    a: 'Depending on the condition and material, suitable ceiling repairs can be requested.'
+  },
+  {
+    q: 'Can you make a custom ceiling design?',
+    a: 'Yes. Customers can provide a reference image, sketch, or describe the preferred design.'
+  },
+  {
+    q: 'Do I need to provide the ceiling material?',
+    a: 'Mention your material preference or requirements in the request. The assigned professional can discuss available options and the project arrangement.'
+  },
+  {
+    q: 'Do you measure the area before giving an estimate?',
+    a: 'Where required, the professional can visit the location and confirm measurements and site conditions before preparing an estimate.'
+  },
+  {
+    q: 'Should I upload photos?',
+    a: 'Photos are optional but can help the professional understand the existing ceiling and room before visiting.'
+  },
+  {
+    q: 'How are ceiling workers verified?',
+    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+  }
+];
+
+export const relatedServicesCeiling = ['Construction & Renovation', 'Contractor / Thekedaar', 'Painter', 'Electrician', 'Marble & Tile Fitting', 'Mason'];
+
+export const waterproofingServices = [
+  {
+    icon: 'HardDrive',
+    title: 'Roof Waterproofing',
+    description: 'Waterproofing solutions for suitable residential and commercial roofs to help protect against rainwater and water penetration.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Roof Leakage Repair',
+    description: 'Identify and repair suitable leakage points, cracks, joints, and damaged waterproofing areas.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'Terrace Waterproofing',
+    description: 'Waterproofing for terraces and exposed areas where water accumulation or penetration is a concern.'
+  },
+  {
+    icon: 'Search',
+    title: 'Wall Waterproofing & Seepage Treatment',
+    description: 'Address suitable wall seepage, dampness, and water penetration problems and prepare affected surfaces for further repair or finishing.'
+  },
+  {
+    icon: 'Bath',
+    title: 'Bathroom Waterproofing',
+    description: 'Waterproofing work for bathroom floors and wet areas before or during renovation and repair projects.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'Basement Waterproofing',
+    description: 'Suitable waterproofing solutions for basements and below-ground areas affected by moisture or water penetration.'
+  },
+  {
+    icon: 'ClipboardList',
+    title: 'Water Tank Waterproofing',
+    description: 'Waterproofing and leakage treatment for suitable overhead or underground water tanks.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Crack Sealing',
+    description: 'Seal suitable cracks and joints that may contribute to water penetration, depending on the condition and cause.'
+  },
+  {
+    icon: 'Search',
+    title: 'Dampness Treatment',
+    description: 'Assess and address suitable dampness-related problems before further wall or surface finishing.'
+  }
+];
+
+export const waterproofingAdvantages = [
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ClipboardList', title: 'Problem Assessment', description: 'We connect customers with suitable professionals who can assess the location and identify the required waterproofing work.' },
+  { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get waterproofing support across major residential and commercial areas of Faisalabad.' },
+  { icon: 'Search', title: 'Suitable Worker Assignment', description: 'Our admin team reviews the problem details before assigning a suitable professional.' },
+  { icon: 'EyeOff', title: 'Simple Request Process', description: 'Submit your requirements once and let our team handle the connection.' },
+  { icon: 'Lock', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
+  { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned worker contacts you directly once the request is assigned.' }
+];
+
+export const waterproofingPricing = [
+  { title: 'Roof Waterproofing', price: 'Quote after inspection', note: 'Pricing depends on roof area, existing surface condition, preparation, waterproofing system, and finishing requirements.' },
+  { title: 'Leakage Repair', price: 'Depends on issue', note: 'Pricing depends on the source and extent of the leakage and the repair required.' },
+  { title: 'Wall Seepage Treatment', price: 'Quote after assessment', note: 'Pricing depends on the affected area, moisture condition, source of water, and required treatment.' },
+  { title: 'Bathroom / Wet Area Waterproofing', price: 'Project dependent', note: 'Pricing depends on area, existing surface, preparation, waterproofing requirements, and finishing work.' }
+];
+
+export const waterproofingFaqs = [
+  {
+    q: 'How much does waterproofing cost in Faisalabad?',
+    a: 'Waterproofing costs depend on the affected area, problem severity, surface condition, waterproofing method, materials, preparation, access, and required repair work. Final pricing depends on the actual site condition and project requirements.'
+  },
+  {
+    q: 'How much does roof waterproofing cost?',
+    a: 'Roof waterproofing pricing depends on the roof area, condition, existing cracks or leakage, preparation requirements, waterproofing system, and finishing work.'
+  },
+  {
+    q: 'Can you repair a leaking roof?',
+    a: 'Yes. Suitable roof leakage repair can be requested. The professional may need to inspect the roof to identify the likely source and extent of the problem.'
+  },
+  {
+    q: 'Can you fix wall seepage?',
+    a: 'Yes. Wall seepage treatment can be requested, but the appropriate solution depends on the source of moisture or water penetration.'
+  },
+  {
+    q: 'Can you waterproof a bathroom?',
+    a: 'Yes. Bathroom and other wet-area waterproofing can be requested, especially during renovation or repair work.'
+  },
+  {
+    q: 'Can you waterproof a terrace?',
+    a: 'Yes. Terrace waterproofing can be requested for suitable exposed areas.'
+  },
+  {
+    q: 'Can you waterproof a water tank?',
+    a: 'Yes. Water tank waterproofing and suitable leakage treatment can be requested.'
+  },
+  {
+    q: 'Is waterproofing possible without inspection?',
+    a: 'Some minor work may not require extensive inspection, but many leakage and seepage problems require site assessment to identify the actual cause and affected area.'
+  },
+  {
+    q: 'Should I upload photos?',
+    a: 'Photos are optional but highly useful for showing roof cracks, dampness, leakage marks, damaged surfaces, and other visible conditions before the professional visits.'
+  },
+  {
+    q: 'Will waterproofing permanently solve my leakage problem?',
+    a: 'The result depends on identifying and addressing the actual source and condition of the problem. The appropriate treatment should be determined after assessment where necessary.'
+  },
+  {
+    q: 'How are waterproofing workers verified?',
+    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+  }
+];
+
+export const relatedServicesWaterproofing = ['Construction & Renovation', 'Contractor / Thekedaar', 'Plumber', 'Mason', 'Ceiling / False Ceiling'];
+
+export const cleaningServices = [
+  {
+    icon: 'HardDrive',
+    title: 'Home Cleaning',
+    description: 'General cleaning support for homes, including rooms, floors, surfaces, kitchens, bathrooms, and other common areas.'
+  },
+  {
+    icon: 'Search',
+    title: 'Deep Cleaning',
+    description: 'Detailed cleaning for homes and properties that need more thorough attention than regular cleaning.'
+  },
+  {
+    icon: 'Bath',
+    title: 'Bathroom Cleaning',
+    description: 'Cleaning of bathroom floors, walls, fixtures, wash areas, and other suitable surfaces.'
+  },
+  {
+    icon: 'UtensilsCrossed',
+    title: 'Kitchen Cleaning',
+    description: 'Cleaning of kitchen surfaces, floors, cabinets/exteriors, sinks, and other suitable areas.'
+  },
+  {
+    icon: 'Wrench',
+    title: 'Sofa Cleaning',
+    description: 'Cleaning support for sofas and upholstered furniture where suitable.'
+  },
+  {
+    icon: 'ClipboardList',
+    title: 'Carpet Cleaning',
+    description: 'Cleaning and maintenance support for carpets and rugs depending on material and condition.'
+  },
+  {
+    icon: 'Monitor',
+    title: 'Office & Shop Cleaning',
+    description: 'Cleaning services for offices, shops, workplaces, and commercial spaces.'
+  },
+  {
+    icon: 'HardDrive',
+    title: 'Move-In / Move-Out Cleaning',
+    description: 'Detailed cleaning for properties before moving in or after moving out.'
+  },
+  {
+    icon: 'ShieldCheck',
+    title: 'Post-Construction Cleaning',
+    description: 'Cleanup of suitable construction or renovation dust, debris, residue, and general site mess after construction work.'
+  },
+  {
+    icon: 'Clock',
+    title: 'Regular Cleaning',
+    description: 'Recurring cleaning arrangements for customers who require cleaning on a regular schedule.'
+  }
+];
+
+export const cleaningAdvantages = [
+  { icon: 'ShieldCheck', title: 'Verified Cleaning Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'HardDrive', title: 'Home & Commercial Support', description: 'We connect customers with professionals for residential and commercial cleaning requirements.' },
+  { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get cleaning services across major residential and commercial areas of Faisalabad.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our admin team reviews your requirements before assigning a suitable professional.' },
+  { icon: 'Search', title: 'Simple Request Process', description: 'Submit your cleaning requirements once and let our team handle the connection.' },
+  { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
+  { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned worker contacts you directly once the request is assigned.' }
+];
+
+export const cleaningPricing = [
+  { title: 'General Home Cleaning', price: 'Project dependent', note: 'Pricing depends on property size, rooms, condition, and cleaning requirements.' },
+  { title: 'Deep Cleaning', price: 'Quote after assessment', note: 'Deep cleaning costs depend on the size and condition of the property and the areas requiring detailed cleaning.' },
+  { title: 'Sofa / Carpet Cleaning', price: 'Depends on item', note: 'Pricing depends on size, material, condition, number of items, and cleaning requirements.' },
+  { title: 'Office / Commercial Cleaning', price: 'Quote after assessment', note: 'Pricing depends on property size, frequency, cleaning scope, and commercial requirements.' }
+];
+
+export const cleaningFaqs = [
+  {
+    q: 'How much does cleaning cost in Faisalabad?',
+    a: 'Cleaning costs depend on the property size, cleaning type, number of rooms, condition of the space, areas being cleaned, and level of cleaning required. Final pricing depends on the actual request.'
+  },
+  {
+    q: 'What is included in deep cleaning?',
+    a: 'Deep cleaning can cover more detailed cleaning of selected rooms and surfaces. The exact scope depends on the property and requested areas.'
+  },
+  {
+    q: 'Can I request only bathroom cleaning?',
+    a: 'Yes. You can request cleaning for specific areas such as bathrooms, kitchens, bedrooms, or other parts of a property.'
+  },
+  {
+    q: 'Do you clean kitchens?',
+    a: 'Yes. Kitchen cleaning can include suitable surfaces, floors, sinks, and other requested areas.'
+  },
+  {
+    q: 'Do you clean sofas and carpets?',
+    a: 'Yes. Sofa and carpet cleaning can be requested where the material and condition are suitable for the required cleaning method.'
+  },
+  {
+    q: 'Can you clean an office or shop?',
+    a: 'Yes. Office, shop, and other suitable commercial cleaning requests can be submitted.'
+  },
+  {
+    q: 'Do you provide move-in or move-out cleaning?',
+    a: 'Yes. You can request detailed cleaning before moving into or after leaving a property.'
+  },
+  {
+    q: 'Do you provide post-construction cleaning?',
+    a: 'Yes. Suitable post-construction cleanup can be requested after construction or renovation work.'
+  },
+  {
+    q: 'Can I request regular cleaning?',
+    a: 'Yes. You can mention that you require recurring or regular cleaning in your request details.'
+  },
+  {
+    q: 'Should I upload photos?',
+    a: 'Photos are optional but can help the professional understand the property\'s condition and the scope of cleaning required.'
+  },
+  {
+    q: 'Can every stain or dirt mark be removed?',
+    a: 'Not necessarily. Results depend on the material, age and type of stain, surface condition, and cleaning method.'
+  },
+  {
+    q: 'How are cleaning workers verified?',
+    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+  }
+];
+
+export const relatedServicesCleaningServices = ['Contractor / Thekedaar', 'Construction & Renovation', 'Painter', 'Labor', 'Plumber'];
+
 export const relatedServices = ['Electrician', 'Mason', 'Carpenter'];
+export const relatedServicesContractor = ['Mason', 'Carpenter', 'Labor'];
 export const relatedServicesElectrician = ['Plumber', 'AC Technician', 'Solar Technician'];
 export const relatedServicesCctv = ['Electrician', 'Solar Technician', 'Labor'];
 export const relatedServicesSolar = ['Electrician', 'CCTV Technician', 'Labor'];
