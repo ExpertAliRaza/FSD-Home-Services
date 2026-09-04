@@ -134,17 +134,48 @@ async function launchBrowser() {
   }
 }
 
-function validatePrerenderedHtml(filePath, route) {
-  const html = fs.readFileSync(filePath, 'utf8');
-  const bodyText = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ').replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+function stripTags(html) {
+  return html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
-  if (route === '/' && !bodyText.includes('FSD Home Services')) {
-    throw new Error(`Homepage pre-render validation failed: expected content not found in ${filePath}`);
+function isShellHtml(html) {
+  const text = stripTags(html);
+  return text.length < 300 || !text.includes('FSD Home Services');
+}
+
+async function capturePage(page, url, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {});
+
+      await page.waitForSelector('#root > *', { timeout: 5000 }).catch(() => {});
+      await new Promise((r) => setTimeout(r, 500));
+
+      const html = await page.content();
+
+      if (!isShellHtml(html)) {
+        return html;
+      }
+
+      console.warn(`⚠️ Attempt ${attempt}: captured SPA shell for ${url}, retrying...`);
+      await new Promise((r) => setTimeout(r, 1000 * attempt));
+    } catch (error) {
+      console.warn(`⚠️ Attempt ${attempt} failed for ${url}:`, error.message);
+      await new Promise((r) => setTimeout(r, 1000 * attempt));
+    }
   }
 
-  if (bodyText.length < 500) {
-    console.warn(`⚠️ Pre-rendered HTML for ${route} is very short (${bodyText.length} chars). It may be incomplete.`);
-  }
+  throw new Error(`Failed to capture rendered content for ${url} after ${maxRetries} attempts`);
 }
 
 async function runPrerender() {
@@ -152,6 +183,11 @@ async function runPrerender() {
   const port = 5174;
   const server = await createStaticServer(port);
   console.log(`📡 Local preview server running on port ${port}`);
+
+  const originalShellPath = path.join(distDir, 'index.html');
+  let originalShell = fs.existsSync(originalShellPath)
+    ? fs.readFileSync(originalShellPath, 'utf8')
+    : null;
 
   let browser;
   try {
@@ -164,14 +200,7 @@ async function runPrerender() {
       const url = `http://localhost:${port}${route}`;
       process.stdout.write(`⏳ Pre-rendering ${route.padEnd(40)} `);
 
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 }).catch(() => {
-        // Fallback if domcontentloaded times out
-      });
-
-      await page.waitForSelector('#root > *', { timeout: 3000 }).catch(() => {});
-      await new Promise((r) => setTimeout(r, 250));
-
-      const html = await page.content();
+      const html = await capturePage(page, url);
 
       let outPath;
       if (route === '/') {
@@ -183,7 +212,6 @@ async function runPrerender() {
       }
 
       fs.writeFileSync(outPath, html, 'utf8');
-      validatePrerenderedHtml(outPath, route);
       const sizeKb = (Buffer.byteLength(html, 'utf8') / 1024).toFixed(1);
       console.log(`✅ [${sizeKb} KB] -> ${path.relative(rootDir, outPath)}`);
     }
@@ -196,18 +224,31 @@ async function runPrerender() {
     if (browser) await browser.close();
     server.close();
 
-    const spaRoutes = ['admin'];
+    const spaRoutes = [
+      'admin',
+      'login',
+      'worker/login',
+      'worker',
+      'worker/leads',
+      'worker/jobs',
+      'worker/earnings',
+      'worker/reviews',
+      'worker/notifications',
+      'worker/profile',
+      'worker/documents',
+      'worker/settings'
+    ];
+
+    const fallbackHtml = originalShell || fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
+
     for (const spaRoute of spaRoutes) {
       const targetDir = path.join(distDir, spaRoute);
       if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir, { recursive: true });
       }
-      const rootHtmlPath = path.join(distDir, 'index.html');
       const targetHtmlPath = path.join(targetDir, 'index.html');
-      if (fs.existsSync(rootHtmlPath)) {
-        fs.copyFileSync(rootHtmlPath, targetHtmlPath);
-        console.log(`📁 Fallback SPA entry created -> ${path.relative(rootDir, targetHtmlPath)}`);
-      }
+      fs.writeFileSync(targetHtmlPath, fallbackHtml, 'utf8');
+      console.log(`📁 Fallback SPA entry created -> ${path.relative(rootDir, targetHtmlPath)}`);
     }
   }
 }
