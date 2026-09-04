@@ -18,7 +18,6 @@ import {
   unassignWorkerFromRequest,
   clearMyNotifications,
   completeServiceRequest,
-  createReviewInvitationForRequest,
   createComplaint,
   deleteServiceRequest,
   deleteWorker,
@@ -62,7 +61,6 @@ export function AdminPanel() {
   const [workerEditForm, setWorkerEditForm] = useState(null);
   const [editingRequestId, setEditingRequestId] = useState(null);
   const [requestEditForm, setRequestEditForm] = useState(null);
-  const [copiedReviewToken, setCopiedReviewToken] = useState('');
   const [completionInputs, setCompletionInputs] = useState({});
   const [complaintForm, setComplaintForm] = useState({
     request_id: '',
@@ -418,40 +416,6 @@ export function AdminPanel() {
     await runAction('notifications-clear', clearMyNotifications, ['notifications']);
   };
 
-  const copyReviewLink = async (token) => {
-    await navigator.clipboard.writeText(`${window.location.origin}/review/${token}`);
-    setCopiedReviewToken(token);
-    window.setTimeout(() => setCopiedReviewToken(''), 2500);
-  };
-
-  const createReviewLink = async (requestId) => {
-    setActionKey(`review-link-${requestId}`);
-    setError('');
-    try {
-      const token = await createReviewInvitationForRequest(requestId);
-      updateRequestsInState((requests) =>
-        requests.map((request) =>
-          request.id === requestId
-            ? {
-                ...request,
-                review_invitations: [{
-                  token,
-                  expires_at: null,
-                  used_at: null
-                }]
-              }
-            : request
-        )
-      );
-      await copyReviewLink(token);
-    } catch (err) {
-      setError(err.message || 'Could not create the review link.');
-    } finally {
-      setActionKey('');
-    }
-  };
-
-  
   const toggleRequestService = (service) => {
     setRequestEditForm(prev => {
       if (!prev) return prev;
@@ -1075,39 +1039,7 @@ export function AdminPanel() {
                                 </span>
                               ))}
                             </div>
-                          )}
-                          {!!request.review_invitations?.length && (
-                            <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 p-3">
-                              <p className="text-sm font-semibold text-blue-950">
-                                {request.review_invitations[0].used_at ? '✓ Review submitted by customer' : 'Customer review link'}
-                              </p>
-                              {!request.review_invitations[0].used_at && (
-                                <button
-                                  type="button"
-                                  onClick={() => copyReviewLink(request.review_invitations[0].token)}
-                                  className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white hover:bg-blue-600 transition-colors"
-                                >
-                                  <Clipboard size={15} />
-                                  {copiedReviewToken === request.review_invitations[0].token ? 'Copied' : 'Copy Review Link'}
-                                </button>
-                              )}
-                            </div>
-                          )}
-                          {request.status === 'completed' && !request.review_invitations?.length && (
-                            <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 p-3">
-                              <p className="text-sm font-semibold text-blue-950">Customer review link</p>
-                              <p className="mt-0.5 text-sm text-blue-800">No review link exists yet.</p>
-                              <button
-                                type="button"
-                                onClick={() => createReviewLink(request.id)}
-                                disabled={actionKey === `review-link-${request.id}`}
-                                className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
-                              >
-                                <Clipboard size={15} />
-                                {actionKey === `review-link-${request.id}` ? 'Creating...' : 'Create Review Link'}
-                              </button>
-                            </div>
-                          )}
+                           )}
                         </div>
                         <div className="grid shrink-0 gap-2 md:min-w-56">
                           {request.status === 'completed' ? (

@@ -287,29 +287,16 @@ export async function signUpWorker(payload, turnstileVerificationId) {
 export async function getAdminData() {
   requireSupabaseConfig();
 
-  const [workers, requests, assignments, notes, notifications, commissions, complaints, coupons, referrals, serviceCategories] = await Promise.all([
-    supabase.from('workers').select('*, service_categories(name), worker_photos(*)').order('created_at', { ascending: false }),
-    supabase.from('service_requests').select('*, areas(name), service_categories(name), request_photos(*), review_invitations(token, expires_at, used_at), lead_assignments(*, workers(display_name))').order('created_at', { ascending: false }),
-    supabase.from('lead_assignments').select('*'),
-    supabase.from('admin_notes').select('*').order('created_at', { ascending: false }),
-    supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(50),
-    supabase.from('commission_transactions').select('*, workers(display_name), service_requests(service_category_id, area_id)').order('created_at', { ascending: false }),
-    supabase.from('complaints').select('*, workers(display_name)').order('created_at', { ascending: false }),
-    supabase.from('coupons').select('*').order('created_at', { ascending: false }),
-    supabase.from('referrals').select('*, service_requests!fk_referrals_request(customer_name, status)').order('created_at', { ascending: false }),
-    supabase.from('service_categories').select('*').order('created_at', { ascending: false })
-  ]);
-
-  if (workers.error) throw workers.error;
-  if (requests.error) throw requests.error;
-  if (assignments.error) throw assignments.error;
-  if (notes.error) throw notes.error;
-  if (notifications.error) throw notifications.error;
-  if (commissions.error) throw commissions.error;
-  if (complaints.error) throw complaints.error;
-  if (coupons.error) throw coupons.error;
-  if (referrals.error) throw referrals.error;
-  if (serviceCategories.error) throw serviceCategories.error;
+  const workers = await safeQuery(() => supabase.from('workers').select('*, service_categories(name), worker_photos(*)').order('created_at', { ascending: false }));
+  const requests = await safeQuery(() => supabase.from('service_requests').select('*, areas(name), service_categories(name), request_photos(*), review_invitations(token, expires_at, used_at), lead_assignments(*, workers(display_name))').order('created_at', { ascending: false }));
+  const assignments = await safeQuery(() => supabase.from('lead_assignments').select('*'));
+  const notes = await safeQuery(() => supabase.from('admin_notes').select('*').order('created_at', { ascending: false }));
+  const notifications = await safeQuery(() => supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(50));
+  const commissions = await safeQuery(() => supabase.from('commission_transactions').select('*, workers(display_name), service_requests(service_category_id, area_id)').order('created_at', { ascending: false }));
+  const complaints = await safeQuery(() => supabase.from('complaints').select('*, workers(display_name)').order('created_at', { ascending: false }));
+  const coupons = await safeQuery(() => supabase.from('coupons').select('*').order('created_at', { ascending: false }));
+  const referrals = await safeQuery(() => supabase.from('referrals').select('*, service_requests!fk_referrals_request(customer_name, status)').order('created_at', { ascending: false }));
+  const serviceCategories = await safeQuery(() => supabase.from('service_categories').select('*').order('created_at', { ascending: false }));
 
   const workersWithAssets = await Promise.all((workers.data || []).map(async (worker) => ({
     ...worker,
@@ -342,6 +329,20 @@ export async function getAdminData() {
     referrals: referrals.data || [],
     serviceCategories: serviceCategories.data || []
   };
+}
+
+async function safeQuery(queryFn) {
+  try {
+    const result = await queryFn();
+    if (result.error) {
+      console.warn('Admin query skipped:', result.error.message);
+      return { data: [], error: result.error };
+    }
+    return result;
+  } catch (error) {
+    console.warn('Admin query failed:', error.message);
+    return { data: [], error };
+  }
 }
 
 export async function updateWorkerStatus(workerId, status, adminRejectionReason = null) {

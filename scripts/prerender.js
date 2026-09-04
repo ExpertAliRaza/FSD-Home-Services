@@ -162,6 +162,21 @@ async function runPrerender() {
   } finally {
     if (browser) await browser.close();
     server.close();
+
+    // Ensure SPA dynamic routes have fallback HTML files in dist
+    const spaRoutes = ['admin'];
+    for (const spaRoute of spaRoutes) {
+      const targetDir = path.join(distDir, spaRoute);
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
+      const rootHtmlPath = path.join(distDir, 'index.html');
+      const targetHtmlPath = path.join(targetDir, 'index.html');
+      if (fs.existsSync(rootHtmlPath)) {
+        fs.copyFileSync(rootHtmlPath, targetHtmlPath);
+        console.log(`📁 Fallback SPA entry created -> ${path.relative(rootDir, targetHtmlPath)}`);
+      }
+    }
   }
 }
 
