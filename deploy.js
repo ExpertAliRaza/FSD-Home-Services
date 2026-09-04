@@ -24,7 +24,7 @@ fs.writeFileSync(
     version: 3,
     routes: [
       { handle: 'filesystem' },
-      { src: '/((?!google[a-z0-9]+\\.html).*)', dest: '/index.html' }
+      { src: '/(.*)', dest: '/index.html' }
     ]
   }, null, 2)
 );
