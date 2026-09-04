@@ -60,6 +60,26 @@ Build for production:
 npm run build
 ```
 
+The build runs Vite bundling, then Puppeteer pre-rendering, then HTML verification.
+
+### Pre-rendering / SSG
+
+This project uses a build-time Puppeteer pre-render step to generate static HTML snapshots for SEO-critical routes.
+
+**How it works:**
+1. `npm run build` runs `vite build` to produce the SPA in `dist/`
+2. `scripts/prerender.js` starts a local static server from `dist/`
+3. Puppeteer navigates to each route and snapshots the rendered HTML
+4. Snapshots are written to `dist/<route>/index.html`
+5. `scripts/verify-prerender.js` validates that key routes contain real body content
+6. If verification fails, the build fails
+
+**If pre-rendering breaks:**
+- Check that Chrome/Chromium is available in the build environment
+- On Vercel, the script falls back to `@sparticuz/chromium`
+- Run `npm run verify:prerender` after `npm run build` to re-check only
+- If pre-rendering cannot run, the build will fail rather than silently deploying empty HTML
+
 ## Supabase Setup
 
 Apply migrations in order:

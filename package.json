@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/prerender.js",
+    "build": "vite build && node scripts/prerender.js && node scripts/verify-prerender.js",
     "prerender": "node scripts/prerender.js",
+    "verify:prerender": "node scripts/verify-prerender.js",
     "deploy:static": "node deploy.js",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -24,6 +25,7 @@
     "recharts": "^3.10.1"
   },
   "devDependencies": {
+    "@sparticuz/chromium": "^13.0.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.9.0",

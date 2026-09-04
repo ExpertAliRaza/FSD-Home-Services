@@ -1010,7 +1010,12 @@ export function AdminPanel() {
                         </div>
                       ) : (
                         <>
-                      <div className="flex flex-col gap-4 p-5 md:flex-row md:items-start md:justify-between">
+                      <div className={`flex flex-col gap-4 p-5 md:flex-row md:items-start md:justify-between ${
+                        request.status === 'completed' ? 'border-l-4 border-emerald-500 bg-emerald-50/40' :
+                        request.status === 'cancelled' ? 'border-l-4 border-red-500 bg-red-50/40' :
+                        request.status === 'assigned' ? 'border-l-4 border-amber-500 bg-amber-50/40' :
+                        'border-l-4 border-transparent'
+                      }`}>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-3">
                             <h3 className="text-lg font-bold text-slate-950">{request.service_categories?.name || request.service_category_id}</h3>

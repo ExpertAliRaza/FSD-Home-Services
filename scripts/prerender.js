@@ -56,7 +56,7 @@ const MIME_TYPES = {
 };
 
 function createStaticServer(port) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
       const parsedUrl = new URL(req.url, `http://localhost:${port}`);
       let filePath = path.join(distDir, decodeURIComponent(parsedUrl.pathname));
@@ -84,6 +84,7 @@ function createStaticServer(port) {
     });
 
     server.listen(port, () => resolve(server));
+    server.on('error', reject);
   });
 }
 
@@ -94,13 +95,56 @@ function getExecutablePath() {
     'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
     'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
     process.env.CHROME_BIN,
-    process.env.PUPPETEER_EXECUTABLE_PATH
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium'
   ].filter(Boolean);
 
   for (const p of possiblePaths) {
     if (fs.existsSync(p)) return p;
   }
   return undefined;
+}
+
+async function launchBrowser() {
+  const execPath = getExecutablePath();
+  const launchOptions = {
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  };
+
+  if (execPath) {
+    launchOptions.executablePath = execPath;
+    console.log(`🧭 Using browser executable: ${execPath}`);
+  }
+
+  try {
+    return await puppeteer.launch(launchOptions);
+  } catch (error) {
+    console.warn('⚠️ Standard Puppeteer launch failed, attempting fallback...', error.message);
+    try {
+      const { chromium } = await import('@sparticuz/chromium');
+      return await chromium.launch(launchOptions);
+    } catch (fallbackError) {
+      console.error('❌ Both standard Puppeteer and @sparticuz/chromium fallback failed.', fallbackError.message);
+      throw new Error('No headless browser available for pre-rendering.');
+    }
+  }
+}
+
+function validatePrerenderedHtml(filePath, route) {
+  const html = fs.readFileSync(filePath, 'utf8');
+  const bodyText = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ').replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+  if (route === '/' && !bodyText.includes('FSD Home Services')) {
+    throw new Error(`Homepage pre-render validation failed: expected content not found in ${filePath}`);
+  }
+
+  if (bodyText.length < 500) {
+    console.warn(`⚠️ Pre-rendered HTML for ${route} is very short (${bodyText.length} chars). It may be incomplete.`);
+  }
 }
 
 async function runPrerender() {
@@ -111,17 +155,7 @@ async function runPrerender() {
 
   let browser;
   try {
-    const execPath = getExecutablePath();
-    const launchOptions = {
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-    };
-    if (execPath) {
-      launchOptions.executablePath = execPath;
-      console.log(`🧭 Using browser executable: ${execPath}`);
-    }
-
-    browser = await puppeteer.launch(launchOptions);
+    browser = await launchBrowser();
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
@@ -134,13 +168,11 @@ async function runPrerender() {
         // Fallback if domcontentloaded times out
       });
 
-      // Wait for React to mount and RouteMeta to apply
       await page.waitForSelector('#root > *', { timeout: 3000 }).catch(() => {});
       await new Promise((r) => setTimeout(r, 250));
 
       const html = await page.content();
 
-      // Determine output file path
       let outPath;
       if (route === '/') {
         outPath = path.join(distDir, 'index.html');
@@ -151,19 +183,19 @@ async function runPrerender() {
       }
 
       fs.writeFileSync(outPath, html, 'utf8');
+      validatePrerenderedHtml(outPath, route);
       const sizeKb = (Buffer.byteLength(html, 'utf8') / 1024).toFixed(1);
       console.log(`✅ [${sizeKb} KB] -> ${path.relative(rootDir, outPath)}`);
     }
 
     console.log('\n🎉 Pre-rendering completed successfully for all routes!');
   } catch (error) {
-    console.warn('⚠️ Pre-rendering step skipped or encountered an error:', error.message);
-    // Don't crash the build if running in an environment without headless browser support
+    console.error('❌ Pre-rendering failed:', error.message);
+    process.exitCode = 1;
   } finally {
     if (browser) await browser.close();
     server.close();
 
-    // Ensure SPA dynamic routes have fallback HTML files in dist
     const spaRoutes = ['admin'];
     for (const spaRoute of spaRoutes) {
       const targetDir = path.join(distDir, spaRoute);
