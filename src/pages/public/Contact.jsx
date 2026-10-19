@@ -5,7 +5,7 @@ export function Contact() {
   return (
     <>
       <PageHeader eyebrow="Contact" title="Customer Care">
-        For service requests, worker onboarding, complaints, and admin support in Faisalabad.
+        For service requests, worker onboarding, complaints, and platform support in Faisalabad.
       </PageHeader>
       <section className="mx-auto max-w-3xl px-4 py-8">
         <SupportContactCard />

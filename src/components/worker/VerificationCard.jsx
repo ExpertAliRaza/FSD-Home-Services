@@ -105,7 +105,7 @@ export function getVerificationDetails(worker = {}) {
   const photoUrl = worker.profile_photo_signed_url || worker.profile_photo_url || '';
 
   return {
-    name: worker.display_name || 'Verified Worker',
+    name: worker.display_name || 'Verified Professional',
     initials: initials(worker.display_name),
     serviceName,
     cityArea: `${primaryArea}, Faisalabad`,

@@ -42,14 +42,14 @@ export const plumbingServices = [
 ];
 
 export const plumberAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified plumbers only', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified plumbers only', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'Zap', title: 'Fast worker assignment', description: 'Our team assigns a suitable verified plumber based on your location and need.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the problem and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const pricingItems = [
@@ -60,12 +60,12 @@ export const pricingItems = [
 ];
 
 export const trustStats = [
-  { icon: 'ShieldCheck', title: 'Verified Workers', description: 'Every worker manually approved' },
-  { icon: 'Search', title: 'Admin Screening', description: 'Applications reviewed by our team' },
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Verified through work review, ID check, and test job' },
+  { icon: 'Search', title: 'Team Screening', description: 'Applications reviewed by our team' },
   { icon: 'Lock', title: 'Private Contact Details', description: 'Numbers never publicly listed' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Requests assigned by admin' },
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Requests assigned by our team' },
   { icon: 'MapPin', title: 'Local Support', description: 'Focused on Faisalabad areas' },
-  { icon: 'Zap', title: 'Quick Response', description: 'Fast connection to verified workers' }
+  { icon: 'Zap', title: 'Quick Response', description: 'Fast connection to Verified Professionals' }
 ];
 
 export const serviceFaqs = [
@@ -79,7 +79,7 @@ export const serviceFaqs = [
   },
   {
     q: 'How quickly can a plumber arrive?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified plumber as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable verified plumber as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Which areas of Faisalabad do you cover?',
@@ -91,7 +91,7 @@ export const serviceFaqs = [
   },
   {
     q: 'How are plumbers verified?',
-    a: 'Every plumber goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every plumber goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I contact the plumber directly?',
@@ -147,14 +147,14 @@ export const electricianServices = [
 ];
 
 export const electricianAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified electricians only', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified electricians only', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'Zap', title: 'Safe electrical work', description: 'Workers are vetted for proper knowledge and experience in residential electrical services.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the problem and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const electricianPricing = [
@@ -187,11 +187,11 @@ export const electricianFaqs = [
   },
   {
     q: 'How are electricians verified?',
-    a: 'Every electrician goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every electrician goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I request same-day service?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified electrician as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable verified electrician as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Is customer signup required?',
@@ -243,14 +243,14 @@ export const cctvServices = [
 ];
 
 export const cctvAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified CCTV technicians', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified CCTV technicians', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'Monitor', title: 'Professional installation', description: 'Workers are vetted for proper knowledge of CCTV and security system installation.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the job and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const cctvPricing = [
@@ -283,11 +283,11 @@ export const cctvFaqs = [
   },
   {
     q: 'How are CCTV technicians verified?',
-    a: 'Every CCTV technician goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every CCTV technician goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I request same-day CCTV service?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified CCTV technician as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable verified CCTV technician as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Is customer signup required?',
@@ -339,14 +339,14 @@ export const solarServices = [
 ];
 
 export const solarAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified solar technicians', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified solar technicians', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'Sun', title: 'Professional installation', description: 'Workers are vetted for proper knowledge of solar panel and inverter systems.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the job and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const solarPricing = [
@@ -379,11 +379,11 @@ export const solarFaqs = [
   },
   {
     q: 'How are solar technicians verified?',
-    a: 'Every solar technician goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every solar technician goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I request same-day solar service?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified solar technician as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable verified solar technician as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Is customer signup required?',
@@ -435,14 +435,14 @@ export const acServices = [
 ];
 
 export const acAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified AC technicians', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified AC technicians', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'HardDrive', title: 'Professional AC servicing', description: 'Workers are vetted for proper knowledge of AC installation, repair and maintenance.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the problem and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const acPricing = [
@@ -475,11 +475,11 @@ export const acFaqs = [
   },
   {
     q: 'How are AC technicians verified?',
-    a: 'Every AC technician goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every AC technician goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I request same-day AC service?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified AC technician as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable verified AC technician as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Is customer signup required?',
@@ -531,14 +531,14 @@ export const carpenterServices = [
 ];
 
 export const carpenterAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified carpenters', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified carpenters', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'Wrench', title: 'Professional craftsmanship', description: 'Workers are vetted for proper knowledge of woodworking and furniture repair.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the job and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const carpenterPricing = [
@@ -571,11 +571,11 @@ export const carpenterFaqs = [
   },
   {
     q: 'How are carpenters verified?',
-    a: 'Every carpenter goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every carpenter goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I request same-day carpenter service?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified carpenter as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable verified carpenter as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Is customer signup required?',
@@ -627,14 +627,14 @@ export const painterServices = [
 ];
 
 export const painterAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified painters', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified painters', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'Paintbrush', title: 'Professional painting services', description: 'Workers are vetted for proper knowledge of painting techniques and surface preparation.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the job and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const painterPricing = [
@@ -667,11 +667,11 @@ export const painterFaqs = [
   },
   {
     q: 'How are painters verified?',
-    a: 'Every painter goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every painter goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I request same-day painting service?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified painter as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable verified painter as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Is customer signup required?',
@@ -723,14 +723,14 @@ export const masonServices = [
 ];
 
 export const masonAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified local masons', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified local masons', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'HardDrive', title: 'Professional masonry services', description: 'Workers are vetted for proper knowledge of brick work, plastering and concrete repair.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the job and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const masonPricing = [
@@ -763,11 +763,11 @@ export const masonFaqs = [
   },
   {
     q: 'How are masons verified?',
-    a: 'Every mason goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every mason goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I request urgent masonry work?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified mason as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable verified mason as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Is customer signup required?',
@@ -819,14 +819,14 @@ export const laborServices = [
 ];
 
 export const laborAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified local laborers', description: 'Admin manually reviews every worker before approval.' },
+  { icon: 'ShieldCheck', title: 'Verified local laborers', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'EyeOff', title: 'No random public phone numbers', description: 'Customer details stay private. Requests are handled through the platform.' },
   { icon: 'Wrench', title: 'Reliable manual assistance', description: 'Workers are vetted for reliability and ability to handle physical labor tasks.' },
   { icon: 'MapPin', title: 'Coverage across Faisalabad', description: 'From Madina Town to Wapda City, we serve all major residential areas.' },
   { icon: 'ClipboardList', title: 'Simple request process', description: 'Submit a short description of the job and our team takes care of the rest.' },
   { icon: 'MessageCircle', title: 'Professional communication', description: 'Workers contact you directly once assigned. No middlemen after booking.' },
   { icon: 'Lock', title: 'Customer privacy protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Admin reviews every request before assigning the right worker for the job.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Our team reviews every request before assigning the right worker for the job.' }
 ];
 
 export const laborPricing = [
@@ -859,11 +859,11 @@ export const laborFaqs = [
   },
   {
     q: 'How are laborers verified?',
-    a: 'Every laborer goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Every laborer goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status. This helps maintain service quality.'
   },
   {
     q: 'Can I request same-day labor services?',
-    a: 'Our admin team reviews requests during working hours and assigns suitable verified laborers as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns suitable verified laborers as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
   },
   {
     q: 'Is customer signup required?',
@@ -918,11 +918,11 @@ export const contractorAdvantages = [
   { icon: 'ShieldCheck', title: 'Verified Contractors', description: 'Our team reviews and approves workers before they can serve customers through the platform.' },
   { icon: 'EyeOff', title: 'No Random Public Phone Numbers', description: 'Customer details stay private and requests are handled through the platform.' },
   { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Connect with contractors serving residential and commercial areas across Faisalabad.' },
-  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our admin team reviews the project requirements and assigns a suitable verified professional.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our team reviews the project requirements and assigns a suitable verified professional.' },
   { icon: 'Search', title: 'Simple Request Process', description: 'Submit your project details once and let our team handle the connection.' },
   { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned contractor contacts you directly once the project request is assigned.' },
   { icon: 'Lock', title: 'Customer Privacy Protected', description: 'Your phone number and address are never publicly listed on the platform.' },
-  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed by the admin team before a contractor is assigned.' }
+  { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed by the team before a contractor is assigned.' }
 ];
 
 export const contractorPricing = [
@@ -959,11 +959,11 @@ export const contractorFaqs = [
   },
   {
     q: 'How quickly will a contractor contact me?',
-    a: 'Our admin team reviews the request and assigns a suitable verified worker. Response time can vary depending on project requirements and worker availability.'
+    a: 'Our team reviews the request and assigns a suitable Verified Professional. Response time can vary depending on project requirements and availability.'
   },
   {
     q: 'How are contractors verified?',
-    a: 'Workers are reviewed by the FSD Home Services admin team before approval on the platform.'
+    a: 'Workers are reviewed by the FSD Home Services team before approval on the platform.'
   },
   {
     q: 'Will I get a fixed price immediately?',
@@ -1020,7 +1020,7 @@ export const constructionRenovationServices = [
 ];
 
 export const constructionRenovationAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'We review project requirements and connect customers with a suitable verified professional.' },
   { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get construction and renovation support across major residential and commercial areas of Faisalabad.' },
   { icon: 'Search', title: 'Simple Request Process', description: 'Submit your project details once and our team handles the connection.' },
@@ -1076,7 +1076,7 @@ export const constructionRenovationFaqs = [
   },
   {
     q: 'How are workers verified?',
-    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+    a: 'Professionals are reviewed through our 4-step process: previous work review, government-issued ID verification, an initial test job, and final approval. Those who meet our standards receive Verified Professional status.'
   }
 ];
 
@@ -1131,10 +1131,10 @@ export const marbleTileFittingServices = [
 ];
 
 export const marbleTileFittingAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'ClipboardList', title: 'Proper Fitting & Finishing', description: 'We connect customers with suitable professionals for accurate fitting, alignment, cutting, and finishing work.' },
   { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get marble and tile fitting support across major residential and commercial areas of Faisalabad.' },
-  { icon: 'Search', title: 'Suitable Worker Assignment', description: 'Our admin team reviews the request and connects it with a suitable verified professional.' },
+  { icon: 'Search', title: 'Suitable Worker Assignment', description: 'Our team reviews the request and connects it with a suitable verified professional.' },
   { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
   { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
   { icon: 'MessageCircle', title: 'Professional Communication', description: 'The assigned worker contacts you directly once the request is assigned.' },
@@ -1187,7 +1187,7 @@ export const marbleTileFittingFaqs = [
   },
   {
     q: 'How are workers verified?',
-    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+    a: 'Professionals are reviewed through our 4-step process: previous work review, government-issued ID verification, an initial test job, and final approval. Those who meet our standards receive Verified Professional status.'
   }
 ];
 
@@ -1242,10 +1242,10 @@ export const weldingMetalFabricationServices = [
 ];
 
 export const weldingMetalFabricationAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'Wrench', title: 'Custom Work Support', description: 'We connect customers with professionals who can handle both standard and custom metalwork.' },
   { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get welding and fabrication support across major residential and commercial areas of Faisalabad.' },
-  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our admin team reviews the project requirements before assigning a suitable professional.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our team reviews the project requirements before assigning a suitable professional.' },
   { icon: 'Search', title: 'Simple Request Process', description: 'Submit your requirements once and our team handles the connection.' },
   { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
   { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
@@ -1298,7 +1298,7 @@ export const weldingMetalFabricationFaqs = [
   },
   {
     q: 'How are welders verified?',
-    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+    a: 'Professionals are reviewed through our 4-step process: previous work review, government-issued ID verification, an initial test job, and final approval. Those who meet our standards receive Verified Professional status.'
   }
 ];
 
@@ -1348,10 +1348,10 @@ export const ceilingServices = [
 ];
 
 export const ceilingAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'Wrench', title: 'Installation & Repair Support', description: 'We connect customers with professionals who can handle new ceiling installations as well as suitable repair work.' },
   { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get ceiling services across major residential and commercial areas of Faisalabad.' },
-  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our admin team reviews your requirements before assigning a suitable professional.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our team reviews your requirements before assigning a suitable professional.' },
   { icon: 'Search', title: 'Simple Request Process', description: 'Submit your requirements once and our team handles the connection.' },
   { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
   { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
@@ -1404,7 +1404,7 @@ export const ceilingFaqs = [
   },
   {
     q: 'How are ceiling workers verified?',
-    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+    a: 'Professionals are reviewed through our 4-step process: previous work review, government-issued ID verification, an initial test job, and final approval. Those who meet our standards receive Verified Professional status.'
   }
 ];
 
@@ -1459,10 +1459,10 @@ export const waterproofingServices = [
 ];
 
 export const waterproofingAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ShieldCheck', title: 'Verified Professionals', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'ClipboardList', title: 'Problem Assessment', description: 'We connect customers with suitable professionals who can assess the location and identify the required waterproofing work.' },
   { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get waterproofing support across major residential and commercial areas of Faisalabad.' },
-  { icon: 'Search', title: 'Suitable Worker Assignment', description: 'Our admin team reviews the problem details before assigning a suitable professional.' },
+  { icon: 'Search', title: 'Suitable Worker Assignment', description: 'Our team reviews the problem details before assigning a suitable professional.' },
   { icon: 'EyeOff', title: 'Simple Request Process', description: 'Submit your requirements once and let our team handle the connection.' },
   { icon: 'Lock', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
   { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
@@ -1519,7 +1519,7 @@ export const waterproofingFaqs = [
   },
   {
     q: 'How are waterproofing workers verified?',
-    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+    a: 'Professionals are reviewed through our 4-step process: previous work review, government-issued ID verification, an initial test job, and final approval. Those who meet our standards receive Verified Professional status.'
   }
 ];
 
@@ -1579,10 +1579,10 @@ export const cleaningServices = [
 ];
 
 export const cleaningAdvantages = [
-  { icon: 'ShieldCheck', title: 'Verified Cleaning Professionals', description: 'Our team manually reviews and approves workers before they can serve customers through the platform.' },
+  { icon: 'ShieldCheck', title: 'Verified Cleaning Professionals', description: 'We review previous work, verify government-issued ID, and evaluate professionals through an initial test job before they earn Verified Professional status.' },
   { icon: 'HardDrive', title: 'Home & Commercial Support', description: 'We connect customers with professionals for residential and commercial cleaning requirements.' },
   { icon: 'MapPin', title: 'Local Faisalabad Coverage', description: 'Get cleaning services across major residential and commercial areas of Faisalabad.' },
-  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our admin team reviews your requirements before assigning a suitable professional.' },
+  { icon: 'ClipboardList', title: 'Suitable Worker Assignment', description: 'Our team reviews your requirements before assigning a suitable professional.' },
   { icon: 'Search', title: 'Simple Request Process', description: 'Submit your cleaning requirements once and let our team handle the connection.' },
   { icon: 'EyeOff', title: 'Customer Details Stay Private', description: 'Your phone number and address are not publicly listed on the platform.' },
   { icon: 'UserCheck', title: 'Manual Assignment', description: 'Every request is reviewed before a worker is assigned.' },
@@ -1643,7 +1643,7 @@ export const cleaningFaqs = [
   },
   {
     q: 'How are cleaning workers verified?',
-    a: 'Workers are reviewed and manually approved by the FSD Home Services admin team before serving customers through the platform.'
+    a: 'Professionals are reviewed through our 4-step process: previous work review, government-issued ID verification, an initial test job, and final approval. Those who meet our standards receive Verified Professional status.'
   }
 ];
 

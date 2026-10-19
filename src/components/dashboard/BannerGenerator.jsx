@@ -10,7 +10,7 @@ export function BannerGenerator() {
     heading: 'Apna dost refer karo',
     rewardText: 'Rs. 200 tak kamao',
     descriptionLine1: 'Doston aur family ko FSD Home Services',
-    descriptionLine2: 'par verified workers se connect karen.',
+    descriptionLine2: 'par Verified Professionals se connect karen.',
     referralCode: '0300-1234567',
     contactNumber: '0321-1234567'
   });

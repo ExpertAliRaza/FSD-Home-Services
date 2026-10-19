@@ -297,6 +297,8 @@ export async function getAdminData() {
   const coupons = await safeQuery(() => supabase.from('coupons').select('*').order('created_at', { ascending: false }));
   const referrals = await safeQuery(() => supabase.from('referrals').select('*, service_requests!fk_referrals_request(customer_name, status)').order('created_at', { ascending: false }));
   const serviceCategories = await safeQuery(() => supabase.from('service_categories').select('*').order('created_at', { ascending: false }));
+  const monthlyFees = await safeQuery(() => supabase.from('monthly_platform_fees').select('*').order('created_at', { ascending: false }));
+  const invoices = await safeQuery(() => supabase.from('invoices').select('*').order('invoice_date', { ascending: false }));
 
   const workersWithAssets = await Promise.all((workers.data || []).map(async (worker) => ({
     ...worker,
@@ -327,7 +329,9 @@ export async function getAdminData() {
     complaints: complaints.data || [],
     coupons: coupons.data || [],
     referrals: referrals.data || [],
-    serviceCategories: serviceCategories.data || []
+    serviceCategories: serviceCategories.data || [],
+    monthlyFees: monthlyFees.data || [],
+    invoices: invoices.data || []
   };
 }
 
@@ -988,4 +992,65 @@ export async function deleteServiceCategory(id) {
   requireSupabaseConfig();
   const { error } = await supabase.from('service_categories').delete().eq('id', id);
   if (error) throw error;
+}
+
+export async function createMonthlyPlatformFee(payload) {
+  requireSupabaseConfig();
+  const { error } = await supabase.from('monthly_platform_fees').insert({
+    worker_id: payload.worker_id,
+    month: payload.month,
+    amount: Number(payload.amount || 300),
+    status: payload.status || 'pending'
+  });
+  if (error) throw error;
+}
+
+export async function updateMonthlyPlatformFee(feeId, status) {
+  requireSupabaseConfig();
+  const { error } = await supabase
+    .from('monthly_platform_fees')
+    .update({
+      status,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', feeId);
+  if (error) throw error;
+}
+
+export async function generateInvoice(requestId) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.rpc('generate_invoice', {
+    p_request_id: requestId
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function getInvoiceByRequest(requestId) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase
+    .from('invoices')
+    .select('*, service_requests(*, areas(name), service_categories(name), lead_assignments(*, workers(display_name, service_categories(name))))')
+    .eq('request_id', requestId)
+    .single();
+  if (error) throw error;
+
+  const { data: commissionData } = await supabase
+    .from('commission_transactions')
+    .select('*')
+    .eq('request_id', requestId)
+    .limit(1);
+
+  return {
+    ...data,
+    service_requests: {
+      ...data.service_requests,
+      commission_transactions: commissionData || []
+    }
+  };
+}
+
+export async function getInvoicePdf(requestId) {
+  const { getInvoicePdf: buildPdf } = await import('./invoicePdf.js');
+  return buildPdf(requestId);
 }

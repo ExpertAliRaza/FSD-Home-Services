@@ -110,7 +110,7 @@ export const serviceReviews = {
     { id: 'marble-review-5', name: 'Hamza Khan', area: 'Canal Road, Faisalabad', rating: 5, text: 'Tile replacement aur grouting ka kaam karaya. Sab kuch time par ho gaya.' },
     { id: 'marble-review-6', name: 'Ali Raza', area: 'Satiana Road, Faisalabad', rating: 4, text: 'Floor tiles fitting me thodi adjustment ki zaroorat pari, lekin final result satisfied karne wala tha.' },
     { id: 'marble-review-7', name: 'Saad Malik', area: 'Jinnah Colony, Faisalabad', rating: 5, text: 'Marble flooring aur tile fitting dono FSD se karwaye. Professional approach pasand aaya.' },
-    { id: 'marble-review-8', name: 'Zain Abbas', area: 'Civil Lines, Faisalabad', rating: 5, text: 'Tile ka design aur fitting dono acha hua. Admin team ne kaam properly manage kiya.' }
+    { id: 'marble-review-8', name: 'Zain Abbas', area: 'Civil Lines, Faisalabad', rating: 5, text: 'Tile ka design aur fitting dono acha hua. FSD team ne kaam properly manage kiya.' }
   ],
   'Welding & Metal Fabrication': [
     { id: 'welding-review-1', name: 'Muhammad Imran', area: 'D Ground, Faisalabad', rating: 5, text: 'Gate fabrication aur welding ka kaam karaya. Kaam achi quality ka hua aur time par bhi.' },
@@ -127,7 +127,7 @@ export const serviceReviews = {
     { id: 'ceiling-review-3', name: 'Ali Hassan', area: 'Peoples Colony, Faisalabad', rating: 4, text: 'Decorative ceiling ka kaam karaya. Design acha hua lekin thoda time zyada lag gaya.' },
     { id: 'ceiling-review-4', name: 'Hamza Ahmed', area: 'Gulberg, Faisalabad', rating: 5, text: 'Office ke liye false ceiling installation. Work professionally done, satisfied hoon.' },
     { id: 'ceiling-review-5', name: 'Bilal Khan', area: 'Canal Road, Faisalabad', rating: 5, text: 'Ceiling repair ka kaam karaya. Problem properly fix hui aur cost bhi reasonable tha.' },
-    { id: 'ceiling-review-6', name: 'Usman Ali', area: 'Satiana Road, Faisalabad', rating: 4, text: 'Simple ceiling fitting li. Kaam theek hua, admin team ne properly manage kiya.' },
+    { id: 'ceiling-review-6', name: 'Usman Ali', area: 'Satiana Road, Faisalabad', rating: 4, text: 'Simple ceiling fitting li. Kaam theek hua, FSD team ne properly manage kiya.' },
     { id: 'ceiling-review-7', name: 'Saad Malik', area: 'Jinnah Colony, Faisalabad', rating: 5, text: 'Ceiling replacement ka kaam time par complete hua. Quality of material aur fitting dono achi thi.' }
   ],
   'Waterproofing': [

@@ -63,7 +63,7 @@ const benefitsItems = [
   { icon: 'ShieldCheck', title: 'Verified Badge', desc: 'Approved workers receive a public verification badge.' },
   { icon: 'UserCheck', title: 'Professional Profile', desc: 'Build a complete profile showcasing your skills and areas.' },
   { icon: 'MapPin', title: 'Local Customer Leads', desc: 'Receive genuine requests from customers near your areas.' },
-  { icon: 'ClipboardList', title: 'Fair Assignment Process', desc: 'Our admin team assigns requests based on your location and expertise.' },
+  { icon: 'ClipboardList', title: 'Fair Assignment Process', desc: 'Our team assigns requests based on your location and expertise.' },
   { icon: 'CheckCircle2', title: 'Free Registration', desc: 'Registration is completely free with no hidden charges.' },
   { icon: 'Zap', title: 'Long-Term Growth', desc: 'Build your reputation and grow your customer base over time.' },
   { icon: 'MessageCircle', title: 'Customer Reviews', desc: 'Earn reviews from customers and strengthen your profile.' },
@@ -84,7 +84,7 @@ const documentsList = [
 const faqItems = [
   {
     q: 'How long does verification take?',
-    a: 'Verification typically takes a few business days. Our admin team reviews each application manually to ensure accuracy and legitimacy before approving.'
+    a: 'Verification typically takes a few business days. Our team reviews your previous work, verifies your government-issued ID, and evaluates you through an initial test job before awarding Verified Professional status.'
   },
   {
     q: 'Is registration free?',
@@ -96,7 +96,7 @@ const faqItems = [
   },
   {
     q: 'Will my phone number be publicly visible?',
-    a: 'No. Your phone number is never publicly displayed on the platform. Customers submit requests through the platform and our admin team connects them with suitable workers.'
+    a: 'No. Your phone number is never publicly displayed on the platform. Customers submit requests through the platform and our team connects them with suitable workers.'
   },
   {
     q: 'Can I edit my profile later?',
@@ -104,7 +104,7 @@ const faqItems = [
   },
   {
     q: 'Do I need previous experience?',
-    a: 'We recommend having relevant experience in your chosen service category. Our admin team reviews each application to assess suitability.'
+    a: 'We recommend having relevant experience in your chosen service category. Our team reviews each application to assess suitability.'
   },
   {
     q: 'Which areas can I select?',
@@ -112,7 +112,7 @@ const faqItems = [
   },
   {
     q: 'How do I receive customer requests?',
-    a: 'When a customer submits a request matching your service category and areas, our admin team reviews and assigns it to you. The customer\'s details are shared so you can contact them directly.'
+    a: 'When a customer submits a request matching your service category and areas, our team reviews and assigns it to you. The customer\'s details are shared so you can contact them directly.'
   }
 ];
 
@@ -131,7 +131,7 @@ export function BecomeWorker() {
     <>
       {/* ── Hero ── */}
       <PageHeader eyebrow="Worker verification" title="Become an approved FSD Home Services worker">
-        Join Faisalabad&apos;s growing network of verified plumbers, electricians, AC technicians, painters, carpenters, masons, CCTV technicians, solar technicians and skilled workers. Submit your profile once, get verified by our admin team and receive genuine customer requests from your service areas.
+        Join Faisalabad&apos;s growing network of verified plumbers, electricians, AC technicians, painters, carpenters, masons, CCTV technicians, solar technicians and skilled workers. Submit your profile once, get verified by our team and receive genuine customer requests from your service areas.
       </PageHeader>
 
       {/* ── WhatsApp Banner + Registration Form ── */}
@@ -151,12 +151,12 @@ export function BecomeWorker() {
           <p className="text-sm font-bold text-brand-700">Why join us</p>
           <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">Why Join FSD Home Services?</h2>
           <p className="mt-3 max-w-2xl text-slate-600">
-            Grow your work with a trusted local platform that connects verified workers with genuine customers across Faisalabad.
+            Grow your work with a trusted local platform that connects Verified Professionals with genuine customers across Faisalabad.
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               { icon: <UserCheck size={22} />, title: 'Verified Customer Requests', desc: 'Receive real customer requests instead of searching for work every day.' },
-              { icon: <ShieldCheck size={22} />, title: 'Admin Support', desc: 'Our team reviews requests and connects the right worker with the right customer.' },
+              { icon: <ShieldCheck size={22} />, title: 'Team Support', desc: 'Our team reviews requests and connects the right worker with the right customer.' },
               { icon: <CheckCircle2 size={22} />, title: 'No Fake Profiles', desc: 'Only approved workers appear publicly on our platform.' },
               { icon: <MapPin size={22} />, title: 'Expand Your Local Reach', desc: 'Get discovered by homeowners across Faisalabad and nearby areas.' },
               { icon: <MessageCircle size={22} />, title: 'Build Your Reputation', desc: 'Earn customer reviews and strengthen your professional profile over time.' },
@@ -211,9 +211,9 @@ export function BecomeWorker() {
           <div className="mx-auto mt-10 grid max-w-2xl gap-0">
             {[
               { step: 1, title: 'Submit Your Profile', desc: 'Fill in your personal details, service category and areas you cover.' },
-              { step: 2, title: 'Admin Verification', desc: 'Our team reviews your information and verifies your profile.' },
-              { step: 3, title: 'Approval', desc: 'Approved workers become visible on the platform.' },
-              { step: 4, title: 'Receive Customer Requests', desc: 'Start receiving genuine service requests from customers in your selected areas.' }
+              { step: 2, title: 'Work & ID Review', desc: 'Our team reviews your previous work and verifies your government-issued ID.' },
+              { step: 3, title: 'Initial Test Job', desc: 'Complete an initial job through FSD Home Services so our team can evaluate your work quality and professionalism.' },
+              { step: 4, title: 'Verified Professional', desc: 'Professionals who meet our standards receive Verified Professional status and start receiving genuine customer requests.' }
             ].map((item, index) => (
               <div key={item.step} className="relative flex gap-5 pb-8 last:pb-0">
                 {index < 3 && (
@@ -238,7 +238,7 @@ export function BecomeWorker() {
       <section className="py-14 lg:py-20">
         <div className="mx-auto max-w-7xl px-4">
           <p className="text-sm font-bold text-brand-700">Benefits</p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">Benefits of Becoming a Verified Worker</h2>
+          <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">Benefits of Becoming a Verified Professional</h2>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {benefitsItems.map((item) => (
               <div key={item.title} className="rounded-lg border border-slate-200 bg-white p-5 text-center transition hover:border-brand-200 hover:shadow-soft">
@@ -317,7 +317,7 @@ export function BecomeWorker() {
         <div className="mx-auto max-w-7xl px-4 text-center">
           <h2 className="text-2xl font-bold text-white lg:text-3xl">Ready to Start Getting More Local Work?</h2>
           <p className="mx-auto mt-3 max-w-xl text-brand-100">
-            Join hundreds of skilled professionals building their reputation with FSD Home Services. Complete your registration today and let our admin team connect you with genuine customers looking for trusted workers across Faisalabad.
+            Join hundreds of skilled professionals building their reputation with FSD Home Services. Complete your registration today and let our team connect you with genuine customers looking for trusted workers across Faisalabad.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link

@@ -15,7 +15,7 @@ CRITICAL RULES:
 6. Never print CNIC numbers, CNIC URLs, or private storage paths. Phone numbers may be shown in row detail but avoid printing full customer phone lists unless asked.
 7. Always label money clearly and NEVER confuse the two revenue figures:
    - "job amount / gross job value" = sum of job_amount (total bill paid by customer for completed jobs).
-   - "platform commission earned" = sum of commission_amount (10% of job amount). This is the platform's revenue.
+    - "platform commission earned" = sum of commission_amount (15% of job amount). This is the platform's revenue.
    When the admin asks about "revenue", interpret it as platform commission earned and say so. When they ask about job value/sales volume, use job_amount_total.
 
 TODAY'S DATE (server time): ${startOfDayIso}
@@ -41,7 +41,7 @@ DATA MODEL (field facts you need when phrasing answers):
 - service_requests.status: new, reviewing, assigned, in_progress, completed, cancelled.
 - workers.status: pending, approved, rejected, needs_changes, suspended.
 - complaints.resolution_status: open, investigating, resolved, dismissed.
-- commission.payment_status: due, paid, waived. commission is always 10% of job_amount.
+- commission.payment_status: due, paid, waived. commission is 15% of job_amount for requests from September 12, 2026 onward, and 10% for earlier requests.
 - Completion rate = completed / total requests (%). Keep 1-2 decimals in answers.
 - "New customers" in this panel = customers.rows created in the range; "distinct customers" = unique customer_phone counts from requests.
 - Cancellation reason for newer cancellations lives in service_requests.cancellation_reason; for older ones check admin_notes in ai_cancellations rows.

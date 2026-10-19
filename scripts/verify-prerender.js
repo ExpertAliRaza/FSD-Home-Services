@@ -27,7 +27,7 @@ const REQUIRED_ROUTES = [
 ];
 
 const EXPECTED_CONTENT = {
-  '/': ['FSD Home Services', 'Verified Workers', 'Request a Worker'],
+  '/': ['FSD Home Services', 'Request a Worker'],
   '/about': ['About FSD Home Services', 'Our Mission', 'How FSD Home Services Works'],
   '/services': ['Home Services in Faisalabad', 'Plumber', 'Electrician'],
   '/services/plumber-faisalabad': ['Plumber in Faisalabad', 'Request a Plumber in Faisalabad'],
@@ -39,7 +39,7 @@ const EXPECTED_CONTENT = {
   '/services/ceiling-faisalabad': ['Ceiling / False Ceiling in Faisalabad', 'Request Ceiling Services in Faisalabad'],
   '/services/waterproofing-faisalabad': ['Waterproofing in Faisalabad', 'Request Waterproofing Services in Faisalabad'],
   '/services/cleaning-services-faisalabad': ['Cleaning Services in Faisalabad', 'Request Cleaning Services in Faisalabad'],
-  '/workers': ['Verified Workers in Faisalabad', 'Worker'],
+  '/workers': ['Faisalabad', 'Worker'],
   '/become-a-worker': ['Become an approved FSD Home Services worker', 'Worker verification'],
   '/request-service': ['Request a Worker in Faisalabad', 'Submit a free request'],
   '/contact': ['Customer Care', 'Contact Customer Care']

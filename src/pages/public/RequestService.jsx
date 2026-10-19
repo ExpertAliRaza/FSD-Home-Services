@@ -21,8 +21,16 @@ import { useCatalog } from '../../contexts/CatalogContext';
 
 const faqItems = [
   {
+    q: 'What happens after I submit a service request?',
+    a: 'Once you submit your request, our team assigns a suitable Verified Professional based on your service needs and location. Your assigned professional will call you within 5–10 minutes to confirm details, and will aim to arrive within 30 minutes after confirmation.'
+  },
+  {
+    q: 'What if the same issue happens again after my service?',
+    a: 'If the same issue with the completed work occurs within 7 days, let us know. Our team will review it and arrange for the issue to be fixed free of additional service charges.'
+  },
+  {
     q: 'How long does it take to assign a worker?',
-    a: 'Our admin team reviews requests during working hours and assigns a suitable verified worker as quickly as possible. The assigned worker then contacts you directly to schedule the visit.'
+    a: 'Our team reviews requests during working hours and assigns a suitable Verified Professional as quickly as possible. The assigned professional then contacts you directly to schedule the visit.'
   },
   {
     q: 'Do I need to create an account?',
@@ -30,11 +38,11 @@ const faqItems = [
   },
   {
     q: 'Is submitting a request free?',
-    a: 'Yes. Submitting a service request is completely free. There are no charges to submit a request or receive a response from a verified worker.'
+    a: 'Yes. Submitting a service request is completely free. There are no charges to submit a request or receive a response from a Verified Professional.'
   },
   {
     q: 'Will my phone number remain private?',
-    a: 'Yes. Your phone number is never publicly listed on the platform. It is only shared with the verified worker assigned to your request so they can contact you directly.'
+    a: 'Yes. Your phone number is never publicly listed on the platform. It is only shared with the Verified Professional assigned to your request so they can contact you directly.'
   },
   {
     q: 'Can I request emergency service?',
@@ -50,7 +58,7 @@ const faqItems = [
   },
   {
     q: 'How do you verify workers?',
-    a: 'Every worker goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Professionals go through our 4-step process: previous work review, government-issued ID verification, an initial test job, and final approval. Those who meet our standards receive Verified Professional status.'
   }
 ];
 
@@ -63,8 +71,8 @@ export function RequestService() {
   return (
     <>
       {/* ── Hero ── */}
-      <PageHeader eyebrow="Free customer request" title="Request a verified worker">
-        Need a trusted plumber, electrician, AC technician, carpenter, painter, mason, CCTV technician, solar technician or skilled worker in Faisalabad? Submit a free request and our admin team will connect you with a verified professional for your required service.
+      <PageHeader eyebrow="Free customer request" title="Request a Verified Professional">
+        Need a trusted plumber, electrician, AC technician, carpenter, painter, mason, CCTV technician, solar technician or skilled worker in Faisalabad? Submit a free request and our team will connect you with a Verified Professional for your required service.
       </PageHeader>
 
       {/* ── WhatsApp Banner + Request Form ── */}
@@ -84,11 +92,11 @@ export function RequestService() {
           <p className="text-sm font-bold text-brand-700">Why choose us</p>
           <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">Why Request Through FSD Home Services?</h2>
           <p className="mt-3 max-w-2xl text-slate-600">
-            Every customer request is manually reviewed before being assigned to a verified local worker.
+            Every customer request is matched with a Verified Professional after our team verifies their previous work, government-issued ID, and initial test job performance.
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: <ShieldCheck size={22} />, title: 'Verified Workers', desc: 'Every worker is reviewed before approval.' },
+              { icon: <ShieldCheck size={22} />, title: 'Verified Professionals', desc: 'Every professional completes our verification process before being matched with customers.' },
               { icon: <Zap size={22} />, title: 'Fast Assignment', desc: 'We quickly connect you with the right professional.' },
               { icon: <Lock size={22} />, title: 'Private Contact Information', desc: 'Your phone number remains protected throughout the process.' },
               { icon: <MapPin size={22} />, title: 'Trusted Local Platform', desc: 'Serving homeowners across Faisalabad.' },
@@ -116,13 +124,11 @@ export function RequestService() {
           <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">How It Works</h2>
           <div className="mx-auto mt-10 grid max-w-2xl gap-0">
             {[
-              { step: 1, title: 'Submit Your Request', desc: 'Choose your required service, area and describe your problem.' },
-              { step: 2, title: 'Admin Reviews Request', desc: 'Our team checks availability and matches the right worker.' },
-              { step: 3, title: 'Verified Worker Assigned', desc: 'An approved professional is selected for your request.' },
-              { step: 4, title: 'Worker Contacts You', desc: 'The assigned worker contacts you and completes the job.' }
+              { step: 1, title: 'Confirmation Call', desc: 'Our assigned Verified Professional will call you within 5–10 minutes to confirm your service request and location.' },
+              { step: 2, title: 'Professional Arrives', desc: 'Once you confirm the location and service details, the professional will head to your location and aim to arrive within 30 minutes.' }
             ].map((item, index) => (
               <div key={item.step} className="relative flex gap-5 pb-8 last:pb-0">
-                {index < 3 && (
+                {index < 1 && (
                   <div className="absolute left-[11px] top-8 h-full w-px bg-slate-200" />
                 )}
                 <div className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-700 text-xs font-bold text-white">
@@ -148,11 +154,11 @@ export function RequestService() {
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { icon: <ShieldCheck size={22} />, title: 'Verified Professionals', desc: 'Every worker is manually reviewed before approval.' },
-              { icon: <UserCheck size={22} />, title: 'Manual Worker Approval', desc: 'Applications are reviewed by our admin team.' },
+              { icon: <UserCheck size={22} />, title: 'Manual Worker Approval', desc: 'Applications are reviewed by our team.' },
               { icon: <Lock size={22} />, title: 'No Random Listings', desc: 'Phone numbers are never publicly displayed.' },
               { icon: <MapPin size={22} />, title: 'Coverage Across Faisalabad', desc: 'Serving 130+ areas across the city.' },
               { icon: <MessageCircle size={22} />, title: 'Quick Customer Support', desc: 'Reach us anytime through WhatsApp or phone.' },
-              { icon: <ClipboardList size={22} />, title: 'Transparent Process', desc: 'Every request is handled by our admin team.' },
+              { icon: <ClipboardList size={22} />, title: 'Transparent Process', desc: 'Every request is handled by our team.' },
               { icon: <CheckCircle2 size={22} />, title: 'Customer Privacy', desc: 'Your details stay protected throughout.' },
               { icon: <Zap size={22} />, title: 'Reliable Local Network', desc: 'Trusted professionals serving Faisalabad.' }
             ].map((item) => (
@@ -263,9 +269,9 @@ export function RequestService() {
          ══════════════════════════════════════════════════════ */}
       <section className="bg-brand-700 py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 text-center">
-          <h2 className="text-2xl font-bold text-white lg:text-3xl">Ready to Request a Verified Worker?</h2>
+          <h2 className="text-2xl font-bold text-white lg:text-3xl">Ready to Request a Verified Professional?</h2>
           <p className="mx-auto mt-3 max-w-xl text-brand-100">
-            Whether you need plumbing, electrical work, AC repair, painting, carpentry, masonry, CCTV installation, solar services or general labor, submit your request today and let our admin team connect you with a trusted professional anywhere in Faisalabad.
+            Whether you need plumbing, electrical work, AC repair, painting, carpentry, masonry, CCTV installation, solar services or general labor, submit your request today and let our team connect you with a trusted professional anywhere in Faisalabad.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link

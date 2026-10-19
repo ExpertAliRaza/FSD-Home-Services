@@ -55,35 +55,39 @@ const MIME_TYPES = {
   '.xml': 'application/xml'
 };
 
-function createStaticServer(port) {
+function createStaticServer(originalShell) {
   return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
-      const parsedUrl = new URL(req.url, `http://localhost:${port}`);
-      let filePath = path.join(distDir, decodeURIComponent(parsedUrl.pathname));
-
-      if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-        filePath = path.join(filePath, 'index.html');
-      }
-
-      if (!fs.existsSync(filePath)) {
-        filePath = path.join(distDir, 'index.html');
-      }
+      const parsedUrl = new URL(req.url, `http://127.0.0.1`);
+      let pathname = decodeURIComponent(parsedUrl.pathname).replace(/^\/+/, '');
+      let filePath = pathname ? path.join(distDir, pathname) : path.join(distDir, 'index.html');
 
       const ext = path.extname(filePath).toLowerCase();
-      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-      fs.readFile(filePath, (err, data) => {
-        if (err) {
-          res.writeHead(500);
-          res.end('Error loading file');
-        } else {
-          res.writeHead(200, { 'Content-Type': contentType });
-          res.end(data);
-        }
-      });
+      // If requested file is a static asset that exists, serve it
+      if (ext && ext !== '.html' && fs.existsSync(filePath) && !fs.statSync(filePath).isDirectory()) {
+        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+        fs.readFile(filePath, (err, data) => {
+          if (err) {
+            res.writeHead(500);
+            res.end('Error loading file');
+          } else {
+            res.writeHead(200, { 'Content-Type': contentType });
+            res.end(data);
+          }
+        });
+        return;
+      }
+
+      // Otherwise serve the clean SPA shell from memory
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
+      res.end(originalShell);
     });
 
-    server.listen(port, () => resolve(server));
+    server.listen(0, '127.0.0.1', () => {
+      const port = server.address().port;
+      resolve({ server, port });
+    });
     server.on('error', reject);
   });
 }
@@ -150,7 +154,11 @@ function stripTags(html) {
 
 function isShellHtml(html) {
   const text = stripTags(html);
-  return text.length < 300 || !text.includes('FSD Home Services');
+  const ok = text.length >= 300 && (text.includes('FSD') || text.includes('Faisalabad') || text.includes('Services'));
+  if (!ok) {
+    console.log('DEBUG isShellHtml check failed. Text length:', text.length, 'First 200 chars:', text.slice(0, 200));
+  }
+  return !ok;
 }
 
 async function capturePage(page, url, maxRetries = 3) {
@@ -180,24 +188,30 @@ async function capturePage(page, url, maxRetries = 3) {
 
 async function runPrerender() {
   console.log('🚀 Starting Pre-rendering (SSG Snapshot)...');
-  const port = 5174;
-  const server = await createStaticServer(port);
-  console.log(`📡 Local preview server running on port ${port}`);
 
   const originalShellPath = path.join(distDir, 'index.html');
-  let originalShell = fs.existsSync(originalShellPath)
+  const originalShell = fs.existsSync(originalShellPath)
     ? fs.readFileSync(originalShellPath, 'utf8')
     : null;
+
+  if (!originalShell) {
+    throw new Error('dist/index.html not found. Run vite build first.');
+  }
+
+  const { server, port } = await createStaticServer(originalShell);
+  console.log(`📡 Local preview server running on port ${port}`);
 
   let browser;
   try {
     browser = await launchBrowser();
 
     const page = await browser.newPage();
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+    page.on('pageerror', err => console.error('PAGE ERROR:', err.toString()));
     await page.setViewport({ width: 1280, height: 800 });
 
     for (const route of routes) {
-      const url = `http://localhost:${port}${route}`;
+      const url = `http://127.0.0.1:${port}${route}`;
       process.stdout.write(`⏳ Pre-rendering ${route.padEnd(40)} `);
 
       const html = await capturePage(page, url);

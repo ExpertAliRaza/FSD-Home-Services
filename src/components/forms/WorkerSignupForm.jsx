@@ -242,7 +242,7 @@ export function WorkerSignupForm() {
       </label>
       {error && <p role="alert" aria-live="polite" className="rounded-lg bg-red-50 p-3 text-sm font-semibold text-red-700">{error}</p>}
       <button className="focus-ring rounded-lg bg-brand-700 px-5 py-3 font-bold text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60" disabled={status === 'loading'}>
-        {status === 'loading' ? 'Submitting...' : 'Submit for Admin Approval'}
+        {status === 'loading' ? 'Submitting...' : 'Submit for Verification'}
       </button>
     </form>
   );

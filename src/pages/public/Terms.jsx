@@ -87,7 +87,7 @@ export function Terms() {
         <BulletList items={['pricing disagreements', 'overcharging', 'undercharging', 'discounts', 'refunds']} />
       </PolicySection>
       <PolicySection title="9. Platform Commission">
-        <p>Workers agree to pay FSD Home Services a platform commission equal to <strong className="text-slate-950">10% of the final agreed job value</strong> for every successfully completed job received through the Platform.</p>
+        <p>Workers agree to pay FSD Home Services a platform commission equal to <strong className="text-slate-950">15% of the final agreed job value</strong> for every successfully completed job received through the Platform.</p>
         <p>The commission becomes payable immediately after job completion regardless of whether payment was made by:</p>
         <BulletList items={['cash', 'bank transfer', 'EasyPaisa', 'JazzCash', 'any other payment method']} />
         <p>Failure to pay platform commission may result in account suspension or permanent removal.</p>

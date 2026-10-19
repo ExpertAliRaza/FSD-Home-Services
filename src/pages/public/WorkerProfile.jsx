@@ -103,7 +103,7 @@ export function WorkerProfile() {
 
           <aside className="rounded-lg border border-slate-200 bg-slate-50 p-4">
             <h2 className="font-bold text-slate-950">Request this worker</h2>
-            <p className="mt-2 text-sm text-slate-600">Submit a request and our admin team will confirm availability.</p>
+            <p className="mt-2 text-sm text-slate-600">Submit a request and our service team will confirm availability.</p>
             <Link
               to={`/request-service?worker=${encodeURIComponent(worker.id)}&service=${encodeURIComponent(worker.service_name)}`}
               className="mt-4 block min-h-11 rounded-lg bg-brand-700 px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-600"

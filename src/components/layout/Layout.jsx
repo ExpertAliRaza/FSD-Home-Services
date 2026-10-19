@@ -31,7 +31,7 @@ const navItems = [
   ['/contact', 'Contact']
 ];
 
-const trustItems = ['Verified Workers', 'Manual Approval', 'Local Support'];
+const trustItems = ['Verified Professionals', 'Work Review + ID Check', 'Local Support'];
 
 const socialLinks = [
   ['Facebook', 'https://www.facebook.com/FSD.Home.Services/', Facebook],

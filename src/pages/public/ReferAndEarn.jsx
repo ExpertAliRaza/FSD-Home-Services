@@ -39,7 +39,7 @@ export function ReferAndEarn() {
               </div>
               <h3 className="mb-3 text-xl font-bold text-slate-900">2. They Get Served</h3>
               <p className="text-slate-600">
-                Your friend books any home service on our platform. Our verified worker completes the job.
+                 Your friend books any home service on our platform. Our Verified Professional completes the job.
               </p>
             </div>
             <div className="relative rounded-2xl bg-white p-8 text-center shadow-soft">

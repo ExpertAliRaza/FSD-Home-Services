@@ -20,7 +20,7 @@ export function WorkerVerificationPolicy() {
         <p>Providing false information may result in rejection or permanent removal.</p>
       </PolicySection>
       <PolicySection title="3. Review Process">
-        <p>Every application is manually reviewed.</p>
+        <p>Every application goes through our verification process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status.</p>
         <p>During review we may:</p>
         <BulletList items={['verify submitted information', 'request additional documents', 'request clearer photographs', 'request profile updates', 'reject incomplete applications', 'reject misleading applications']} />
         <Paragraphs items={['Approval times may vary depending on workload.', 'Submitting an application does not guarantee approval.']} />

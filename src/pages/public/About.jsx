@@ -55,13 +55,13 @@ export function About() {
             </div>
             <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold text-slate-700">
               <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 size={16} className="text-brand-700" /> Verified Workers
+                <CheckCircle2 size={16} className="text-brand-700" /> Verified Professionals
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CheckCircle2 size={16} className="text-brand-700" /> Local Platform
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 size={16} className="text-brand-700" /> Manual Approval
+                <CheckCircle2 size={16} className="text-brand-700" /> Work Review + ID Check
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CheckCircle2 size={16} className="text-brand-700" /> Faisalabad Coverage
@@ -91,7 +91,7 @@ export function About() {
               <h3 className="font-bold text-slate-950">What we stand for</h3>
               <div className="mt-5 grid gap-4">
                 {[
-                  { icon: <ShieldCheck size={20} />, title: 'Verified Workers', desc: 'Every worker is manually reviewed and approved before joining the platform.' },
+                   { icon: <ShieldCheck size={20} />, title: 'Verified Professionals', desc: 'Every professional is reviewed through our 4-step process before earning Verified Professional status.' },
                   { icon: <ClipboardList size={20} />, title: 'Transparent Process', desc: 'Requests are handled by our team, not through random public listings.' },
                   { icon: <UserCheck size={20} />, title: 'Customer First', desc: 'We focus on helping you find a suitable professional for your service needs.' },
                   { icon: <MapPin size={20} />, title: 'Local Expertise', desc: 'Built specifically for Faisalabad, with services and professionals focused on local residential and commercial needs.' }
@@ -223,11 +223,11 @@ export function About() {
           </div>
           <div className="mx-auto mt-10 grid max-w-2xl gap-0">
             {[
-              { step: 1, title: 'Application', desc: 'Workers submit their details and service information through the application form.' },
-              { step: 2, title: 'Manual Review', desc: 'Our admin team manually reviews each application to check for completeness and legitimacy.' },
-              { step: 3, title: 'Identity Verification', desc: 'The worker provides identity documents which are verified before proceeding.' },
-              { step: 4, title: 'Approval', desc: 'Once verified, the worker is approved and granted access to service requests.' },
-              { step: 5, title: 'Public Listing', desc: 'The approved worker becomes visible to customers requesting services in their area.' }
+              { step: 1, title: 'Application', desc: 'Workers submit their details, service information and previous work samples through the application form.' },
+              { step: 2, title: 'Previous Work & ID Review', desc: 'Our team reviews previous work photos or videos and verifies government-issued ID to confirm identity.' },
+              { step: 3, title: 'Initial Test Job', desc: 'The professional completes an initial job so our team can evaluate work quality and professionalism.' },
+              { step: 4, title: 'Verified Professional', desc: 'Professionals who meet our standards receive Verified Professional status and become eligible for customer requests.' },
+              { step: 5, title: 'Public Listing', desc: 'The Verified Professional becomes visible to customers requesting services in their area.' }
             ].map((item, index) => (
               <div key={item.step} className="relative flex gap-5 pb-8 last:pb-0">
                 {index < 4 && (
@@ -484,11 +484,11 @@ function CoverageAreas() {
 const faqs = [
   {
     q: 'What is FSD Home Services?',
-    a: 'FSD Home Services is a local marketplace that connects homeowners and businesses across Faisalabad with manually verified workers for plumbing, electrical work, AC services, carpentry, painting, masonry, construction, renovation, CCTV, solar, welding, ceiling, waterproofing, cleaning and more.'
+    a: 'FSD Home Services is a local marketplace that connects homeowners and businesses across Faisalabad with verified professionals for plumbing, electrical work, AC services, carpentry, painting, masonry, construction, renovation, CCTV, solar, welding, ceiling, waterproofing, cleaning and more.'
   },
   {
     q: 'How are workers verified?',
-    a: 'Every worker goes through a manual review process that includes identity verification before being approved and listed on the platform.'
+    a: 'Professionals go through our verification process: previous work review, government-issued ID verification, and an initial test job. Those who meet our standards receive Verified Professional status.'
   },
   {
     q: 'Do customers need an account?',
@@ -500,11 +500,15 @@ const faqs = [
   },
   {
     q: 'How can I become a worker?',
-    a: 'Visit the Become a Worker page and submit your application. Our admin team will review it and guide you through the verification process.'
+    a: 'Visit the Become a Worker page and submit your application. Our team will review it and guide you through the verification process.'
   },
   {
     q: 'How does the service request process work?',
-    a: 'You submit a service request with your requirements, our admin team reviews it and assigns a suitable verified worker, and the worker contacts you directly to complete the service.'
+    a: 'You submit a service request with your requirements, our team reviews it and assigns a suitable Verified Professional, and the professional contacts you directly to complete the service.'
+  },
+  {
+    q: 'What if the same issue happens again after my service?',
+    a: 'If the same issue with the completed work occurs within 7 days, let us know. Our team will review it and arrange for the issue to be fixed free of additional service charges.'
   }
 ];
 

@@ -2,7 +2,7 @@ import { BulletList, ContactBlock, Paragraphs, PolicyPage, PolicySection } from 
 
 export function CommissionPolicy() {
   return (
-    <PolicyPage title="Commission Policy" intro="How platform commissions are calculated and collected for workers. Last updated: July 2026.">
+    <PolicyPage title="Commission Policy" intro="How platform commissions are calculated and collected for workers. Last updated: September 2026.">
       <PolicySection title="Introduction">
         <Paragraphs items={[
           'This Commission Policy explains how platform commissions are calculated and collected for workers using FSD Home Services.',
@@ -15,7 +15,7 @@ export function CommissionPolicy() {
         <p>The platform commission helps cover these operational costs.</p>
       </PolicySection>
       <PolicySection title="2. Commission Rate">
-        <p>Workers agree to pay <strong className="text-slate-950">10% of the final agreed job value</strong> for every successfully completed job received through FSD Home Services.</p>
+        <p>Workers agree to pay <strong className="text-slate-950">15% of the final agreed job value</strong> for every successfully completed job received through FSD Home Services.</p>
         <div className="overflow-x-auto">
           <table className="min-w-72 border-collapse text-left text-sm">
             <thead>
@@ -26,10 +26,10 @@ export function CommissionPolicy() {
             </thead>
             <tbody>
               {[
-                ['PKR 2,000', 'PKR 200'],
-                ['PKR 5,000', 'PKR 500'],
-                ['PKR 10,000', 'PKR 1,000'],
-                ['PKR 20,000', 'PKR 2,000']
+                ['PKR 2,000', 'PKR 300'],
+                ['PKR 5,000', 'PKR 750'],
+                ['PKR 10,000', 'PKR 1,500'],
+                ['PKR 20,000', 'PKR 3,000']
               ].map(([jobValue, commission]) => (
                 <tr key={jobValue} className="border-b border-slate-100">
                   <td className="py-2 pr-8">{jobValue}</td>

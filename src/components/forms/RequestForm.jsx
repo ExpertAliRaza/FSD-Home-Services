@@ -115,7 +115,7 @@ export function RequestForm({ preferredWorkerId, initialService }) {
     return (
       <div className="rounded-lg border border-brand-100 bg-brand-50 p-6 text-brand-900">
         <h2 className="text-2xl font-bold">Request received</h2>
-        <p className="mt-2 text-lg">Your request has been received. Our team will assign a verified worker shortly.</p>
+        <p className="mt-2 text-lg">Your request has been received. Our team will assign a Verified Professional shortly.</p>
       </div>
     );
   }

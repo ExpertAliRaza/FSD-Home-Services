@@ -26,15 +26,15 @@ import { WHATSAPP_URL } from '../../components/support/WhatsAppButton';
 const faqItems = [
   {
     q: 'How are workers verified?',
-    a: 'Every worker goes through a manual review process that includes identity verification before being approved and listed on the platform. This helps maintain service quality.'
+    a: 'Professionals go through our verification process: previous work review, government-issued ID verification, and an initial test job. Those who meet our standards receive Verified Professional status.'
   },
   {
     q: 'Can I contact workers directly?',
-    a: 'Once a verified worker is assigned to your request, they will contact you directly using the phone number you provided. You can discuss the details and schedule the visit.'
+    a: 'Once a Verified Professional is assigned to your request, they will contact you directly using the phone number you provided. You can discuss the details and schedule the visit.'
   },
   {
     q: 'How do I request a specific worker?',
-    a: 'When submitting a service request, you can specify a preferred worker. Our admin team will check their availability and assign them if possible.'
+    a: 'When submitting a service request, you can specify a preferred worker. Our team will check their availability and assign them if possible.'
   },
   {
     q: 'Are worker phone numbers public?',
@@ -46,7 +46,7 @@ const faqItems = [
   },
   {
     q: 'What if my selected worker is unavailable?',
-    a: 'If your preferred worker is unavailable, our admin team will assign a suitable verified worker based on your location and service requirements.'
+    a: 'If your preferred professional is unavailable, our team will assign a suitable Verified Professional based on your location and service requirements.'
   },
   {
     q: 'Is there any booking fee?',
@@ -54,7 +54,7 @@ const faqItems = [
   },
   {
     q: 'Can I request more than one service?',
-    a: 'Yes. You can submit separate requests for different services. Each request is reviewed and assigned to the appropriate verified worker.'
+    a: 'Yes. You can submit separate requests for different services. Each request is reviewed and assigned to the appropriate Verified Professional.'
   }
 ];
 
@@ -99,7 +99,7 @@ export function WorkerDirectory() {
     <>
       {/* ── Hero ── */}
       <PageHeader eyebrow="Approved workers only" title="Worker Directory">
-        Browse public cards for approved workers. Phone numbers, CNIC, customer details, and admin notes are never shown here.
+        Browse public cards for approved workers. Phone numbers, CNIC, customer details, and internal notes are never shown here.
       </PageHeader>
 
       {/* ══════════════════════════════════════════════════════
@@ -113,7 +113,7 @@ export function WorkerDirectory() {
                 <UserCheck size={20} />
               </div>
               <div>
-                <p className="font-bold text-slate-950">{workers.length}+ Verified Workers</p>
+                 <p className="font-bold text-slate-950">{workers.length}+ Verified Professionals</p>
               </div>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 p-4">
@@ -137,7 +137,7 @@ export function WorkerDirectory() {
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <p className="font-bold text-slate-950">Admin Approved</p>
+                <p className="font-bold text-slate-950">Team Approved</p>
               </div>
             </div>
           </div>
@@ -239,19 +239,19 @@ export function WorkerDirectory() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          SECTION 2 — How to Hire a Verified Worker
+          SECTION 2 — How to Hire a Verified Professional
          ══════════════════════════════════════════════════════ */}
       <section className="bg-white py-14 lg:py-20">
         <div className="mx-auto max-w-7xl px-4">
           <p className="text-sm font-bold text-brand-700">How to hire</p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">How to Hire a Verified Worker</h2>
-          <p className="mt-3 max-w-2xl text-slate-600">Finding a trusted professional is simple with our verified worker directory.</p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">How to Hire a Verified Professional</h2>
+          <p className="mt-3 max-w-2xl text-slate-600">Finding a trusted professional is simple with our verified professional directory.</p>
           <div className="mt-10 grid gap-6 md:grid-cols-4">
             {[
               { step: 1, title: 'Browse Workers', desc: 'Search by service, worker name or area.' },
               { step: 2, title: 'View Profile', desc: 'Check experience, service category and profile information.' },
               { step: 3, title: 'Submit a Request', desc: 'Request your preferred worker or submit a general service request.' },
-              { step: 4, title: 'Get Connected', desc: 'Our admin team coordinates with the worker and helps complete your request.' }
+              { step: 4, title: 'Get Connected', desc: 'Our team coordinates with the worker and helps complete your request.' }
             ].map((item, index) => (
               <div key={item.step} className="relative text-center">
                 {index < 3 && (
@@ -281,12 +281,12 @@ export function WorkerDirectory() {
           <p className="mt-3 max-w-2xl text-slate-600">Every public profile goes through a verification process before appearing in our directory.</p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: <ShieldCheck size={22} />, title: 'Admin Verified Profiles', desc: 'Every worker is reviewed before approval.' },
+              { icon: <ShieldCheck size={22} />, title: 'Verified Professionals', desc: 'Professionals are verified through work review, ID check, and an initial test job before earning Verified Professional status.' },
               { icon: <MapPin size={22} />, title: 'Genuine Local Professionals', desc: 'Workers serve customers across Faisalabad.' },
               { icon: <UserCheck size={22} />, title: 'Experience Displayed', desc: 'See years of experience before requesting.' },
               { icon: <Lock size={22} />, title: 'Customer Privacy', desc: 'Private contact information is protected.' },
               { icon: <CheckCircle2 size={22} />, title: 'Trusted Platform', desc: 'No random or unverified listings.' },
-              { icon: <ClipboardList size={22} />, title: 'Fair Assignment Process', desc: 'Customer requests are handled professionally by our admin team.' }
+              { icon: <ClipboardList size={22} />, title: 'Fair Assignment Process', desc: 'Customer requests are handled professionally by our team.' }
             ].map((item) => (
               <div key={item.title} className="rounded-lg border border-slate-200 bg-white p-5 transition hover:border-brand-200 hover:shadow-soft">
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-brand-50 text-brand-700">
@@ -341,7 +341,7 @@ export function WorkerDirectory() {
         <div className="mx-auto max-w-7xl px-4 text-center">
           <h2 className="text-2xl font-bold text-white lg:text-3xl">Need Help Finding the Right Worker?</h2>
           <p className="mx-auto mt-3 max-w-xl text-brand-100">
-            Whether you need a plumber, electrician, AC technician, carpenter, painter, mason, CCTV technician, solar technician or general labor, our admin team will help you connect with a trusted verified professional anywhere in Faisalabad.
+            Whether you need a plumber, electrician, AC technician, carpenter, painter, mason, CCTV technician, solar technician or general labor, our team will help you connect with a trusted verified professional anywhere in Faisalabad.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link

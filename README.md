@@ -7,7 +7,7 @@ Release v1.1 for a Faisalabad-based verified home services marketplace.
 - Public website with home, services, service SEO pages, worker directory, request service, become a worker, contact, and login pages.
 - Anonymous customer service request form.
 - Worker signup with Supabase Auth. Name, phone, service, and area are required; password, CNIC, profile photo, and experience are optional.
-- Admin dashboard for worker approval, profile editing, request assignment, complaints, completion values, 10% commission tracking, notifications, internal notes, business intelligence, exports, and standard backups.
+- Admin dashboard for worker approval, profile editing, request assignment, complaints, completion values, 15% commission tracking, notifications, internal notes, business intelligence, exports, and standard backups.
 - Worker dashboard with leads, jobs, earnings, reviews, realtime notifications, profile, documents, and settings.
 - Public worker directory shows approved workers only.
 - Worker phone numbers, customer phone numbers, CNIC data, and admin notes are not shown publicly.

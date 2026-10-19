@@ -8,17 +8,84 @@ const businessId = `${siteUrl}/#business`;
 const defaultDescription = 'Request verified plumbers, electricians, AC technicians, carpenters, painters, masons and laborers across Faisalabad.';
 
 const pageMeta = {
-  '/': ['FSD Home Services | Verified Workers in Faisalabad', defaultDescription],
+  '/': ['FSD Home Services | Verified Professionals in Faisalabad', defaultDescription],
   '/services': ['Home Services in Faisalabad | FSD Home Services', 'Browse verified home service categories available across Faisalabad.'],
-  '/workers': ['Verified Workers in Faisalabad | FSD Home Services', 'Browse admin-approved local workers without exposing private phone numbers.'],
-  '/about': ['About FSD Home Services | Verified Local Workers in Faisalabad', 'Learn about FSD Home Services, our mission, worker verification process and how we help homeowners across Faisalabad connect with trusted local professionals.'],
-  '/become-a-worker': ['Become a Verified Worker | FSD Home Services', 'Apply to join FSD Home Services as a verified local worker in Faisalabad.'],
+  '/workers': ['Verified Professionals in Faisalabad | FSD Home Services', 'Browse team-approved local workers without exposing private phone numbers.'],
+  '/about': ['About FSD Home Services | Verified Local Professionals in Faisalabad', 'Learn about FSD Home Services, our mission, worker verification process and how we help homeowners across Faisalabad connect with trusted local professionals.'],
+  '/become-a-worker': ['Become a Verified Professional | FSD Home Services', 'Apply to join FSD Home Services as a verified local professional in Faisalabad.'],
   '/request-service': ['Request a Worker in Faisalabad | FSD Home Services', 'Submit a free request for a verified local worker in Faisalabad.'],
   '/contact': ['Customer Care | FSD Home Services', 'Contact FSD Home Services customer support by WhatsApp or phone.'],
   '/privacy': ['Privacy Policy | FSD Home Services', 'How FSD Home Services collects, uses, stores and protects customer and worker information.'],
   '/terms': ['Terms of Service | FSD Home Services', 'Terms for customers and workers using the FSD Home Services marketplace.'],
   '/commission-policy': ['Commission Policy | FSD Home Services', 'How FSD Home Services calculates and collects worker platform commission.'],
   '/worker-verification-policy': ['Worker Verification Policy | FSD Home Services', 'How FSD Home Services reviews worker applications and verification status.']
+};
+
+const serviceMetaMap = {
+  'plumber-faisalabad': {
+    title: 'Plumber in Faisalabad | Verified Plumbing Services',
+    description: 'Need a plumber in Faisalabad? Get reliable plumbing services for leaks, pipes, taps, drainage, bathrooms and water-related issues.'
+  },
+  'electrician-faisalabad': {
+    title: 'Electrician in Faisalabad | Verified Electrical Services',
+    description: 'Need an electrician in Faisalabad? Get help with wiring, switches, fans, lights, sockets, DB work and electrical faults.'
+  },
+  'ac-repair-faisalabad': {
+    title: 'AC Technician in Faisalabad | Verified AC Services',
+    description: 'Get AC repair, servicing, installation and maintenance in Faisalabad from a verified local AC technician.'
+  },
+  'carpenter-faisalabad': {
+    title: 'Carpenter in Faisalabad | Verified Carpentry Services',
+    description: 'Need a carpenter in Faisalabad? Get help with furniture, doors, cabinets, woodwork, repairs and custom carpentry jobs.'
+  },
+  'painter-faisalabad': {
+    title: 'Painter in Faisalabad | Verified Painting Services',
+    description: 'Find a painter in Faisalabad for house painting, wall painting, rooms, shops, offices and other residential or commercial projects.'
+  },
+  'mason-faisalabad': {
+    title: 'Mason in Faisalabad | Verified Masonry Services',
+    description: 'Need a mason in Faisalabad? Get professional help with brickwork, concrete, walls, repairs and general masonry work.'
+  },
+  'labor-faisalabad': {
+    title: 'Laborer in Faisalabad | Verified Labour Services',
+    description: 'Need labor in Faisalabad? Get reliable workers for shifting, loading, construction support, cleaning and general labor jobs.'
+  },
+  'cctv-technician-faisalabad': {
+    title: 'CCTV Technician in Faisalabad | Verified CCTV Services',
+    description: 'Get CCTV installation, setup, repair and maintenance in Faisalabad for homes, shops, offices and other properties.'
+  },
+  'solar-technician-faisalabad': {
+    title: 'Solar Technician in Faisalabad | Verified Solar Services',
+    description: 'Get solar installation, troubleshooting, maintenance and related solar services in Faisalabad from a local technician.'
+  },
+  'contractor-faisalabad': {
+    title: 'Contractor in Faisalabad | Verified Contracting Services',
+    description: 'Find a contractor in Faisalabad for construction, renovation, remodeling and other residential or commercial building projects.'
+  },
+  'construction-renovation-faisalabad': {
+    title: 'Construction & Renovation in Faisalabad | Verified Services',
+    description: 'Get construction and renovation services in Faisalabad for homes, shops, offices and other residential or commercial properties.'
+  },
+  'marble-tile-fitting-faisalabad': {
+    title: 'Marble & Tile Fitting in Faisalabad | Verified Services',
+    description: 'Get marble and tile fitting services in Faisalabad for floors, walls, kitchens, bathrooms and other residential or commercial spaces.'
+  },
+  'welding-metal-fabrication-faisalabad': {
+    title: 'Welding & Metal Fabrication in Faisalabad | Verified Services',
+    description: 'Get welding and metal fabrication services in Faisalabad for gates, grills, railings, frames, repairs and custom metal work.'
+  },
+  'ceiling-faisalabad': {
+    title: 'False Ceiling in Faisalabad | Verified Ceiling Services',
+    description: 'Get false ceiling installation and ceiling services in Faisalabad for homes, offices, shops and other interior spaces.'
+  },
+  'waterproofing-faisalabad': {
+    title: 'Waterproofing in Faisalabad | Verified Services',
+    description: 'Get waterproofing services in Faisalabad for roofs, bathrooms, walls, terraces and other areas affected by water leakage.'
+  },
+  'cleaning-services-faisalabad': {
+    title: 'Cleaning Services in Faisalabad | Verified Cleaning Services',
+    description: 'Get reliable cleaning services in Faisalabad for homes, offices, shops and other spaces, including general and deep cleaning.'
+  }
 };
 
 const organizationSchema = {
@@ -59,9 +126,9 @@ export function RouteMeta() {
       : null;
     const [title, description] = service
       ? [
-        `${service.name} in Faisalabad | FSD Home Services`,
-        `${service.description} Request an admin-approved ${service.name.toLowerCase()} in Faisalabad.`
-      ]
+          serviceMetaMap[service.slug]?.title || `${service.name} in Faisalabad | FSD Home Services`,
+          serviceMetaMap[service.slug]?.description || ''
+        ]
       : pageMeta[pathname] || ['Page Not Found | FSD Home Services', defaultDescription];
     const canonicalUrl = `${siteUrl}${pathname === '/' ? '' : pathname}`;
     const privateRoute = pathname === '/login'
@@ -166,7 +233,7 @@ function buildRouteStructuredData({ canonicalUrl, description, pathname, service
     const aggregateRating = reviews.length
       ? {
           '@type': 'AggregateRating',
-          ratingValue: (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1),
+          ratingValue: parseFloat((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)),
           reviewCount: reviews.length,
           bestRating: 5,
           worstRating: 1
@@ -176,9 +243,9 @@ function buildRouteStructuredData({ canonicalUrl, description, pathname, service
     graph.push({
       '@type': 'Service',
       '@id': `${canonicalUrl}#service`,
-      name: `${service.name} in Faisalabad`,
+      name: serviceMetaMap[service.slug]?.title || `${service.name} in Faisalabad | FSD Home Services`,
       serviceType: service.name,
-      description: service.description,
+      description: serviceMetaMap[service.slug]?.description || service.description,
       url: canonicalUrl,
       image: `${siteUrl}${service.image}`,
       provider: { '@id': businessId },

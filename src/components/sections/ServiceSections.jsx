@@ -342,7 +342,7 @@ export function FinalCta({ serviceName }) {
       <div className="mx-auto max-w-7xl px-4 text-center">
         <h2 className="text-2xl font-bold text-white lg:text-3xl">Need a Verified {serviceName} in Faisalabad?</h2>
         <p className="mx-auto mt-3 max-w-lg text-brand-100">
-          Submit your request today and our admin team will connect you with a verified local {serviceName.toLowerCase()} based on your location and requirements.
+          Submit your request today and our service team will connect you with a verified local {serviceName.toLowerCase()} based on your location and requirements.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link

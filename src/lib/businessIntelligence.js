@@ -34,7 +34,9 @@ export function buildBusinessIntelligence(data, filters) {
   const completionRate = percent(completedJobs, totalRequests);
   const commissionEarned = sum(scoped.commissions, 'commission_amount');
   const pendingCommission = sum(scoped.commissions.filter((item) => item.payment_status === 'due'), 'commission_amount');
-  const revenue = sum(scoped.commissions, 'job_amount');
+  const commissionRevenue = sum(scoped.commissions, 'job_amount');
+  const monthlyFeeRevenue = sum((scoped.monthlyFees || []).filter((fee) => fee.status === 'paid'), 'amount');
+  const revenue = commissionRevenue + monthlyFeeRevenue;
   const averageRating = average(source.workers.map((worker) => Number(worker.rating_avg || 0)).filter(Boolean));
   const customers = uniqueCount(source.requests.map((request) => normalizedPhone(request.customer_phone) || request.customer_name));
   const scopedCustomers = uniqueCount(scoped.requests.map((request) => normalizedPhone(request.customer_phone) || request.customer_name));
@@ -131,7 +133,8 @@ function scopeData(data, range) {
     requests: byDate(data.requests, range),
     commissions: byDate(data.commissions, range),
     complaints: byDate(data.complaints, range),
-    notifications: byDate(data.notifications, range)
+    notifications: byDate(data.notifications, range),
+    monthlyFees: byDate(data.monthlyFees || [], range)
   };
 }
 
@@ -236,7 +239,8 @@ export function normalizeAdminData(data = {}) {
     notifications: data.notifications || [],
     commissions: data.commissions || [],
     complaints: data.complaints || [],
-    serviceCategories: data.serviceCategories || []
+    serviceCategories: data.serviceCategories || [],
+    monthlyFees: data.monthlyFees || []
   };
 }
 
@@ -442,3 +446,8 @@ function startOfDay(date) {
 function endOfDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
 }
+
+
+
+
+

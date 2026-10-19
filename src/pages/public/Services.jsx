@@ -47,11 +47,11 @@ const serviceCategoryMap = {
 const faqItems = [
   {
     q: 'How does FSD Home Services work?',
-    a: 'Choose a service, submit a request describing your problem, and our admin team will review it and assign a suitable verified worker who will contact you directly.'
+    a: 'Choose a service, submit a request describing your problem, and our team will review it and assign a suitable Verified Professional who will contact you directly.'
   },
   {
     q: 'Are all workers verified?',
-    a: 'Yes. Every worker on our platform goes through a manual review process that includes identity verification before being approved and listed.'
+    a: 'Yes. Every professional on our platform goes through our 4-step process: previous work review, government-issued ID verification, and an initial test job before earning Verified Professional status.'
   },
   {
     q: 'Can I request emergency services?',
@@ -94,7 +94,7 @@ export function Services() {
     <>
       {/* ── Hero ── */}
       <PageHeader eyebrow="Services" title="Verified home services across Faisalabad">
-        Select a category, choose your area, and our admin team will assign an approved worker.
+        Select a category, choose your area, and our team will assign an approved worker.
       </PageHeader>
 
       {/* ── Trust badges + buttons ── */}
@@ -103,7 +103,7 @@ export function Services() {
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-slate-700">
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={16} className="text-brand-700" /> {services?.length ? `${services.length} Verified Home Services` : '16 Verified Home Services'}</span>
             <span className="inline-flex items-center gap-1.5"><MapPin size={16} className="text-brand-700" /> 130+ Areas Covered</span>
-            <span className="inline-flex items-center gap-1.5"><ShieldCheck size={16} className="text-brand-700" /> Admin Assigned Workers</span>
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck size={16} className="text-brand-700" /> Team Assigned Workers</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={16} className="text-brand-700" /> No Customer Signup Required</span>
           </div>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
@@ -194,7 +194,7 @@ export function Services() {
                   <MapPin size={12} /> Available across Faisalabad
                 </p>
                 <div className="mt-4 grid gap-1.5">
-                  {['Verified Worker', 'Admin Assigned', 'Fast Response'].map((item) => (
+                  {['Verified Professional', 'Team Assigned', 'Fast Response'].map((item) => (
                     <span key={item} className="flex items-center gap-1.5 text-xs text-slate-500">
                       <CheckCircle2 size={12} className="text-brand-700" /> {item}
                     </span>
@@ -216,9 +216,9 @@ export function Services() {
           <h2 className="mt-2 text-2xl font-bold text-slate-950 lg:text-3xl">Why Choose FSD Home Services?</h2>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: <ShieldCheck size={22} />, title: 'Verified Workers', desc: 'Every worker is manually reviewed before approval.' },
+               { icon: <ShieldCheck size={22} />, title: 'Verified Professionals', desc: 'Every professional is reviewed through our 4-step process before earning Verified Professional status.' },
               { icon: <CheckCircle2 size={22} />, title: 'Privacy Protected', desc: 'Your phone number is never publicly listed.' },
-              { icon: <ArrowRight size={22} />, title: 'Quick Assignment', desc: 'Our admin team connects you with the right worker.' },
+              { icon: <ArrowRight size={22} />, title: 'Quick Assignment', desc: 'Our team connects you with the right worker.' },
               { icon: <MapPin size={22} />, title: 'Wide Coverage', desc: 'Serving 130+ areas across Faisalabad.' },
               { icon: <ShieldCheck size={22} />, title: 'Trusted Platform', desc: 'Reliable local professionals for everyday home services.' },
               { icon: <MessageCircle size={22} />, title: 'Responsive Support', desc: 'Contact us anytime through WhatsApp or phone.' }
@@ -244,7 +244,7 @@ export function Services() {
             {[
               { step: 1, title: 'Choose Service', desc: 'Browse our services and select the one you need.' },
               { step: 2, title: 'Submit Request', desc: 'Tell us about your problem and our team will review it.' },
-              { step: 3, title: 'Verified Worker Assigned', desc: 'We assign a suitable verified worker who contacts you directly.' }
+               { step: 3, title: 'Verified Professional Assigned', desc: 'We assign a suitable Verified Professional who contacts you directly.' }
             ].map((item) => (
               <div key={item.step} className="relative text-center">
                 <div className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-700">
@@ -298,7 +298,7 @@ export function Services() {
         <div className="mx-auto max-w-7xl px-4 text-center">
           <h2 className="text-2xl font-bold text-white lg:text-3xl">Can&apos;t Decide Which Service You Need?</h2>
           <p className="mx-auto mt-3 max-w-lg text-brand-100">
-            Tell us about your problem and we&apos;ll help you find the right verified worker anywhere in Faisalabad.
+             Tell us about your problem and we&apos;ll help you find the right Verified Professional anywhere in Faisalabad.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link

@@ -1,7 +1,7 @@
 import { BadgeCheck, ClipboardList, Star, UserCheck } from 'lucide-react';
 
 const stats = [
-  { icon: <UserCheck size={20} />, value: '47+', label: 'Verified Workers' },
+  { icon: <UserCheck size={20} />, value: '47+', label: 'Verified Professionals' },
   { icon: <BadgeCheck size={20} />, value: '132', label: 'Completed Jobs' },
   { icon: <ClipboardList size={20} />, value: '148+', label: 'Service Requested' },
   {

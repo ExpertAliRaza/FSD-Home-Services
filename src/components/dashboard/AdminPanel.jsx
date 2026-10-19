@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell, CheckCheck, Clipboard, Edit3, LogOut, Trash2, X,
@@ -33,7 +33,11 @@ import {
   createCoupon,
   updateCouponStatus,
   updateReferralStatus,
-  updateServiceRequest
+  updateServiceRequest,
+  updateMonthlyPlatformFee,
+  createMonthlyPlatformFee,
+  generateInvoice,
+  getInvoicePdf
 } from '../../lib/api';
 
 const workerStatuses = ['pending', 'approved', 'rejected', 'needs_changes', 'suspended'];
@@ -51,7 +55,9 @@ export function AdminPanel() {
     commissions: [],
     complaints: [],
     coupons: [],
-    referrals: []
+    referrals: [],
+    monthlyFees: [],
+    invoices: []
   });
 
   const [error, setError] = useState('');
@@ -75,6 +81,12 @@ export function AdminPanel() {
     per_customer_limit: 1,
     is_active: true
   });
+  const [monthlyFeeForm, setMonthlyFeeForm] = useState({
+    worker_id: '',
+    month: '2026-09',
+    amount: '300'
+  });
+  const [invoiceActionKey, setInvoiceActionKey] = useState('');
   const [activeTab, setActiveTab] = useState('workers');
   // Worker filters
   const [workerSearch, setWorkerSearch] = useState('');
@@ -118,7 +130,11 @@ export function AdminPanel() {
   }, []);
 
   const updateNotificationsInState = useCallback((updater) => {
-    setData((current) => ({ ...current, notifications: updater(current.notifications) }));
+    setData((current) => ({ ...current, notifications: typeof updater === 'function' ? updater(current.notifications) : updater }));
+  }, []);
+
+  const updateMonthlyFeesInState = useCallback((updater) => {
+    setData((current) => ({ ...current, monthlyFees: typeof updater === 'function' ? updater(current.monthlyFees) : updater }));
   }, []);
 
   useEffect(() => { loadAll(); }, [loadAll]);
@@ -133,8 +149,9 @@ export function AdminPanel() {
       const needsCommissions = reloadTargets.includes('commissions');
       const needsComplaints = reloadTargets.includes('complaints');
       const needsNotifications = reloadTargets.includes('notifications');
+      const needsMonthlyFees = reloadTargets.includes('monthlyFees');
 
-      if (!needsWorkers && !needsRequests && !needsCommissions && !needsComplaints && !needsNotifications) {
+      if (!needsWorkers && !needsRequests && !needsCommissions && !needsComplaints && !needsNotifications && !needsMonthlyFees) {
         return;
       }
 
@@ -145,7 +162,8 @@ export function AdminPanel() {
         ...(needsRequests ? { requests: fresh.requests } : {}),
         ...(needsCommissions ? { commissions: fresh.commissions } : {}),
         ...(needsComplaints ? { complaints: fresh.complaints } : {}),
-        ...(needsNotifications ? { notifications: fresh.notifications } : {})
+        ...(needsNotifications ? { notifications: fresh.notifications } : {}),
+        ...(needsMonthlyFees ? { monthlyFees: fresh.monthlyFees } : {})
       }));
     } catch (err) {
       setError(err.message || 'The admin action could not be completed.');
@@ -243,6 +261,19 @@ export function AdminPanel() {
     paid: totals.paid + (item.payment_status === 'paid' ? Number(item.commission_amount || 0) : 0),
     due: totals.due + (item.payment_status === 'due' ? Number(item.commission_amount || 0) : 0)
   }), { jobValue: 0, earned: 0, paid: 0, due: 0 }), [data.commissions]);
+
+  function getCommissionRate(request) {
+    const dateStr = request?.created_at?.slice(0, 10);
+    if (!dateStr) return 10;
+    return dateStr < '2026-09-12' ? 10 : 15;
+  }
+
+  function formatMonth(monthStr) {
+    if (!monthStr) return monthStr;
+    const [year, month] = monthStr.split('-');
+    const date = new Date(Number(year), Number(month) - 1, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
 
   const setWorkerStatus = async (worker, status) => {
     let reason = null;
@@ -386,6 +417,35 @@ export function AdminPanel() {
       ...current,
       [requestId]: { ...current[requestId], [field]: value }
     }));
+  };
+
+  const invoiceFor = (request) => {
+    return data.invoices?.find((inv) => inv.request_id === request.id) || null;
+  };
+
+  const handleInvoice = async (request) => {
+    setError('');
+    setInvoiceActionKey(`invoice-${request.id}`);
+    try {
+      let invoice = invoiceFor(request);
+      if (!invoice) {
+        invoice = await generateInvoice(request.id);
+      }
+      const blob = await getInvoicePdf(request.id);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `FSD-Home-Services-Invoice-${invoice.invoice_number}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      await loadAll();
+    } catch (err) {
+      setError(err.message || 'Could not generate invoice.');
+    } finally {
+      setInvoiceActionKey('');
+    }
   };
 
   const note = async (entityType, entityId) => {
@@ -535,6 +595,7 @@ export function AdminPanel() {
     { key: 'workers', label: 'Workers', icon: Users, count: data.workers.length },
     { key: 'requests', label: 'Service Requests', icon: FileText, count: data.requests.length },
     { key: 'commissions', label: 'Commissions', icon: CheckCheck, count: data.commissions.length },
+    { key: 'monthlyFees', label: 'Monthly Platform Fee', icon: CheckCheck, count: data.monthlyFees.length },
     { key: 'complaints', label: 'Complaints', icon: MessageSquareWarning, count: data.complaints.length },
     { key: 'referrals', label: 'Referrals', icon: Users, count: data.referrals.filter(r => r.status === 'pending' || r.status === 'completed').length },
     { key: 'coupons', label: 'Coupons', icon: Clipboard, count: data.coupons.length },
@@ -955,217 +1016,243 @@ export function AdminPanel() {
                   )}
                 </div>
                 <div className="grid gap-4">
-                  {filteredRequests.map((request) => (
-                    <div key={request.id} className="rounded-lg border border-slate-200 bg-white transition-shadow hover:shadow-sm">
-                      {editingRequestId === request.id ? (
-                        <div className="p-5 flex flex-col gap-4">
-                          <h3 className="text-lg font-bold">Edit Service Request</h3>
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="sm:col-span-2">
-                              <label className="block text-xs font-semibold text-slate-500 mb-1">Services (Max 3)</label>
-                              <div className="flex flex-wrap gap-2">
-                                {services.map(s => (
-                                  <button
-                                    key={s.name}
-                                    type="button"
-                                    onClick={() => toggleRequestService(s.name)}
-                                    className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${(requestEditForm.services || []).includes(s.name) ? 'border-brand-600 bg-brand-50 font-bold text-brand-800' : 'border-slate-200 bg-white text-slate-600 hover:border-brand-200'}`}
-                                  >
-                                    {s.name}
-                                  </button>
-                                ))}
+                  {filteredRequests.map((request, index) => {
+                    const isNewPeriod = (request.created_at?.slice(0, 10) || '') >= '2026-09-12';
+                    const nextRequest = filteredRequests[index + 1];
+                    const nextIsOldPeriod = nextRequest ? (nextRequest.created_at?.slice(0, 10) || '') < '2026-09-12' : false;
+                    const showDivider = isNewPeriod && nextIsOldPeriod;
+
+                    const card = (
+                      <div key={request.id} className="rounded-lg border border-slate-200 bg-white transition-shadow hover:shadow-sm">
+                        {editingRequestId === request.id ? (
+                          <div className="p-5 flex flex-col gap-4">
+                            <h3 className="text-lg font-bold">Edit Service Request</h3>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                              <div className="sm:col-span-2">
+                                <label className="block text-xs font-semibold text-slate-500 mb-1">Services (Max 3)</label>
+                                <div className="flex flex-wrap gap-2">
+                                  {services.map(s => (
+                                    <button
+                                      key={s.name}
+                                      type="button"
+                                      onClick={() => toggleRequestService(s.name)}
+                                      className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${(requestEditForm.services || []).includes(s.name) ? 'border-brand-600 bg-brand-50 font-bold text-brand-800' : 'border-slate-200 bg-white text-slate-600 hover:border-brand-200'}`}
+                                    >
+                                      {s.name}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-500 mb-1">Customer Name</label>
+                                <input type="text" value={requestEditForm.customer_name} onChange={e => setRequestEditForm({...requestEditForm, customer_name: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-500 mb-1">Customer Phone</label>
+                                <input type="text" value={requestEditForm.customer_phone} onChange={e => setRequestEditForm({...requestEditForm, customer_phone: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-500 mb-1">Urgency</label>
+                                <select value={requestEditForm.urgency} onChange={e => setRequestEditForm({...requestEditForm, urgency: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm">
+                                  <option value="Normal">Normal</option>
+                                  <option value="Today">Today</option>
+                                  <option value="Emergency">Emergency</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-slate-500 mb-1">Preferred Time</label>
+                                <input type="text" value={requestEditForm.preferred_time} onChange={e => setRequestEditForm({...requestEditForm, preferred_time: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
+                              </div>
+                              <div className="sm:col-span-2">
+                                <label className="block text-xs font-semibold text-slate-500 mb-1">Problem Description</label>
+                                <textarea rows="3" value={requestEditForm.problem_description} onChange={e => setRequestEditForm({...requestEditForm, problem_description: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm"></textarea>
                               </div>
                             </div>
-                            <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-1">Customer Name</label>
-                              <input type="text" value={requestEditForm.customer_name} onChange={e => setRequestEditForm({...requestEditForm, customer_name: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-1">Customer Phone</label>
-                              <input type="text" value={requestEditForm.customer_phone} onChange={e => setRequestEditForm({...requestEditForm, customer_phone: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-1">Urgency</label>
-                              <select value={requestEditForm.urgency} onChange={e => setRequestEditForm({...requestEditForm, urgency: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm">
-                                <option value="Normal">Normal</option>
-                                <option value="Today">Today</option>
-                                <option value="Emergency">Emergency</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-1">Preferred Time</label>
-                              <input type="text" value={requestEditForm.preferred_time} onChange={e => setRequestEditForm({...requestEditForm, preferred_time: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm" />
-                            </div>
-                            <div className="sm:col-span-2">
-                              <label className="block text-xs font-semibold text-slate-500 mb-1">Problem Description</label>
-                              <textarea rows="3" value={requestEditForm.problem_description} onChange={e => setRequestEditForm({...requestEditForm, problem_description: e.target.value})} className="w-full rounded-md border border-slate-300 p-2 text-sm"></textarea>
+                            <div className="flex items-center gap-2 mt-2">
+                              <button onClick={saveRequestEdit} disabled={actionKey === `save-request-${editingRequestId}`} className="rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50">Save Changes</button>
+                              <button onClick={cancelRequestEdit} className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <button onClick={saveRequestEdit} disabled={actionKey === `save-request-${request.id}`} className="rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50">
-                              {actionKey === `save-request-${request.id}` ? 'Saving...' : 'Save Changes'}
-                            </button>
-                            <button onClick={cancelRequestEdit} className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                      <div className={`flex flex-col gap-4 p-5 md:flex-row md:items-start md:justify-between ${
-                        request.status === 'completed' ? 'border-l-4 border-emerald-500 bg-emerald-50/40' :
-                        request.status === 'cancelled' ? 'border-l-4 border-red-500 bg-red-50/40' :
-                        request.status === 'assigned' ? 'border-l-4 border-amber-500 bg-amber-50/40' :
-                        'border-l-4 border-transparent'
-                      }`}>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-3">
-                            <h3 className="text-lg font-bold text-slate-950">{request.service_categories?.name || request.service_category_id}</h3>
-                            {(request.additional_services || []).map(s => (
-                              <span key={s} className="inline-flex rounded border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-800">{s}</span>
-                            ))}
-                            <StatusBadge status={request.status} />
-                            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{request.areas?.name || request.area_id}</span>
-                          </div>
-                          <div className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
-                              <InfoRow label="Customer" value={request.customer_name} />
-                            <InfoRow label="Phone" value={request.customer_phone} />
-                            <InfoRow label="Urgency" value={request.urgency} />
-                            {request.preferred_time && <InfoRow label="Preferred time" value={request.preferred_time} />}
-                          </div>
-                          <p className="mt-3 text-sm leading-relaxed text-slate-700">{request.problem_description}</p>
-                          {!!request.lead_assignments?.length && (
-                            <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-brand-50 px-4 py-2.5 text-sm">
-                              <span className="font-semibold text-brand-800">Assigned:</span>
-                              {request.lead_assignments.map((assignment) => (
-                                <span key={assignment.id} className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-brand-700">
-                                  {assignment.workers?.display_name} {assignment.assigned_service ? `(${assignment.assigned_service})` : ''}
-                                  <button type="button" onClick={() => unassign(request.id, assignment.worker_id)} disabled={actionKey === `request-${request.id}`} className="hover:text-red-600 disabled:opacity-50 ml-1">
-                                    <X size={12} />
-                                  </button>
-                                </span>
-                              ))}
-                            </div>
-                           )}
-                        </div>
-                        <div className="grid shrink-0 gap-2 md:min-w-56">
-                          {request.status === 'completed' ? (
-                            <div className="rounded-lg bg-emerald-50 px-4 py-2.5 text-center text-sm font-bold text-emerald-800">Completed</div>
-                          ) : (
-                            <select
-                              disabled={actionKey === `request-${request.id}`}
-                              className="min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm disabled:opacity-50"
-                              value={request.status}
-                              onChange={(event) => setRequestStatus(request.id, event.target.value)}
-                            >
-                              {requestStatuses.map((status) => <option key={status}>{status}</option>)}
-                            </select>
-                          )}
-                          {[request.service_category_id, ...(request.additional_services || [])].filter(Boolean).map((reqService, idx) => {
-                            const isAlreadyAssigned = request.lead_assignments?.some(
-                              (a) => a.assigned_service === reqService && ['assigned', 'accepted'].includes(a.status)
-                            );
-                            if (isAlreadyAssigned) return null;
-                            return (
-                              <select
-                                key={idx}
-                                disabled={actionKey === `request-${request.id}` || request.status === 'completed'}
-                                className="min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm disabled:opacity-50 mb-2"
-                                onChange={(event) => {
-                                  assign(request.id, event.target.value, reqService);
-                                  event.target.value = "";
-                                }}
-                                defaultValue=""
-                              >
-                                <option value="">Assign {reqService}...</option>
-                                {approvedWorkers
-                                  .filter((worker) => {
-                                    const wServices = [worker.service_category_id, ...(worker.additional_services || [])].filter(Boolean);
-                                    return wServices.includes(reqService);
-                                  })
-                                  .sort((a, b) => Number((b.areas_covered || []).includes(request.area_id)) - Number((a.areas_covered || []).includes(request.area_id)))
-                                  .map((worker) => (
-                                    <option key={worker.id} value={worker.id}>
-                                      {worker.display_name}{(worker.areas_covered || []).includes(request.area_id) ? ' ✓ Area match' : ''}
-                                    </option>
+                        ) : (
+                          <>
+                            <div className={`flex flex-col gap-4 p-5 md:flex-row md:items-start md:justify-between ${
+                              request.status === 'completed' ? 'border-l-4 border-emerald-500 bg-emerald-50/40' :
+                              request.status === 'cancelled' ? 'border-l-4 border-red-500 bg-red-50/40' :
+                              request.status === 'assigned' ? 'border-l-4 border-amber-500 bg-amber-50/40' :
+                              'border-l-4 border-transparent'
+                            }`}>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-3">
+                                  <h3 className="text-lg font-bold text-slate-950">{request.service_categories?.name || request.service_category_id}</h3>
+                                  {(request.additional_services || []).map(s => (
+                                    <span key={s} className="inline-flex rounded border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-800">{s}</span>
                                   ))}
-                              </select>
-                            );
-                          })}
-                          {request.status !== 'completed' && request.status !== 'cancelled' && (
-                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                              <label className="text-xs font-semibold text-slate-600">
-                                Job Value (Rs)
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={completionInputs[request.id]?.jobAmount || ''}
-                                  onChange={(event) => setCompletionInput(request.id, 'jobAmount', event.target.value)}
-                                  className="mt-1 min-h-9 w-full rounded-lg border border-slate-300 px-3 text-sm font-normal"
-                                />
-                              </label>
-                              <p className="mt-1 text-xs text-slate-500">
-                                10% commission: {formatRupees(Number(completionInputs[request.id]?.jobAmount || 0) * 0.1)}
-                              </p>
-                              <input
-                                value={completionInputs[request.id]?.notes || ''}
-                                onChange={(event) => setCompletionInput(request.id, 'notes', event.target.value)}
-                                placeholder="Optional note"
-                                className="mt-1 min-h-9 w-full rounded-lg border border-slate-300 px-3 text-sm"
-                              />
-                              <button
-                                onClick={() => complete(request.id)}
-                                disabled={actionKey === `request-${request.id}` || !request.lead_assignments?.some((item) => ['assigned', 'accepted'].includes(item.status))}
-                                className="mt-2 min-h-9 w-full rounded-lg bg-brand-700 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50 transition-colors"
-                              >
-                                Complete & Record
-                              </button>
+                                  <StatusBadge status={request.status} />
+                                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{request.areas?.name || request.area_id}</span>
+                                </div>
+                                <div className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+                                    <InfoRow label="Customer" value={request.customer_name} />
+                                  <InfoRow label="Phone" value={request.customer_phone} />
+                                  <InfoRow label="Urgency" value={request.urgency} />
+                                  {request.preferred_time && <InfoRow label="Preferred time" value={request.preferred_time} />}
+                                </div>
+                                <p className="mt-3 text-sm leading-relaxed text-slate-700">{request.problem_description}</p>
+                                {!!request.lead_assignments?.length && (
+                                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg bg-brand-50 px-4 py-2.5 text-sm">
+                                    <span className="font-semibold text-brand-800">Assigned:</span>
+                                    {request.lead_assignments.map((assignment) => (
+                                      <span key={assignment.id} className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-brand-700">
+                                        {assignment.workers?.display_name} {assignment.assigned_service ? `(${assignment.assigned_service})` : ''}
+                                        <button type="button" onClick={() => unassign(request.id, assignment.worker_id)} disabled={actionKey === `request-${request.id}`} className="hover:text-red-600 disabled:opacity-50 ml-1">
+                                          <X size={12} />
+                                        </button>
+                                      </span>
+                                    ))}
+                                  </div>
+                                 )}
+                              </div>
+                              <div className="grid shrink-0 gap-2 md:min-w-56">
+                                {request.status === 'completed' ? (
+                                  <div className="rounded-lg bg-emerald-50 px-4 py-2.5 text-center text-sm font-bold text-emerald-800">Completed</div>
+                                ) : (
+                                  <select
+                                    disabled={actionKey === `request-${request.id}`}
+                                    className="min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm disabled:opacity-50"
+                                    value={request.status}
+                                    onChange={(event) => setRequestStatus(request.id, event.target.value)}
+                                  >
+                                    {requestStatuses.map((status) => <option key={status}>{status}</option>)}
+                                  </select>
+                                )}
+                                {[request.service_category_id, ...(request.additional_services || [])].filter(Boolean).map((reqService, idx) => {
+                                  const isAlreadyAssigned = request.lead_assignments?.some(
+                                    (a) => a.assigned_service === reqService && ['assigned', 'accepted'].includes(a.status)
+                                  );
+                                  if (isAlreadyAssigned) return null;
+                                  return (
+                                    <select
+                                      key={idx}
+                                      disabled={actionKey === `request-${request.id}` || request.status === 'completed'}
+                                      className="min-h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm disabled:opacity-50 mb-2"
+                                      onChange={(event) => {
+                                        assign(request.id, event.target.value, reqService);
+                                        event.target.value = "";
+                                      }}
+                                      defaultValue=""
+                                    >
+                                      <option value="">Assign {reqService}...</option>
+                                      {approvedWorkers
+                                        .filter((worker) => {
+                                          const wServices = [worker.service_category_id, ...(worker.additional_services || [])].filter(Boolean);
+                                          return wServices.includes(reqService);
+                                        })
+                                        .sort((a, b) => Number((b.areas_covered || []).includes(request.area_id)) - Number((a.areas_covered || []).includes(request.area_id)))
+                                        .map((worker) => (
+                                          <option key={worker.id} value={worker.id}>
+                                            {worker.display_name}{(worker.areas_covered || []).includes(request.area_id) ? ' ✓ Area match' : ''}
+                                          </option>
+                                        ))}
+                                    </select>
+                                  );
+                                })}
+                                 {request.status === 'completed' && (
+                                   <button
+                                     onClick={() => handleInvoice(request)}
+                                     disabled={invoiceActionKey === `invoice-${request.id}`}
+                                     className="min-h-9 w-full rounded-lg bg-emerald-700 text-xs font-bold text-white hover:bg-emerald-600 disabled:opacity-50 transition-colors"
+                                   >
+                                     {invoiceActionKey === `invoice-${request.id}` ? 'Generating...' : (invoiceFor(request) ? 'Get Invoice' : 'Generate Invoice')}
+                                   </button>
+                                 )}
+                                 {request.status !== 'completed' && request.status !== 'cancelled' && (
+                                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                                     <label className="text-xs font-semibold text-slate-600">
+                                       Job Value (Rs)
+                                       <input
+                                         type="number"
+                                         min="1"
+                                         value={completionInputs[request.id]?.jobAmount || ''}
+                                         onChange={(event) => setCompletionInput(request.id, 'jobAmount', event.target.value)}
+                                         className="mt-1 min-h-9 w-full rounded-lg border border-slate-300 px-3 text-sm font-normal"
+                                       />
+                                     </label>
+                                     <p className="mt-1 text-xs text-slate-500">
+                                       {getCommissionRate(request)}% commission: {formatRupees(Number(completionInputs[request.id]?.jobAmount || 0) * getCommissionRate(request) / 100)}
+                                     </p>
+                                     <input
+                                       value={completionInputs[request.id]?.notes || ''}
+                                       onChange={(event) => setCompletionInput(request.id, 'notes', event.target.value)}
+                                       placeholder="Optional note"
+                                       className="mt-1 min-h-9 w-full rounded-lg border border-slate-300 px-3 text-sm"
+                                     />
+                                     <button
+                                       onClick={() => complete(request.id)}
+                                       disabled={actionKey === `request-${request.id}` || !request.lead_assignments?.some((item) => ['assigned', 'accepted'].includes(item.status))}
+                                       className="mt-2 min-h-9 w-full rounded-lg bg-brand-700 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50 transition-colors"
+                                     >
+                                       Complete & Record
+                                     </button>
+                                   </div>
+                                 )}
+                                <div className="flex gap-1.5">
+                                  <button
+                                    onClick={() => startRequestEdit(request)}
+                                    className="min-h-9 flex-1 rounded-lg bg-blue-100 text-xs font-bold text-blue-700 hover:bg-blue-200 transition-colors"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    disabled={actionKey === `request-${request.id}`}
+                                    onClick={() => note('request', request.id)}
+                                    className="min-h-9 flex-1 rounded-lg bg-slate-800 text-xs font-bold text-white hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                                  >
+                                    Note
+                                  </button>
+                                  <button
+                                    disabled={actionKey === `request-${request.id}`}
+                                    onClick={() => removeRequest(request)}
+                                    className="inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-300 bg-white text-xs font-bold text-red-700 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                                  >
+                                    <Trash2 size={14} />
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
                             </div>
-                          )}
-                          <div className="flex gap-1.5">
-                            <button
-                              onClick={() => startRequestEdit(request)}
-                              className="min-h-9 flex-1 rounded-lg bg-blue-100 text-xs font-bold text-blue-700 hover:bg-blue-200 transition-colors"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              disabled={actionKey === `request-${request.id}`}
-                              onClick={() => note('request', request.id)}
-                              className="min-h-9 flex-1 rounded-lg bg-slate-800 text-xs font-bold text-white hover:bg-slate-700 disabled:opacity-50 transition-colors"
-                            >
-                              Note
-                            </button>
-                            <button
-                              disabled={actionKey === `request-${request.id}`}
-                              onClick={() => removeRequest(request)}
-                              className="inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-300 bg-white text-xs font-bold text-red-700 hover:bg-red-50 disabled:opacity-50 transition-colors"
-                            >
-                              <Trash2 size={14} />
-                              Delete
-                            </button>
-                          </div>
-                        </div>
+                            <div className="border-t border-slate-100 px-5 py-4">
+                              <AssetGallery assets={(request.request_photos || []).map((photo, index) => ({ label: `Problem ${index + 1}`, url: photo.signed_url }))} />
+                              {request.status === 'cancelled' && (request.cancellation_reason || request.cancelled_at) && (
+                                <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                  <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Cancelled</p>
+                                  {request.cancellation_reason ? (
+                                    <p className="whitespace-pre-wrap break-words text-sm text-slate-700">{request.cancellation_reason}</p>
+                                  ) : (
+                                    <p className="text-sm text-slate-500">No cancellation reason recorded.</p>
+                                  )}
+                                  {request.cancelled_at && (
+                                    <p className="mt-1 text-xs text-slate-400">Cancelled at {new Date(request.cancelled_at).toLocaleString()}</p>
+                                  )}
+                                </div>
+                              )}
+                              <Notes items={notesFor('request', request.id)} />
+                            </div>
+                          </>
+                        )}
                       </div>
-                        </>
-                      )}
-                      <div className="border-t border-slate-100 px-5 py-4">
-                        <AssetGallery assets={(request.request_photos || []).map((photo, index) => ({ label: `Problem ${index + 1}`, url: photo.signed_url }))} />
-                        {request.status === 'cancelled' && (request.cancellation_reason || request.cancelled_at) && (
-                          <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                            <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Cancelled</p>
-                            {request.cancellation_reason ? (
-                              <p className="whitespace-pre-wrap break-words text-sm text-slate-700">{request.cancellation_reason}</p>
-                            ) : (
-                              <p className="text-sm text-slate-500">No cancellation reason recorded.</p>
-                            )}
-                            {request.cancelled_at && (
-                              <p className="mt-1 text-xs text-slate-400">Cancelled at {new Date(request.cancelled_at).toLocaleString()}</p>
-                            )}
+                    );
+
+                    return (
+                      <Fragment key={request.id}>
+                        {card}
+                        {showDivider && (
+                          <div key={`divider-${request.id}`} className="rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-center">
+                            <p className="text-sm font-bold text-brand-800">15% Platform Commission Effective from September 12, 2026</p>
+                            <p className="mt-1 text-xs text-brand-700">Requests submitted before September 12 remain on the previous 10% commission rate. Requests submitted from September 13 onward are calculated at 15%.</p>
                           </div>
                         )}
-                        <Notes items={notesFor('request', request.id)} />
-                      </div>
-                    </div>
-                  ))}
+                      </Fragment>
+                    );
+                  })}
                   {!filteredRequests.length && (
                     <Empty text={data.requests.length === 0 ? 'No service requests yet. Customer submissions will appear here.' : 'No requests match your filters.'} />
                   )}
@@ -1236,6 +1323,114 @@ export function AdminPanel() {
                       ))}
                       {!data.commissions.length && (
                         <tr><td colSpan="5" className="px-4 py-8 text-center text-sm text-slate-500">No completed-job commission entries yet.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ===== MONTHLY PLATFORM FEE TAB ===== */}
+        {activeTab === 'monthlyFees' && (
+          <section id="monthlyFees" className="scroll-mt-20">
+            <div className="rounded-lg border border-slate-200 bg-white">
+              <div className="border-b border-slate-200 px-5 py-4">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-slate-950">
+                  <CheckCheck size={20} className="text-brand-700" />
+                  Monthly Platform Fee
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">{data.monthlyFees.length} entries</span>
+                </h2>
+              </div>
+              <div className="p-5">
+                <p className="mb-4 text-sm text-slate-500">Rs. 300 per worker per month, effective from September 10, 2026.</p>
+                <form onSubmit={(event) => { event.preventDefault(); runAction('monthly-fee-new', () => createMonthlyPlatformFee(monthlyFeeForm), ['monthlyFees']); }} className="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2 lg:grid-cols-5">
+                  <select
+                    value={monthlyFeeForm.worker_id}
+                    onChange={(event) => setMonthlyFeeForm((current) => ({ ...current, worker_id: event.target.value }))}
+                    className="min-h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+                    required
+                  >
+                    <option value="">Select worker</option>
+                    {data.workers.map((worker) => (
+                      <option key={worker.id} value={worker.id}>{worker.display_name}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    value={monthlyFeeForm.month}
+                    onChange={(event) => setMonthlyFeeForm((current) => ({ ...current, month: event.target.value }))}
+                    placeholder="Month (YYYY-MM)"
+                    className="min-h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+                    required
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={monthlyFeeForm.amount}
+                    onChange={(event) => setMonthlyFeeForm((current) => ({ ...current, amount: event.target.value }))}
+                    placeholder="Amount"
+                    className="min-h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+                    required
+                  />
+                  <button disabled={actionKey === 'monthly-fee-new'} className="min-h-10 rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50 transition-colors">
+                    {actionKey === 'monthly-fee-new' ? 'Adding...' : 'Add Monthly Fee'}
+                  </button>
+                </form>
+                <div className="overflow-x-auto rounded-lg border border-slate-200">
+                  <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold text-slate-600">Worker</th>
+                        <th className="px-4 py-3 font-semibold text-slate-600">Service</th>
+                        <th className="px-4 py-3 font-semibold text-slate-600">Monthly Fee</th>
+                        <th className="px-4 py-3 font-semibold text-slate-600">Month</th>
+                        <th className="px-4 py-3 font-semibold text-slate-600">Status</th>
+                        <th className="px-4 py-3 font-semibold text-slate-600">Payment Date</th>
+                        <th className="px-4 py-3 font-semibold text-slate-600">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {data.monthlyFees.map((fee) => (
+                        <tr key={fee.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-4 py-3 font-semibold text-slate-900">{fee.workers?.display_name || 'Unknown Worker'}</td>
+                          <td className="px-4 py-3 text-slate-700">{fee.workers?.service_categories?.name || '-'}</td>
+                          <td className="px-4 py-3 text-slate-700">{formatRupees(fee.amount)}</td>
+                          <td className="px-4 py-3 text-slate-700">{formatMonth(fee.month)}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                              fee.status === 'paid'
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : 'bg-amber-50 text-amber-700'
+                            }`}>
+                              {fee.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-xs text-slate-500">{fee.payment_date || '-'}</td>
+                          <td className="px-4 py-3">
+                            <select
+                              value={fee.status}
+                              onChange={(event) => runAction(
+                                `monthly-fee-${fee.id}`,
+                                () => updateMonthlyPlatformFee(fee.id, event.target.value),
+                                ['monthlyFees']
+                              )}
+                              className={`min-h-10 rounded-lg border px-3 text-sm font-medium ${
+                                fee.status === 'paid'
+                                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                  : 'border-amber-200 bg-amber-50 text-amber-700'
+                              }`}
+                            >
+                              <option value="pending">Pending</option>
+                              <option value="paid">Paid</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                      {!data.monthlyFees.length && (
+                        <tr><td colSpan="7" className="px-4 py-8 text-center text-sm text-slate-500">No monthly platform fee records yet.</td></tr>
                       )}
                     </tbody>
                   </table>
