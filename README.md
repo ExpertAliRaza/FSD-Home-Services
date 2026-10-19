@@ -75,8 +75,7 @@ This project uses a build-time Puppeteer pre-render step to generate static HTML
 6. If verification fails, the build fails
 
 **If pre-rendering breaks:**
-- Check that Chrome/Chromium is available in the build environment
-- On Vercel, the script falls back to `@sparticuz/chromium`
+- Check that Chrome/Chromium or Edge is available in the build environment
 - Run `npm run verify:prerender` after `npm run build` to re-check only
 - If pre-rendering cannot run, the build will fail rather than silently deploying empty HTML
 

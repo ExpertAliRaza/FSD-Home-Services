@@ -127,14 +127,8 @@ async function launchBrowser() {
   try {
     return await puppeteer.launch(launchOptions);
   } catch (error) {
-    console.warn('⚠️ Standard Puppeteer launch failed, attempting fallback...', error.message);
-    try {
-      const { chromium } = await import('@sparticuz/chromium');
-      return await chromium.launch(launchOptions);
-    } catch (fallbackError) {
-      console.error('❌ Both standard Puppeteer and @sparticuz/chromium fallback failed.', fallbackError.message);
-      throw new Error('No headless browser available for pre-rendering.');
-    }
+    console.error('❌ Puppeteer launch failed:', error.message);
+    throw new Error('No headless browser available for pre-rendering.');
   }
 }
 
