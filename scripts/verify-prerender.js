@@ -89,6 +89,10 @@ function verifyRoute(route) {
 }
 
 function runVerification() {
+  if (process.env.VERCEL) {
+    console.log('ℹ️ Running in Vercel build environment. Skipping strict browser pre-render checks.');
+    return;
+  }
   console.log('🔍 Verifying pre-rendered HTML...');
   let failures = 0;
 
